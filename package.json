@@ -20,10 +20,12 @@
         "globals": "^16.0.0",
         "laravel-vite-plugin": "^1.0",
         "prettier": "^3.5.3",
+        "tailwindcss": "^4.2.1",
         "vite": "^5.0"
     },
     "dependencies": {
         "@inertiajs/react": "^1.2.0",
+        "primereact": "^10.9.7",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     },
