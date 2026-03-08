@@ -14,3 +14,4 @@ public/hot
 public/storage
 npm-debug.log
 yarn-error.log
+bootstrap/cache/*.php
