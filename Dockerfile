@@ -16,7 +16,6 @@ FROM node:20-bookworm-slim AS frontend_build
 WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
 
 RUN corepack enable && corepack prepare yarn@4.13.0 --activate
 RUN yarn install --immutable
