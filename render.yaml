@@ -20,9 +20,17 @@ services:
       - key: LOG_LEVEL
         value: info
       - key: DB_CONNECTION
-        value: sqlite
+        value: mariadb
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: '3306'
       - key: DB_DATABASE
-        value: /tmp/database.sqlite
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
       - key: SESSION_DRIVER
         value: file
       - key: CACHE_STORE
@@ -30,4 +38,4 @@ services:
       - key: QUEUE_CONNECTION
         value: sync
       - key: RUN_MIGRATIONS
-        value: 'false'
+        value: 'true'
