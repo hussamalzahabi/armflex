@@ -13,9 +13,9 @@ Set these in Render before first successful boot:
 
 - `APP_KEY` (required): generate with `php artisan key:generate --show`
 - `APP_URL` (required): your Render URL, e.g. `https://armflex.onrender.com`
-- `DB_CONNECTION=mariadb`
-- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (required for MariaDB)
-- `SESSION_DRIVER=file` (recommended to avoid DB session boot failures)
+- `DB_CONNECTION=pgsql`
+- `DB_HOST`, `DB_PORT=5432`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` (from Render Postgres "Connections")
+- `SESSION_DRIVER=database`
 
 Already configured by `render.yaml`:
 
@@ -33,12 +33,13 @@ Already configured by `render.yaml`:
 - Auto-migrate is enabled by default (`RUN_MIGRATIONS=true`).
 - Entry point runs `php artisan migrate --force` before starting the server.
 
-## Fix Existing Production 500 On Login
+## Fix Existing Production DB Errors
 
-If login returns 500 and logs mention `sessions` / `SQLSTATE[1045]`:
+If deploy logs show DB connection errors:
 
 1. In Render service env vars, set:
-   - `SESSION_DRIVER=file`
-   - valid MariaDB values for `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+   - `DB_CONNECTION=pgsql`
+   - `DB_HOST`, `DB_PORT=5432`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` from Postgres
+   - `SESSION_DRIVER=database`
 2. Redeploy the service.
 3. Restart the service once after env updates so Laravel boots with the new config.
