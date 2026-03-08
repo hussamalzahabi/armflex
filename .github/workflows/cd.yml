@@ -1,22 +1,29 @@
-name: CI
+name: CD
 
 on:
-  pull_request:
-  push:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
     branches:
       - main
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: cd-${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  commit_stage:
+  acceptance_tests:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -51,24 +58,18 @@ jobs:
       - name: Install JS dependencies
         run: yarn install --immutable
 
+      - name: Build frontend assets
+        run: yarn build
+
       - name: Prepare test database
         run: |
           mkdir -p database
           touch database/database.sqlite
 
-      - name: PHP lint (Pint)
-        run: composer run lint:php
-
-      - name: Frontend lint
-        run: yarn lint
-
-      - name: Frontend build
-        run: yarn build
-
-      - name: Run unit tests
+      - name: Run acceptance tests (feature suite)
         env:
           APP_ENV: testing
           APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: php artisan test --parallel --testsuite=Unit
+        run: php artisan test --parallel --testsuite=Feature
