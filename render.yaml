@@ -19,5 +19,15 @@ services:
         value: stderr
       - key: LOG_LEVEL
         value: info
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /tmp/database.sqlite
+      - key: SESSION_DRIVER
+        value: file
+      - key: CACHE_STORE
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
       - key: RUN_MIGRATIONS
         value: 'false'

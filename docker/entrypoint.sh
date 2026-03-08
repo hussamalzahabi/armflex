@@ -11,6 +11,12 @@ mkdir -p \
   storage/logs \
   bootstrap/cache
 
+if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
+  DB_PATH="${DB_DATABASE:-/tmp/database.sqlite}"
+  mkdir -p "$(dirname "$DB_PATH")"
+  touch "$DB_PATH"
+fi
+
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
   php artisan migrate --force
 fi
