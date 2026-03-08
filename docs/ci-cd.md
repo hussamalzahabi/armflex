@@ -2,7 +2,7 @@
 
 This repo now has:
 
-- `CI` workflow: commit stage (lint, tests, frontend build)
+- `CI-CD` workflow: commit stage (lint, tests, frontend build, acceptance, Postgres compatibility)
 - `CD` workflow: build once, deploy to staging, smoke test, optional production promotion
 
 ## Required GitHub Environments
