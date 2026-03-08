@@ -59,6 +59,12 @@ jobs:
       - name: PHP lint (Pint)
         run: composer run lint:php
 
+      - name: Frontend lint
+        run: yarn lint
+
+      - name: Frontend build
+        run: yarn build
+
       - name: Run Laravel tests
         env:
           APP_ENV: testing
@@ -66,9 +72,3 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan test --parallel
-
-      - name: Frontend lint
-        run: yarn lint
-
-      - name: Frontend build
-        run: yarn build
