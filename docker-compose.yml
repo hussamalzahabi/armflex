@@ -1,0 +1,39 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: armflex:local
+        container_name: armflex-app
+        depends_on:
+            db:
+                condition: service_healthy
+        ports:
+            - '10000:10000'
+        env_file:
+            - .env.docker
+        environment:
+            RUN_MIGRATIONS: 'true'
+        restart: unless-stopped
+
+    db:
+        image: mariadb:11
+        container_name: armflex-db
+        environment:
+            MARIADB_DATABASE: armflex
+            MARIADB_USER: armflex
+            MARIADB_PASSWORD: armflex
+            MARIADB_ROOT_PASSWORD: root
+        ports:
+            - '3307:3306'
+        volumes:
+            - armflex_db_data:/var/lib/mysql
+        healthcheck:
+            test: ['CMD', 'mariadb-admin', 'ping', '-h', 'localhost', '-uroot', '-proot']
+            interval: 5s
+            timeout: 3s
+            retries: 20
+        restart: unless-stopped
+
+volumes:
+    armflex_db_data:
