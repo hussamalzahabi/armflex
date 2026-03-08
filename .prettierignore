@@ -1,0 +1,5 @@
+node_modules
+vendor
+public/build
+bootstrap/cache
+storage
