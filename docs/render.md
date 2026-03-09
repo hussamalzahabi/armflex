@@ -23,6 +23,7 @@ Already configured by `render.yaml`:
 - `APP_DEBUG=false`
 - `LOG_CHANNEL=stderr`
 - `RUN_MIGRATIONS=true`
+- `RUN_SEEDERS=true`
 
 ## Health Check
 
@@ -32,6 +33,12 @@ Already configured by `render.yaml`:
 
 - Auto-migrate is enabled by default (`RUN_MIGRATIONS=true`).
 - Entry point runs `php artisan migrate --force` before starting the server.
+
+## Seeders
+
+- Auto-seeding is enabled by default (`RUN_SEEDERS=true`).
+- Entry point runs `php artisan db:seed --force` before starting the server.
+- Seeder data is idempotent for equipment seed records.
 
 ## Fix Existing Production DB Errors
 

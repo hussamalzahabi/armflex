@@ -17,11 +17,15 @@ class DatabaseSeeder extends Seeder
             EquipmentSeeder::class,
         ]);
 
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Keep demo user scoped to non-production environments.
+        if (app()->environment(['local', 'testing'])) {
+            User::query()->firstOrCreate(
+                ['email' => 'test@example.com'],
+                [
+                    'name' => 'Test User',
+                    'password' => 'password',
+                ]
+            );
+        }
     }
 }

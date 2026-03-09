@@ -39,3 +39,5 @@ services:
         value: sync
       - key: RUN_MIGRATIONS
         value: 'true'
+      - key: RUN_SEEDERS
+        value: 'true'
