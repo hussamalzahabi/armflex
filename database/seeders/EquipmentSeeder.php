@@ -19,7 +19,6 @@ class EquipmentSeeder extends Seeder
             'Multispinner',
             'Eccentric Handle',
             'Table Strap',
-            'Minimal equipment (bands only)',
         ];
 
         foreach ($equipmentNames as $name) {

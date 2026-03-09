@@ -24,7 +24,6 @@ class UserProfileController extends Controller
                     'Barbell',
                     'Cable Machine',
                     'Resistance Bands',
-                    'Minimal equipment (bands only)',
                 ],
             ],
             [
