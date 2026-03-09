@@ -163,12 +163,15 @@ Testing is required for all core features.
 
 Use Laravel's testing framework with PHPUnit.
 
+Testing should focus on behaviors and observable outcomes rather than internal technical implementation details.
+
 Two types of tests should be written when appropriate:
 
 Unit Tests
 - Test isolated business logic
 - Test services, helpers, and rule-based logic
 - Should not rely on database state when avoidable
+- At the unit-test level, BDD means testing the contract and observable outcome of the unit from the client perspective.
 
 Feature / Acceptance Tests
 - Test full application behavior
@@ -192,6 +195,7 @@ Agents should follow these testing rules:
 - Add tests for new business logic
 - Prefer **Feature tests** for API or controller behavior
 - Prefer **Unit tests** for algorithmic logic
+- Write behavior-first tests; assert externally visible behavior, not private implementation details
 - Tests must pass CI/CD checks
 - Do not remove existing tests unless they are invalid
 
