@@ -37,6 +37,7 @@ class UserProfileTest extends TestCase
         $response = $this->actingAs($user)->put('/profile', [
             'dominant_arm' => 'right',
             'experience_level' => 'beginner',
+            'style' => 'toproll',
             'weight_kg' => 92.5,
             'training_days_per_week' => 4,
             'notes' => 'Focus on pronation and back pressure.',
@@ -48,6 +49,7 @@ class UserProfileTest extends TestCase
             'user_id' => $user->id,
             'dominant_arm' => 'right',
             'experience_level' => 'beginner',
+            'style' => 'toproll',
             'training_days_per_week' => 4,
         ]);
         $this->assertDatabaseHas('user_equipments', [
@@ -62,6 +64,7 @@ class UserProfileTest extends TestCase
         $updateResponse = $this->actingAs($user)->put('/profile', [
             'dominant_arm' => 'left',
             'experience_level' => 'intermediate',
+            'style' => 'press',
             'weight_kg' => 95,
             'training_days_per_week' => 5,
             'notes' => 'Increase table time volume.',
@@ -73,6 +76,7 @@ class UserProfileTest extends TestCase
             'user_id' => $user->id,
             'dominant_arm' => 'left',
             'experience_level' => 'intermediate',
+            'style' => 'press',
             'training_days_per_week' => 5,
         ]);
         $this->assertDatabaseCount('user_profiles', 1);
@@ -100,6 +104,7 @@ class UserProfileTest extends TestCase
         $response = $this->actingAs($user)->put('/profile', [
             'dominant_arm' => 'invalid',
             'experience_level' => 'expert',
+            'style' => 'inside',
             'weight_kg' => 10,
             'training_days_per_week' => 9,
         ]);
@@ -107,6 +112,7 @@ class UserProfileTest extends TestCase
         $response->assertSessionHasErrors([
             'dominant_arm',
             'experience_level',
+            'style',
             'weight_kg',
             'training_days_per_week',
         ]);

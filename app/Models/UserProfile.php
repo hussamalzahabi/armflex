@@ -14,6 +14,7 @@ class UserProfile extends Model
         'user_id',
         'dominant_arm',
         'experience_level',
+        'style',
         'weight_kg',
         'training_days_per_week',
         'notes',

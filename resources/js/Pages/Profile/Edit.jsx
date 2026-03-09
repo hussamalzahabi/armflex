@@ -20,13 +20,22 @@ const experienceOptions = [
     { label: 'Advanced', value: 'advanced' },
 ];
 
-const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
+const defaultStyleOptions = [
+    { label: 'Toproll', value: 'toproll' },
+    { label: 'Hook', value: 'hook' },
+    { label: 'Press', value: 'press' },
+    { label: 'Mixed', value: 'mixed' },
+];
+
+const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds }) => {
     const toast = useRef(null);
     const { isDark } = useTheme();
     const labelClass = `block text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`;
+    const resolvedStyleOptions = styleOptions?.length ? styleOptions : defaultStyleOptions;
     const { data, setData, put, processing, errors } = useForm({
         dominant_arm: profile?.dominant_arm ?? 'right',
         experience_level: profile?.experience_level ?? 'beginner',
+        style: profile?.style ?? undefined,
         weight_kg: profile?.weight_kg ? Number(profile.weight_kg) : null,
         training_days_per_week: profile?.training_days_per_week ?? null,
         notes: profile?.notes ?? '',
@@ -102,6 +111,40 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                                 className="w-full"
                             />
                             {errors.experience_level && <small className="text-red-600">{errors.experience_level}</small>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className={labelClass}>
+                                Style
+                            </label>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {resolvedStyleOptions.map((option) => {
+                                    const radioId = `style-${option.value}`;
+                                    const isSelected = data.style === option.value;
+
+                                    return (
+                                        <label
+                                            key={option.value}
+                                            htmlFor={radioId}
+                                            className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 ${
+                                                isDark
+                                                    ? 'border border-slate-600 bg-slate-700 hover:bg-slate-600'
+                                                    : 'border border-slate-300 bg-white hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            <input
+                                                id={radioId}
+                                                type="radio"
+                                                name="style"
+                                                checked={isSelected}
+                                                onChange={() => setData('style', option.value)}
+                                            />
+                                            <span className={`text-sm ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>{option.label}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                            {errors.style && <small className="text-red-600">{errors.style}</small>}
                         </div>
 
                         <div className="space-y-2">

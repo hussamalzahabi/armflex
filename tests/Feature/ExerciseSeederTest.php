@@ -47,5 +47,15 @@ class ExerciseSeederTest extends TestCase
             0,
             Exercise::query()->doesntHave('equipments')->count()
         );
+
+        $this->assertDatabaseHas('exercise_styles', [
+            'exercise_id' => $exercise->id,
+            'style' => 'toproll',
+        ]);
+
+        $this->assertSame(
+            0,
+            Exercise::query()->doesntHave('styles')->count()
+        );
     }
 }

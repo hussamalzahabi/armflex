@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exercise extends Model
 {
@@ -26,5 +27,10 @@ class Exercise extends Model
     public function equipments(): BelongsToMany
     {
         return $this->belongsToMany(Equipment::class, 'exercise_equipment');
+    }
+
+    public function styles(): HasMany
+    {
+        return $this->hasMany(ExerciseStyle::class);
     }
 }

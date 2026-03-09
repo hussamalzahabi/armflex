@@ -17,6 +17,7 @@ vi.mock('@inertiajs/react', () => ({
         data: {
             dominant_arm: 'right',
             experience_level: 'beginner',
+            style: 'toproll',
             weight_kg: 90,
             training_days_per_week: 4,
             notes: '',
@@ -92,18 +93,38 @@ describe('Profile edit page', () => {
             items: [{ id: 1, name: 'Dumbbells' }],
         },
     ];
+    const styleOptions = [
+        { label: 'Toproll', value: 'toproll' },
+        { label: 'Hook', value: 'hook' },
+    ];
 
     it('should_render_equipment_and_profile_form_sections', () => {
-        render(<Edit profile={null} equipmentCategories={equipmentCategories} selectedEquipmentIds={[]} />);
+        render(
+            <Edit
+                profile={null}
+                styleOptions={styleOptions}
+                equipmentCategories={equipmentCategories}
+                selectedEquipmentIds={[]}
+            />
+        );
 
         expect(screen.getByRole('heading', { name: 'Training Profile' })).toBeInTheDocument();
+        expect(screen.getByText('Style')).toBeInTheDocument();
+        expect(screen.getByText('Toproll')).toBeInTheDocument();
         expect(screen.getByText('Equipment available')).toBeInTheDocument();
         expect(screen.getByText('General Gym Equipment')).toBeInTheDocument();
         expect(screen.getByText('Dumbbells')).toBeInTheDocument();
     });
 
     it('should_put_profile_request_when_save_is_submitted', () => {
-        render(<Edit profile={null} equipmentCategories={equipmentCategories} selectedEquipmentIds={[]} />);
+        render(
+            <Edit
+                profile={null}
+                styleOptions={styleOptions}
+                equipmentCategories={equipmentCategories}
+                selectedEquipmentIds={[]}
+            />
+        );
 
         fireEvent.click(screen.getByRole('button', { name: 'Save profile' }));
 

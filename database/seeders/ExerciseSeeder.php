@@ -21,6 +21,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Cable Machine'],
+                'styles' => ['toproll'],
             ],
             [
                 'name' => 'Band Rising Holds',
@@ -30,6 +31,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Resistance Bands'],
+                'styles' => ['toproll', 'mixed'],
             ],
             [
                 'name' => 'Wrist Wrench Pronation Curl',
@@ -39,6 +41,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'intermediate',
                 'is_active' => true,
                 'equipment' => ['Wrist Wrench', 'Cable Machine'],
+                'styles' => ['toproll'],
             ],
             [
                 'name' => 'Band Pronation Pulses',
@@ -48,6 +51,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Resistance Bands'],
+                'styles' => ['toproll', 'mixed'],
             ],
             [
                 'name' => 'Rolling Handle Cup Curl',
@@ -57,6 +61,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'intermediate',
                 'is_active' => true,
                 'equipment' => ['Rolling Handle', 'Cable Machine'],
+                'styles' => ['hook'],
             ],
             [
                 'name' => 'Dumbbell Wrist Curls',
@@ -66,6 +71,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Dumbbells'],
+                'styles' => ['hook', 'press', 'mixed'],
             ],
             [
                 'name' => 'Eccentric Fingertip Hold',
@@ -75,6 +81,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'intermediate',
                 'is_active' => true,
                 'equipment' => ['Eccentric Handle'],
+                'styles' => ['hook'],
             ],
             [
                 'name' => 'Band Finger Containment Hold',
@@ -84,6 +91,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Resistance Bands'],
+                'styles' => ['hook', 'mixed'],
             ],
             [
                 'name' => 'Seated Cable Back Pressure Row',
@@ -93,6 +101,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Cable Machine'],
+                'styles' => ['toproll', 'hook', 'press', 'mixed'],
             ],
             [
                 'name' => 'Table Strap Back Pressure Drag',
@@ -102,6 +111,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'intermediate',
                 'is_active' => true,
                 'equipment' => ['Table Strap', 'Cable Machine'],
+                'styles' => ['hook', 'press'],
             ],
             [
                 'name' => 'Cable Side Pressure Press',
@@ -111,6 +121,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'intermediate',
                 'is_active' => true,
                 'equipment' => ['Cable Machine'],
+                'styles' => ['press', 'hook'],
             ],
             [
                 'name' => 'Band Side Pressure Isometric',
@@ -120,6 +131,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Resistance Bands'],
+                'styles' => ['press', 'mixed'],
             ],
             [
                 'name' => 'Multispinner Rotation Pull',
@@ -129,6 +141,7 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'intermediate',
                 'is_active' => true,
                 'equipment' => ['Multispinner', 'Cable Machine'],
+                'styles' => ['mixed'],
             ],
             [
                 'name' => 'Barbell Wrist Roller',
@@ -138,12 +151,15 @@ class ExerciseSeeder extends Seeder
                 'difficulty_level' => 'beginner',
                 'is_active' => true,
                 'equipment' => ['Barbell'],
+                'styles' => ['mixed'],
             ],
         ];
 
         foreach ($exercises as $exerciseData) {
             $requiredEquipment = $exerciseData['equipment'];
+            $exerciseStyles = $exerciseData['styles'];
             unset($exerciseData['equipment']);
+            unset($exerciseData['styles']);
 
             $exercise = Exercise::query()->updateOrCreate(
                 ['slug' => $exerciseData['slug']],
@@ -157,6 +173,12 @@ class ExerciseSeeder extends Seeder
                 ->all();
 
             $exercise->equipments()->sync($equipmentIds);
+            $exercise->styles()->delete();
+            $exercise->styles()->createMany(
+                collect($exerciseStyles)
+                    ->map(fn (string $style) => ['style' => $style])
+                    ->all()
+            );
         }
     }
 }
