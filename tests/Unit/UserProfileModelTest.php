@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class UserProfileModelTest extends TestCase
 {
-    public function test_user_profile_model_has_expected_casts_and_fillable_fields(): void
+    public function test_user_profile_model_should_have_expected_casts_and_fillable_fields(): void
     {
         $profile = new UserProfile;
 

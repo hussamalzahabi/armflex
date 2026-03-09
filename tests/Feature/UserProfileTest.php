@@ -10,14 +10,14 @@ class UserProfileTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guest_cannot_access_profile_page(): void
+    public function test_guest_should_not_access_profile_page(): void
     {
         $response = $this->get('/profile');
 
         $response->assertRedirect('/login');
     }
 
-    public function test_authenticated_user_can_view_profile_page(): void
+    public function test_authenticated_user_should_view_profile_page(): void
     {
         $user = User::factory()->create();
 
@@ -26,7 +26,7 @@ class UserProfileTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_authenticated_user_can_create_or_update_profile(): void
+    public function test_authenticated_user_should_create_or_update_profile(): void
     {
         $user = User::factory()->create();
 
@@ -64,7 +64,7 @@ class UserProfileTest extends TestCase
         $this->assertDatabaseCount('user_profiles', 1);
     }
 
-    public function test_guest_cannot_update_profile(): void
+    public function test_guest_should_not_update_profile(): void
     {
         $response = $this->put('/profile', [
             'dominant_arm' => 'right',
@@ -74,7 +74,7 @@ class UserProfileTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    public function test_profile_update_requires_valid_values(): void
+    public function test_profile_update_should_require_valid_values(): void
     {
         $user = User::factory()->create();
 

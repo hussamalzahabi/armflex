@@ -197,6 +197,7 @@ Agents should follow these testing rules:
 - Prefer **Feature tests** for API or controller behavior
 - Prefer **Unit tests** for algorithmic logic
 - Write behavior-first tests; assert externally visible behavior, not private implementation details
+- Use behavior-style test names with the word `should` (for example: `test_user_should_register`)
 - Tests must pass CI/CD checks
 - Do not remove existing tests unless they are invalid
 

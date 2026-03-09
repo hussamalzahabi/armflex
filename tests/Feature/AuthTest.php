@@ -10,7 +10,7 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_register(): void
+    public function test_user_should_register(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -26,7 +26,7 @@ class AuthTest extends TestCase
         ]);
     }
 
-    public function test_user_can_login(): void
+    public function test_user_should_login(): void
     {
         $user = User::factory()->create([
             'password' => 'password',
@@ -41,7 +41,7 @@ class AuthTest extends TestCase
         $response->assertRedirect('/');
     }
 
-    public function test_user_can_logout(): void
+    public function test_user_should_logout(): void
     {
         $user = User::factory()->create();
 
@@ -51,7 +51,7 @@ class AuthTest extends TestCase
         $response->assertRedirect('/login');
     }
 
-    public function test_user_cannot_register_with_duplicate_email(): void
+    public function test_user_should_not_register_with_duplicate_email(): void
     {
         User::factory()->create([
             'email' => 'test@example.com',
@@ -67,7 +67,7 @@ class AuthTest extends TestCase
         $response->assertSessionHasErrors('email');
     }
 
-    public function test_user_cannot_login_with_invalid_password(): void
+    public function test_user_should_not_login_with_invalid_password(): void
     {
         $user = User::factory()->create([
             'password' => 'password',
