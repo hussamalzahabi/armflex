@@ -72,7 +72,9 @@ vi.mock('primereact/checkbox', () => ({
 }));
 
 vi.mock('primereact/toast', () => ({
-    Toast: React.forwardRef(() => null),
+    Toast: Object.assign(React.forwardRef(function ToastMock() {
+        return null;
+    }), { displayName: 'ToastMock' }),
 }));
 
 vi.mock('@/hooks/useTheme', () => ({
