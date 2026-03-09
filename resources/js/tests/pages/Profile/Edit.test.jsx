@@ -28,6 +28,16 @@ vi.mock('@inertiajs/react', () => ({
         processing: false,
         errors: {},
     }),
+    usePage: () => ({
+        props: {
+            auth: {
+                user: {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                },
+            },
+        },
+    }),
 }));
 
 vi.mock('primereact/card', () => ({
@@ -108,7 +118,7 @@ describe('Profile edit page', () => {
             />
         );
 
-        expect(screen.getByRole('heading', { name: 'Training Profile' })).toBeInTheDocument();
+        expect(screen.getAllByRole('heading', { name: 'Training Profile' }).length).toBeGreaterThan(0);
         expect(screen.getByText('Style')).toBeInTheDocument();
         expect(screen.getByText('Toproll')).toBeInTheDocument();
         expect(screen.getByText('Equipment available')).toBeInTheDocument();

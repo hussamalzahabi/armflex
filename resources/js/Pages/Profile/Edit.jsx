@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { useRef } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -7,6 +7,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
+import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
 const dominantArmOptions = [
@@ -77,10 +78,15 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
         <>
             <Head title="Training Profile" />
             <Toast ref={toast} />
-            <main className={`flex min-h-screen items-center justify-center px-4 py-10 ${isDark ? 'bg-slate-900' : 'bg-slate-100'}`}>
+            <AppLayout
+                title="Training Profile"
+                breadcrumb={[
+                    { label: 'Dashboard', href: '/' },
+                    { label: 'Profile' },
+                ]}
+            >
                 <Card
-                    title="Training Profile"
-                    className={`w-full max-w-xl ${isDark ? 'border border-slate-700 bg-slate-800 text-slate-100' : 'bg-white text-slate-900'}`}
+                    className={`w-full rounded-3xl ${isDark ? 'border border-slate-700 bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'border border-slate-200 bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
                 >
                     <form onSubmit={submit} className="p-fluid space-y-5">
                         <div className="space-y-2">
@@ -126,10 +132,10 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                                         <label
                                             key={option.value}
                                             htmlFor={radioId}
-                                            className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 ${
+                                            className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 ${
                                                 isDark
                                                     ? 'border border-slate-600 bg-slate-700 hover:bg-slate-600'
-                                                    : 'border border-slate-300 bg-white hover:bg-slate-50'
+                                                    : 'border border-slate-300 bg-slate-50 hover:bg-slate-100'
                                             }`}
                                         >
                                             <input
@@ -211,10 +217,10 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                                                     <label
                                                         key={equipment.id}
                                                         htmlFor={checkboxId}
-                                                        className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 ${
+                                                        className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 ${
                                                             isDark
                                                                 ? 'border border-slate-600 bg-slate-700 hover:bg-slate-600'
-                                                                : 'border border-slate-300 bg-white hover:bg-slate-50'
+                                                                : 'border border-slate-300 bg-slate-50 hover:bg-slate-100'
                                                         }`}
                                                     >
                                                         <Checkbox
@@ -250,19 +256,10 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
 
                         <div className="flex flex-col gap-2 sm:flex-row">
                             <Button type="submit" label="Save profile" loading={processing} className="w-full sm:min-w-44" />
-                            <Link href="/" className="w-full sm:w-auto">
-                                <Button
-                                    type="button"
-                                    label="Back to Dashboard"
-                                    severity="secondary"
-                                    outlined
-                                    className="w-full sm:min-w-44"
-                                />
-                            </Link>
                         </div>
                     </form>
                 </Card>
-            </main>
+            </AppLayout>
         </>
     );
 };

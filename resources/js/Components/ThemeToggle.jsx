@@ -5,9 +5,11 @@ const ThemeToggle = ({ isDark, onToggle }) => {
         <Button
             type="button"
             label={isDark ? 'Light mode' : 'Dark mode'}
+            icon={isDark ? 'pi pi-sun' : 'pi pi-moon'}
             onClick={onToggle}
-            severity="secondary"
-            outlined={!isDark}
+            size="small"
+            outlined
+            className="app-theme-toggle"
         />
     );
 };

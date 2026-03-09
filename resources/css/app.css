@@ -11,6 +11,11 @@ body {
     min-height: 100%;
 }
 
+.p-card {
+    border-radius: 1.5rem;
+    overflow: hidden;
+}
+
 html[data-theme='dark'] .p-card {
     background: rgb(30 41 59);
     color: rgb(241 245 249);
@@ -51,6 +56,70 @@ html[data-theme='dark'] .p-dropdown-item:not(.p-highlight):not(.p-disabled):hove
 
 .p-toast {
     width: min(24rem, calc(100vw - 1.5rem));
+}
+
+.app-breadcrumb {
+    background: transparent;
+}
+
+.app-breadcrumb .p-menuitem-link {
+    text-decoration: none;
+    box-shadow: none;
+}
+
+.app-breadcrumb .p-menuitem-link:visited .p-menuitem-text {
+    color: inherit;
+}
+
+.app-breadcrumb .p-menuitem-link:focus {
+    box-shadow: none;
+}
+
+.app-breadcrumb-light .p-menuitem-text,
+.app-breadcrumb-light .p-breadcrumb-chevron {
+    color: rgb(100 116 139);
+}
+
+.app-breadcrumb-light .p-menuitem-link:hover .p-menuitem-text {
+    color: rgb(30 41 59);
+}
+
+.app-breadcrumb-dark .p-menuitem-text,
+.app-breadcrumb-dark .p-breadcrumb-chevron,
+.app-breadcrumb-dark .p-menuitem-icon {
+    color: rgb(148 163 184);
+}
+
+.app-breadcrumb-dark .p-menuitem-link:hover .p-menuitem-text {
+    color: rgb(226 232 240);
+}
+
+.app-sidebar-link {
+    text-decoration: none;
+}
+
+.app-theme-toggle {
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.app-theme-toggle:hover {
+    transform: translateY(-1px);
+}
+
+html[data-theme='dark'] .app-theme-toggle:hover {
+    background: rgb(51 65 85);
+    border-color: rgb(100 116 139);
+    color: rgb(241 245 249);
+}
+
+html[data-theme='light'] .app-theme-toggle:hover {
+    background: rgb(241 245 249);
+    border-color: rgb(100 116 139);
+    color: rgb(30 41 59);
 }
 
 @media (max-width: 640px) {
