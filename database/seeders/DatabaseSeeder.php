@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             EquipmentSeeder::class,
+            ExerciseSeeder::class,
         ]);
 
         // Keep demo user scoped to non-production environments.

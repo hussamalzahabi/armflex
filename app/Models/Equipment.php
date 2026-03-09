@@ -17,4 +17,9 @@ class Equipment extends Model
     {
         return $this->belongsToMany(User::class, 'user_equipments');
     }
+
+    public function exercises(): BelongsToMany
+    {
+        return $this->belongsToMany(Exercise::class, 'exercise_equipment');
+    }
 }
