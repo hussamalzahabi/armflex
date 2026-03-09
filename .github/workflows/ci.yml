@@ -117,6 +117,9 @@ jobs:
       - name: Build frontend assets
         run: yarn build
 
+      - name: Frontend behavior tests (components/pages)
+        run: yarn test:ui
+
       - name: Prepare test database
         run: |
           mkdir -p database
