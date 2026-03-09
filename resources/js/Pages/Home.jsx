@@ -1,4 +1,4 @@
-import { Head, usePage, router } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 
@@ -17,7 +17,12 @@ const Home = ({ title }) => {
                     <p className="text-slate-700">
                         You are signed in as <span className="font-semibold">{auth.user.name}</span> ({auth.user.email}).
                     </p>
-                    <Button label="Logout" severity="secondary" className="mt-5" onClick={logout} />
+                    <div className="mt-5 flex flex-wrap gap-2">
+                        <Link href="/profile">
+                            <Button label="Training profile" />
+                        </Link>
+                        <Button label="Logout" severity="secondary" onClick={logout} />
+                    </div>
                 </Card>
             </main>
         </>
