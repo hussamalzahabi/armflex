@@ -7,6 +7,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
+import { useTheme } from '@/hooks/useTheme';
 
 const dominantArmOptions = [
     { label: 'Right', value: 'right' },
@@ -21,6 +22,8 @@ const experienceOptions = [
 
 const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
     const toast = useRef(null);
+    const { isDark } = useTheme();
+    const labelClass = `block text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`;
     const { data, setData, put, processing, errors } = useForm({
         dominant_arm: profile?.dominant_arm ?? 'right',
         experience_level: profile?.experience_level ?? 'beginner',
@@ -65,11 +68,14 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
         <>
             <Head title="Training Profile" />
             <Toast ref={toast} />
-            <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
-                <Card title="Training Profile" className="w-full max-w-xl">
+            <main className={`flex min-h-screen items-center justify-center px-4 py-10 ${isDark ? 'bg-slate-900' : 'bg-slate-100'}`}>
+                <Card
+                    title="Training Profile"
+                    className={`w-full max-w-xl ${isDark ? 'border border-slate-700 bg-slate-800 text-slate-100' : 'bg-white text-slate-900'}`}
+                >
                     <form onSubmit={submit} className="p-fluid space-y-5">
                         <div className="space-y-2">
-                            <label htmlFor="dominant_arm" className="block text-sm font-medium text-slate-700">
+                            <label htmlFor="dominant_arm" className={labelClass}>
                                 Dominant arm
                             </label>
                             <Dropdown
@@ -84,7 +90,7 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="experience_level" className="block text-sm font-medium text-slate-700">
+                            <label htmlFor="experience_level" className={labelClass}>
                                 Experience level
                             </label>
                             <Dropdown
@@ -99,7 +105,7 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="weight_kg" className="block text-sm font-medium text-slate-700">
+                            <label htmlFor="weight_kg" className={labelClass}>
                                 Body weight (kg)
                             </label>
                             <InputNumber
@@ -117,7 +123,7 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="training_days_per_week" className="block text-sm font-medium text-slate-700">
+                            <label htmlFor="training_days_per_week" className={labelClass}>
                                 Training days per week
                             </label>
                             <InputNumber
@@ -141,16 +147,18 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                                 useGrouping={false}
                                 className="w-full"
                             />
-                            <small className="text-slate-500">Enter a value between 1 and 7.</small>
+                            <small className={isDark ? 'text-slate-300' : 'text-slate-500'}>Enter a value between 1 and 7.</small>
                             {errors.training_days_per_week && <small className="text-red-600">{errors.training_days_per_week}</small>}
                         </div>
 
                         <div className="mt-6 space-y-3">
-                            <label className="block text-base font-semibold text-slate-800">Equipment available</label>
+                            <label className={`block text-base font-semibold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>
+                                Equipment available
+                            </label>
                             <div className="space-y-4">
                                 {equipmentCategories.map((category) => (
                                     <div key={category.id} className="space-y-2">
-                                        <p className="text-sm font-semibold text-slate-700">{category.name}</p>
+                                        <p className={`text-sm font-semibold ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>{category.name}</p>
                                         <div className="grid gap-2 sm:grid-cols-2">
                                             {category.items.map((equipment) => {
                                                 const checkboxId = `equipment-${equipment.id}`;
@@ -160,14 +168,18 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                                                     <label
                                                         key={equipment.id}
                                                         htmlFor={checkboxId}
-                                                        className="flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2.5 hover:bg-slate-50"
+                                                        className={`flex cursor-pointer items-center gap-2 rounded-md px-3 py-2.5 ${
+                                                            isDark
+                                                                ? 'border border-slate-600 bg-slate-700 hover:bg-slate-600'
+                                                                : 'border border-slate-300 bg-white hover:bg-slate-50'
+                                                        }`}
                                                     >
                                                         <Checkbox
                                                             inputId={checkboxId}
                                                             checked={isSelected}
                                                             onChange={() => toggleEquipment(equipment.id)}
                                                         />
-                                                        <span className="text-sm text-slate-700">{equipment.name}</span>
+                                                        <span className={`text-sm ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>{equipment.name}</span>
                                                     </label>
                                                 );
                                             })}
@@ -180,7 +192,7 @@ const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="notes" className="block text-sm font-medium text-slate-700">
+                            <label htmlFor="notes" className={labelClass}>
                                 Notes
                             </label>
                             <InputTextarea
