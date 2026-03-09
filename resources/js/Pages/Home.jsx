@@ -1,11 +1,12 @@
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import ThemeToggle from '../Components/ThemeToggle';
 import { useTheme } from '../hooks/useTheme';
 
 const Home = ({ title }) => {
     const { auth } = usePage().props;
-    const { isDark } = useTheme();
+    const { isDark, toggleTheme } = useTheme();
 
     const logout = () => {
         router.post('/logout');
@@ -19,6 +20,9 @@ const Home = ({ title }) => {
                     title="Dashboard"
                     className={`w-full max-w-xl ${isDark ? 'border border-slate-700 bg-slate-800 text-slate-100' : 'bg-white text-slate-900'}`}
                 >
+                    <div className="mb-4 flex justify-end">
+                        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+                    </div>
                     <p className={isDark ? 'text-slate-200' : 'text-slate-700'}>
                         You are signed in as <span className="font-semibold">{auth.user.name}</span> ({auth.user.email}).
                     </p>

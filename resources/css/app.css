@@ -4,3 +4,59 @@
 @import 'primereact/resources/themes/md-light-indigo/theme.css' layer(primereact);
 @import 'primereact/resources/primereact.min.css' layer(primereact);
 @import 'tailwindcss/utilities.css' layer(utilities);
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+html[data-theme='dark'] .p-card {
+    background: rgb(30 41 59);
+    color: rgb(241 245 249);
+    border: 1px solid rgb(51 65 85);
+}
+
+html[data-theme='dark'] .p-inputtext,
+html[data-theme='dark'] .p-dropdown,
+html[data-theme='dark'] .p-inputtextarea,
+html[data-theme='dark'] .p-inputnumber-input,
+html[data-theme='dark'] .p-password-input {
+    background: rgb(51 65 85);
+    border-color: rgb(71 85 105);
+    color: rgb(241 245 249);
+}
+
+html[data-theme='dark'] .p-dropdown .p-dropdown-label,
+html[data-theme='dark'] .p-dropdown .p-dropdown-trigger,
+html[data-theme='dark'] .p-inputtext::placeholder,
+html[data-theme='dark'] .p-inputtextarea::placeholder {
+    color: rgb(203 213 225);
+}
+
+html[data-theme='dark'] .p-dropdown-panel,
+html[data-theme='dark'] .p-dropdown-items {
+    background: rgb(30 41 59);
+    color: rgb(241 245 249);
+}
+
+html[data-theme='dark'] .p-dropdown-item {
+    color: rgb(241 245 249);
+}
+
+html[data-theme='dark'] .p-dropdown-item.p-highlight,
+html[data-theme='dark'] .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover {
+    background: rgb(51 65 85);
+}
+
+.p-toast {
+    width: min(24rem, calc(100vw - 1.5rem));
+}
+
+@media (max-width: 640px) {
+    .p-toast {
+        right: 0.75rem;
+        left: 0.75rem;
+        width: auto;
+    }
+}

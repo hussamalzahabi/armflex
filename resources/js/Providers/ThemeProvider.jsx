@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ThemeContext } from '@/context/theme-context';
 
 const THEME_STORAGE_KEY = 'armflex-theme';
-const ThemeContext = createContext(null);
 
 const getInitialTheme = () => {
     if (typeof window === 'undefined') {
@@ -16,7 +16,7 @@ const getInitialTheme = () => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
-export const ThemeProvider = ({ children }) => {
+const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(getInitialTheme);
     const isDark = theme === 'dark';
 
@@ -37,11 +37,4 @@ export const ThemeProvider = ({ children }) => {
     return <ThemeContext.Provider value={{ theme, isDark, toggleTheme }}>{children}</ThemeContext.Provider>;
 };
 
-export const useTheme = () => {
-    const context = useContext(ThemeContext);
-    if (!context) {
-        throw new Error('useTheme must be used within ThemeProvider');
-    }
-
-    return context;
-};
+export default ThemeProvider;

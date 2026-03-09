@@ -2,8 +2,7 @@ import './bootstrap';
 import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
-import GlobalThemeToggle from './Components/GlobalThemeToggle';
-import { ThemeProvider } from './hooks/useTheme';
+import ThemeProvider from './Providers/ThemeProvider';
 
 createInertiaApp({
     resolve: (name) => {
@@ -19,7 +18,6 @@ createInertiaApp({
     setup({ el, App, props }) {
         createRoot(el).render(
             <ThemeProvider>
-                <GlobalThemeToggle />
                 <App {...props} />
             </ThemeProvider>
         );
