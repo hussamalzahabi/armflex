@@ -131,6 +131,7 @@ Use:
 
 - **PrimeReact** for complex UI components
 - **TailwindCSS** for layout and spacing
+- Responsive layouts by default (mobile-first), ensuring core screens are usable on mobile, tablet, and desktop
 
 Examples of PrimeReact components:
 

@@ -17,11 +17,11 @@ const Home = ({ title }) => {
                     <p className="text-slate-700">
                         You are signed in as <span className="font-semibold">{auth.user.name}</span> ({auth.user.email}).
                     </p>
-                    <div className="mt-5 flex flex-wrap gap-2">
-                        <Link href="/profile">
-                            <Button label="Training profile" />
+                    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                        <Link href="/profile" className="w-full sm:w-auto">
+                            <Button label="Training profile" className="w-full sm:min-w-44" />
                         </Link>
-                        <Button label="Logout" severity="secondary" onClick={logout} />
+                        <Button label="Logout" severity="secondary" onClick={logout} className="w-full sm:min-w-44" />
                     </div>
                 </Card>
             </main>
