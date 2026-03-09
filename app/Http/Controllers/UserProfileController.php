@@ -13,12 +13,45 @@ class UserProfileController extends Controller
     public function edit(Request $request): Response
     {
         $user = $request->user();
+        $equipments = Equipment::query()->get(['id', 'name'])->keyBy('name');
+
+        $equipmentCategories = [
+            [
+                'id' => 'general',
+                'name' => 'General Gym Equipment',
+                'items' => [
+                    'Dumbbells',
+                    'Barbell',
+                    'Cable Machine',
+                    'Resistance Bands',
+                    'Minimal equipment (bands only)',
+                ],
+            ],
+            [
+                'id' => 'armwrestling',
+                'name' => 'Armwrestling Specific Tools',
+                'items' => [
+                    'Wrist Wrench',
+                    'Rolling Handle',
+                    'Multispinner',
+                    'Eccentric Handle',
+                    'Table Strap',
+                ],
+            ],
+        ];
 
         return Inertia::render('Profile/Edit', [
             'profile' => $user->profile,
-            'availableEquipments' => Equipment::query()
-                ->orderBy('name')
-                ->get(['id', 'name']),
+            'equipmentCategories' => collect($equipmentCategories)->map(function (array $category) use ($equipments) {
+                return [
+                    'id' => $category['id'],
+                    'name' => $category['name'],
+                    'items' => collect($category['items'])
+                        ->map(fn (string $equipmentName) => $equipments->get($equipmentName))
+                        ->filter()
+                        ->values(),
+                ];
+            })->all(),
             'selectedEquipmentIds' => $user->equipments()
                 ->pluck('equipments.id')
                 ->all(),

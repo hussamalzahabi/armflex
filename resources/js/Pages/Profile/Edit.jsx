@@ -19,7 +19,7 @@ const experienceOptions = [
     { label: 'Advanced', value: 'advanced' },
 ];
 
-const Edit = ({ profile, availableEquipments, selectedEquipmentIds }) => {
+const Edit = ({ profile, equipmentCategories, selectedEquipmentIds }) => {
     const toast = useRef(null);
     const { data, setData, put, processing, errors } = useForm({
         dominant_arm: profile?.dominant_arm ?? 'right',
@@ -44,6 +44,22 @@ const Edit = ({ profile, availableEquipments, selectedEquipmentIds }) => {
             },
         });
     };
+
+    const toggleEquipment = (equipmentId) => {
+        const isSelected = data.equipment_ids.includes(equipmentId);
+
+        if (isSelected) {
+            setData(
+                'equipment_ids',
+                data.equipment_ids.filter((id) => id !== equipmentId)
+            );
+            return;
+        }
+
+        setData('equipment_ids', [...data.equipment_ids, equipmentId]);
+    };
+
+    const equipmentItemError = Object.keys(errors).find((key) => key.startsWith('equipment_ids.'));
 
     return (
         <>
@@ -129,39 +145,38 @@ const Edit = ({ profile, availableEquipments, selectedEquipmentIds }) => {
                             {errors.training_days_per_week && <small className="text-red-600">{errors.training_days_per_week}</small>}
                         </div>
 
-                        <div className="space-y-2 mt-6">
-                            <label className="block text-sm font-medium text-slate-700">Equipment available</label>
-                            <div className="grid gap-2 sm:grid-cols-2">
-                                {availableEquipments.map((equipment) => {
-                                    const checkboxId = `equipment-${equipment.id}`;
-                                    const isSelected = data.equipment_ids.includes(equipment.id);
+                        <div className="mt-6 space-y-3">
+                            <label className="block text-base font-semibold text-slate-800">Equipment available</label>
+                            <div className="space-y-4">
+                                {equipmentCategories.map((category) => (
+                                    <div key={category.id} className="space-y-2">
+                                        <p className="text-sm font-semibold text-slate-700">{category.name}</p>
+                                        <div className="grid gap-2 sm:grid-cols-2">
+                                            {category.items.map((equipment) => {
+                                                const checkboxId = `equipment-${equipment.id}`;
+                                                const isSelected = data.equipment_ids.includes(equipment.id);
 
-                                    return (
-                                        <div key={equipment.id} className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
-                                            <Checkbox
-                                                inputId={checkboxId}
-                                                checked={isSelected}
-                                                onChange={(event) => {
-                                                    if (event.checked) {
-                                                        setData('equipment_ids', [...data.equipment_ids, equipment.id]);
-                                                        return;
-                                                    }
-
-                                                    setData(
-                                                        'equipment_ids',
-                                                        data.equipment_ids.filter((id) => id !== equipment.id)
-                                                    );
-                                                }}
-                                            />
-                                            <label htmlFor={checkboxId} className="text-sm text-slate-700">
-                                                {equipment.name}
-                                            </label>
+                                                return (
+                                                    <label
+                                                        key={equipment.id}
+                                                        htmlFor={checkboxId}
+                                                        className="flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2.5 hover:bg-slate-50"
+                                                    >
+                                                        <Checkbox
+                                                            inputId={checkboxId}
+                                                            checked={isSelected}
+                                                            onChange={() => toggleEquipment(equipment.id)}
+                                                        />
+                                                        <span className="text-sm text-slate-700">{equipment.name}</span>
+                                                    </label>
+                                                );
+                                            })}
                                         </div>
-                                    );
-                                })}
+                                    </div>
+                                ))}
                             </div>
                             {errors.equipment_ids && <small className="text-red-600">{errors.equipment_ids}</small>}
-                            {errors['equipment_ids.0'] && <small className="text-red-600">{errors['equipment_ids.0']}</small>}
+                            {equipmentItemError && <small className="text-red-600">{errors[equipmentItemError]}</small>}
                         </div>
 
                         <div className="space-y-2">
