@@ -157,6 +157,43 @@ When modifying existing code:
 - preserve existing behavior
 - make minimal necessary changes
 
+# Testing Strategy
+
+Testing is required for all core features.
+
+Use Laravel's testing framework with PHPUnit.
+
+Two types of tests should be written when appropriate:
+
+Unit Tests
+- Test isolated business logic
+- Test services, helpers, and rule-based logic
+- Should not rely on database state when avoidable
+
+Feature / Acceptance Tests
+- Test full application behavior
+- Test HTTP endpoints
+- Test authentication flows
+- Test database interactions
+
+Example areas that should have tests:
+
+- Authentication
+- User profile creation and updates
+- Exercise retrieval
+- Workout logging
+- Program generation logic
+
+
+# Testing Rules
+
+Agents should follow these testing rules:
+
+- Add tests for new business logic
+- Prefer **Feature tests** for API or controller behavior
+- Prefer **Unit tests** for algorithmic logic
+- Tests must pass CI/CD checks
+- Do not remove existing tests unless they are invalid
 
 # Working Style for Agents
 
