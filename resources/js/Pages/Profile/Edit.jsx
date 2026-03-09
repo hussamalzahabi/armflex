@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { useRef } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -18,7 +19,7 @@ const experienceOptions = [
     { label: 'Advanced', value: 'advanced' },
 ];
 
-const Edit = ({ profile }) => {
+const Edit = ({ profile, availableEquipments, selectedEquipmentIds }) => {
     const toast = useRef(null);
     const { data, setData, put, processing, errors } = useForm({
         dominant_arm: profile?.dominant_arm ?? 'right',
@@ -26,6 +27,7 @@ const Edit = ({ profile }) => {
         weight_kg: profile?.weight_kg ? Number(profile.weight_kg) : null,
         training_days_per_week: profile?.training_days_per_week ?? null,
         notes: profile?.notes ?? '',
+        equipment_ids: selectedEquipmentIds ?? [],
     });
 
     const submit = (event) => {
@@ -125,6 +127,41 @@ const Edit = ({ profile }) => {
                             />
                             <small className="text-slate-500">Enter a value between 1 and 7.</small>
                             {errors.training_days_per_week && <small className="text-red-600">{errors.training_days_per_week}</small>}
+                        </div>
+
+                        <div className="space-y-2 mt-6">
+                            <label className="block text-sm font-medium text-slate-700">Equipment available</label>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                {availableEquipments.map((equipment) => {
+                                    const checkboxId = `equipment-${equipment.id}`;
+                                    const isSelected = data.equipment_ids.includes(equipment.id);
+
+                                    return (
+                                        <div key={equipment.id} className="flex items-center gap-2 rounded-md border border-slate-200 px-3 py-2">
+                                            <Checkbox
+                                                inputId={checkboxId}
+                                                checked={isSelected}
+                                                onChange={(event) => {
+                                                    if (event.checked) {
+                                                        setData('equipment_ids', [...data.equipment_ids, equipment.id]);
+                                                        return;
+                                                    }
+
+                                                    setData(
+                                                        'equipment_ids',
+                                                        data.equipment_ids.filter((id) => id !== equipment.id)
+                                                    );
+                                                }}
+                                            />
+                                            <label htmlFor={checkboxId} className="text-sm text-slate-700">
+                                                {equipment.name}
+                                            </label>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            {errors.equipment_ids && <small className="text-red-600">{errors.equipment_ids}</small>}
+                            {errors['equipment_ids.0'] && <small className="text-red-600">{errors['equipment_ids.0']}</small>}
                         </div>
 
                         <div className="space-y-2">
