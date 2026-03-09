@@ -60,6 +60,7 @@ html[data-theme='dark'] .p-dropdown-item:not(.p-highlight):not(.p-disabled):hove
 
 .app-breadcrumb {
     background: transparent;
+    font-size: 0.8rem;
 }
 
 .app-breadcrumb .p-menuitem-link {
@@ -94,7 +95,27 @@ html[data-theme='dark'] .p-dropdown-item:not(.p-highlight):not(.p-disabled):hove
     color: rgb(226 232 240);
 }
 
+.app-breadcrumb-pill {
+    width: fit-content;
+    border-radius: 999px;
+    padding: 0.3rem 0.6rem;
+}
+
+.app-breadcrumb-light.app-breadcrumb-pill {
+    background: rgb(241 245 249 / 80%);
+}
+
+.app-breadcrumb-dark.app-breadcrumb-pill {
+    background: rgb(30 41 59 / 75%);
+}
+
 .app-sidebar-link {
+    text-decoration: none;
+}
+
+.app-sidebar-link:hover,
+.app-sidebar-link:focus,
+.app-sidebar-link:visited {
     text-decoration: none;
 }
 

@@ -86,7 +86,7 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                 ]}
             >
                 <Card
-                    className={`w-full rounded-3xl ${isDark ? 'border border-slate-700 bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'border border-slate-200 bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
+                    className={`w-full rounded-3xl ${isDark ? 'bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
                 >
                     <form onSubmit={submit} className="p-fluid space-y-5">
                         <div className="space-y-2">
@@ -255,7 +255,7 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                         </div>
 
                         <div className="flex flex-col gap-2 sm:flex-row">
-                            <Button type="submit" label="Save profile" loading={processing} className="w-full sm:min-w-44" />
+                            <Button type="submit" label="Save profile" loading={processing} className="w-full sm:w-auto sm:min-w-44" />
                         </div>
                     </form>
                 </Card>

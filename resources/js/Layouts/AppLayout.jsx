@@ -69,12 +69,12 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
     const shellClass = isDark
         ? 'bg-[radial-gradient(circle_at_top_left,_#101827,_#060b18_55%)] text-slate-100'
         : 'bg-[radial-gradient(circle_at_top_left,_#f8fafc,_#e2e8f0_55%)] text-slate-900';
-    const panelClass = isDark ? 'border-slate-800/80 bg-slate-900/92' : 'border-slate-200/90 bg-white/95';
+    const panelClass = isDark ? 'bg-slate-900/92' : 'bg-white/95';
     const mutedClass = isDark ? 'text-slate-300' : 'text-slate-500';
 
     return (
         <div className={`min-h-screen ${shellClass}`}>
-            <div className={`sticky top-0 z-30 flex items-center justify-between border-b px-4 py-3 lg:hidden ${panelClass}`}>
+            <div className={`sticky top-0 z-30 flex items-center justify-between px-4 py-3 lg:hidden ${panelClass}`}>
                 <button
                     type="button"
                     className={`rounded-md border px-3 py-1.5 text-sm ${isDark ? 'border-slate-700' : 'border-slate-300'}`}
@@ -94,7 +94,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         className="absolute inset-0 bg-black/40"
                         onClick={() => setMobileMenuOpen(false)}
                     />
-                    <aside className={`relative h-full w-72 border-r p-5 ${panelClass}`}>
+                    <aside className={`relative h-full w-72 p-5 ${panelClass}`}>
                         <div className="mb-8 flex items-center justify-between">
                             <p className="text-lg font-semibold">ArmFlex</p>
                             <button
@@ -134,11 +134,10 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                 </div>
             )}
 
-            <div className="mx-auto flex min-h-screen max-w-[1650px] gap-4 p-4 lg:p-5">
-                <aside className={`hidden w-72 shrink-0 rounded-3xl border shadow-sm lg:flex lg:min-h-[calc(100vh-2.5rem)] lg:flex-col ${panelClass}`}>
-                    <div className="border-b p-6">
+            <div className="flex min-h-screen">
+                <aside className={`hidden w-72 shrink-0 lg:flex lg:min-h-screen lg:flex-col ${panelClass}`}>
+                    <div className="p-6">
                         <p className="text-xs uppercase tracking-[0.2em] text-slate-500">ArmFlex</p>
-                        <h1 className="mt-2 text-xl font-semibold">Training Portal</h1>
                     </div>
 
                     <nav className="flex-1 space-y-2 p-4">
@@ -167,7 +166,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col">
-                    <header className={`hidden rounded-3xl border px-6 py-5 shadow-sm lg:block ${panelClass}`}>
+                    <header className={`hidden px-6 py-5 lg:block ${panelClass}`}>
                         <div className="flex items-center justify-between gap-6">
                             <div className="min-w-0">
                                 <p className={`mb-1 text-xs uppercase tracking-[0.18em] ${mutedClass}`}>Workspace</p>
@@ -176,40 +175,40 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                                     <BreadCrumb
                                         model={breadcrumbModel}
                                         home={breadcrumbHome}
-                                        className={`app-breadcrumb mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
+                                        className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
                                     />
                                 )}
                             </div>
 
                             <div className="flex items-center gap-4">
                                 <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-                                <div className={`flex items-center gap-3 rounded-2xl border px-3 py-2 ${isDark ? 'border-slate-700 bg-slate-900' : 'border-slate-200 bg-white'}`}>
-                                    <div className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${isDark ? 'bg-slate-700 text-slate-100' : 'bg-slate-100 text-slate-700'}`}>
-                                        {(auth?.user?.name?.[0] ?? 'U').toUpperCase()}
-                                    </div>
-                                    <div className={`text-right text-xs ${mutedClass}`}>
-                                        <p className="text-[11px]">Welcome back</p>
-                                        <p className={`font-semibold ${isDark ? 'text-slate-100' : 'text-slate-800'}`}>{auth?.user?.name}</p>
-                                        <p>{auth?.user?.email}</p>
-                                    </div>
-                                </div>
+                                <button
+                                    type="button"
+                                    title={auth?.user?.name ?? 'User'}
+                                    aria-label={auth?.user?.name ?? 'User'}
+                                    className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
+                                        isDark ? 'bg-slate-700 text-slate-100' : 'bg-slate-200 text-slate-700'
+                                    }`}
+                                >
+                                    {(auth?.user?.name?.[0] ?? 'U').toUpperCase()}
+                                </button>
                             </div>
                         </div>
                     </header>
 
-                    <main className="flex-1 pt-2 sm:pt-3 lg:pt-3">
+                    <main className="flex-1 px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-3">
                         <div className="mb-5 lg:hidden">
                             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
                             {breadcrumbModel.length > 0 && (
                                 <BreadCrumb
                                     model={breadcrumbModel}
                                     home={breadcrumbHome}
-                                    className={`app-breadcrumb mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
+                                    className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
                                 />
                             )}
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             {actions && <div>{actions}</div>}
                             {children}
                         </div>
