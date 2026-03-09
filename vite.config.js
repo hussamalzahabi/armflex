@@ -21,6 +21,27 @@ export default defineConfig({
             '@': path.resolve(__dirname, 'resources/js'),
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (!id.includes('node_modules')) {
+                        return;
+                    }
+
+                    if (id.includes('/primereact/')) {
+                        return 'vendor-primereact';
+                    }
+
+                    if (id.includes('/axios/')) {
+                        return 'vendor-axios';
+                    }
+
+                    return 'vendor';
+                },
+            },
+        },
+    },
     server: {
         host: 'armflex.test',
         watch: {
