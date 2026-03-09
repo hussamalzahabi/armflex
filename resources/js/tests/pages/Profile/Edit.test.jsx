@@ -38,6 +38,9 @@ vi.mock('@inertiajs/react', () => ({
             },
         },
     }),
+    router: {
+        visit: vi.fn(),
+    },
 }));
 
 vi.mock('primereact/card', () => ({

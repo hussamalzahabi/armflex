@@ -1,6 +1,7 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { useRef } from 'react';
 import { Button } from 'primereact/button';
+import { BreadCrumb } from 'primereact/breadcrumb';
 import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
@@ -73,22 +74,36 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
     };
 
     const equipmentItemError = Object.keys(errors).find((key) => key.startsWith('equipment_ids.'));
+    const profileBreadcrumb = [
+        {
+            label: 'Dashboard',
+            command: () => router.visit('/'),
+        },
+        {
+            label: 'Profile',
+        },
+    ];
 
     return (
         <>
             <Head title="Training Profile" />
             <Toast ref={toast} />
-            <AppLayout
-                title="Training Profile"
-                breadcrumb={[
-                    { label: 'Dashboard', href: '/' },
-                    { label: 'Profile' },
-                ]}
-            >
-                <Card
-                    className={`w-full rounded-3xl ${isDark ? 'bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
-                >
-                    <form onSubmit={submit} className="p-fluid space-y-5">
+            <AppLayout title="Training Profile">
+                <div className="w-full lg:max-w-[1240px] lg:mr-auto">
+                    <section
+                        className={`mb-2 rounded-t-3xl px-6 py-4 ${
+                            isDark ? 'bg-slate-800/90 text-slate-100' : 'bg-white text-slate-900'
+                        }`}
+                    >
+                        <BreadCrumb
+                            model={profileBreadcrumb}
+                            className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
+                        />
+                    </section>
+                    <Card
+                        className={`w-full rounded-b-3xl !rounded-t-none !border-0 ${isDark ? 'bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
+                    >
+                        <form onSubmit={submit} className="p-fluid space-y-5">
                         <div className="space-y-2">
                             <label htmlFor="dominant_arm" className={labelClass}>
                                 Dominant arm
@@ -257,8 +272,9 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                         <div className="flex flex-col gap-2 sm:flex-row">
                             <Button type="submit" label="Save profile" loading={processing} className="w-full sm:w-auto sm:min-w-44" />
                         </div>
-                    </form>
-                </Card>
+                        </form>
+                    </Card>
+                </div>
             </AppLayout>
         </>
     );

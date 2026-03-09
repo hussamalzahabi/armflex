@@ -101,6 +101,15 @@ html[data-theme='dark'] .p-dropdown-item:not(.p-highlight):not(.p-disabled):hove
     padding: 0.3rem 0.6rem;
 }
 
+.app-breadcrumb-pill .p-breadcrumb-list {
+    margin: 0;
+    padding: 0;
+}
+
+.app-breadcrumb-pill .p-menuitem-link {
+    padding-left: 0;
+}
+
 .app-breadcrumb-light.app-breadcrumb-pill {
     background: rgb(241 245 249 / 80%);
 }
@@ -117,6 +126,39 @@ html[data-theme='dark'] .p-dropdown-item:not(.p-highlight):not(.p-disabled):hove
 .app-sidebar-link:focus,
 .app-sidebar-link:visited {
     text-decoration: none;
+}
+
+.app-brand-link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.app-brand-link:hover {
+    color: rgb(255 255 255);
+}
+
+.app-brand-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 0%, rgb(255 255 255 / 0.65) 45%, transparent 70%);
+    transform: translateX(-150%);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.app-brand-link:hover::after {
+    opacity: 1;
+    animation: app-brand-shimmer 0.9s ease forwards;
+}
+
+@keyframes app-brand-shimmer {
+    to {
+        transform: translateX(150%);
+    }
 }
 
 .app-theme-toggle {

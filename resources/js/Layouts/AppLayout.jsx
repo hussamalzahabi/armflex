@@ -94,7 +94,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         className="absolute inset-0 bg-black/40"
                         onClick={() => setMobileMenuOpen(false)}
                     />
-                    <aside className={`relative h-full w-72 p-5 ${panelClass}`}>
+                    <aside className={`relative h-full w-64 p-5 ${panelClass}`}>
                         <div className="mb-8 flex items-center justify-between">
                             <p className="text-lg font-semibold">ArmFlex</p>
                             <button
@@ -135,9 +135,11 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
             )}
 
             <div className="flex min-h-screen">
-                <aside className={`hidden w-72 shrink-0 lg:flex lg:min-h-screen lg:flex-col ${panelClass}`}>
+                <aside className={`hidden w-64 shrink-0 lg:flex lg:min-h-screen lg:flex-col ${panelClass}`}>
                     <div className="p-6">
-                        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">ArmFlex</p>
+                        <Link href="/" className="app-brand-link text-xs uppercase tracking-[0.2em] text-slate-500">
+                            ArmFlex
+                        </Link>
                     </div>
 
                     <nav className="flex-1 space-y-2 p-4">
@@ -166,16 +168,16 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col">
-                    <header className={`hidden px-6 py-5 lg:block ${panelClass}`}>
+                    <header className={`hidden px-6 py-3 lg:block ${panelClass}`}>
                         <div className="flex items-center justify-between gap-6">
                             <div className="min-w-0">
-                                <p className={`mb-1 text-xs uppercase tracking-[0.18em] ${mutedClass}`}>Workspace</p>
-                                <h2 className="truncate text-2xl font-semibold tracking-tight">{title}</h2>
+                                <p className={`mb-0.5 text-[11px] uppercase tracking-[0.18em] ${mutedClass}`}>Workspace</p>
+                                <h2 className="truncate text-xl font-semibold tracking-tight">{title}</h2>
                                 {breadcrumbModel.length > 0 && (
                                     <BreadCrumb
                                         model={breadcrumbModel}
                                         home={breadcrumbHome}
-                                        className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
+                                        className={`app-breadcrumb app-breadcrumb-pill mt-1.5 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
                                     />
                                 )}
                             </div>
@@ -196,7 +198,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         </div>
                     </header>
 
-                    <main className="flex-1 px-4 py-2 sm:px-6 sm:py-3 lg:px-8 lg:py-3">
+                    <main className="flex-1 px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3">
                         <div className="mb-5 lg:hidden">
                             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
                             {breadcrumbModel.length > 0 && (
