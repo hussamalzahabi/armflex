@@ -61,5 +61,35 @@ class UserProfileTest extends TestCase
             'experience_level' => 'intermediate',
             'training_days_per_week' => 5,
         ]);
+        $this->assertDatabaseCount('user_profiles', 1);
+    }
+
+    public function test_guest_cannot_update_profile(): void
+    {
+        $response = $this->put('/profile', [
+            'dominant_arm' => 'right',
+            'experience_level' => 'beginner',
+        ]);
+
+        $response->assertRedirect('/login');
+    }
+
+    public function test_profile_update_requires_valid_values(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->put('/profile', [
+            'dominant_arm' => 'invalid',
+            'experience_level' => 'expert',
+            'weight_kg' => 10,
+            'training_days_per_week' => 9,
+        ]);
+
+        $response->assertSessionHasErrors([
+            'dominant_arm',
+            'experience_level',
+            'weight_kg',
+            'training_days_per_week',
+        ]);
     }
 }
