@@ -60,6 +60,10 @@ vi.mock('primereact/button', () => ({
     ),
 }));
 
+vi.mock('primereact/avatar', () => ({
+    Avatar: ({ label }) => <span>{label}</span>,
+}));
+
 vi.mock('primereact/dropdown', () => ({
     Dropdown: ({ id, value, onChange }) => <input id={id} value={value} onChange={(event) => onChange({ value: event.target.value })} />,
 }));
@@ -81,6 +85,19 @@ vi.mock('primereact/checkbox', () => ({
             type="checkbox"
             checked={checked}
             onChange={(event) => onChange({ checked: event.target.checked })}
+        />
+    ),
+}));
+
+vi.mock('primereact/radiobutton', () => ({
+    RadioButton: ({ inputId, name, value, checked, onChange }) => (
+        <input
+            id={inputId}
+            type="radio"
+            name={name}
+            value={value}
+            checked={checked}
+            onChange={(event) => onChange({ value: event.target.value })}
         />
     ),
 }));
@@ -147,5 +164,20 @@ describe('Profile edit page', () => {
                 onSuccess: expect.any(Function),
             })
         );
+    });
+
+    it('should_set_style_when_style_box_is_clicked', () => {
+        render(
+            <Edit
+                profile={null}
+                styleOptions={styleOptions}
+                equipmentCategories={equipmentCategories}
+                selectedEquipmentIds={[]}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Hook'));
+
+        expect(setDataMock).toHaveBeenCalledWith('style', 'hook');
     });
 });

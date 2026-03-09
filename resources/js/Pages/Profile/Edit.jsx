@@ -6,6 +6,7 @@ import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
+import { RadioButton } from 'primereact/radiobutton';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 import AppLayout from '@/Layouts/AppLayout';
@@ -147,18 +148,19 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                                         <label
                                             key={option.value}
                                             htmlFor={radioId}
+                                            onClick={() => setData('style', option.value)}
                                             className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 ${
                                                 isDark
                                                     ? 'border border-slate-600 bg-slate-700 hover:bg-slate-600'
                                                     : 'border border-slate-300 bg-slate-50 hover:bg-slate-100'
                                             }`}
                                         >
-                                            <input
-                                                id={radioId}
-                                                type="radio"
+                                            <RadioButton
+                                                inputId={radioId}
                                                 name="style"
+                                                value={option.value}
                                                 checked={isSelected}
-                                                onChange={() => setData('style', option.value)}
+                                                onChange={(event) => setData('style', event.value)}
                                             />
                                             <span className={`text-sm ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>{option.label}</span>
                                         </label>

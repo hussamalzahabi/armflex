@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import { Avatar } from 'primereact/avatar';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import ThemeToggle from '@/Components/ThemeToggle';
 import { useTheme } from '@/hooks/useTheme';
@@ -184,16 +185,11 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
 
                             <div className="flex items-center gap-4">
                                 <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-                                <button
-                                    type="button"
-                                    title={auth?.user?.name ?? 'User'}
-                                    aria-label={auth?.user?.name ?? 'User'}
-                                    className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
-                                        isDark ? 'bg-slate-700 text-slate-100' : 'bg-slate-200 text-slate-700'
-                                    }`}
-                                >
-                                    {(auth?.user?.name?.[0] ?? 'U').toUpperCase()}
-                                </button>
+                                <Avatar
+                                    label={(auth?.user?.name?.[0] ?? 'U').toUpperCase()}
+                                    shape="circle"
+                                    className={isDark ? 'bg-slate-700 text-slate-100' : 'bg-slate-200 text-slate-700'}
+                                />
                             </div>
                         </div>
                     </header>

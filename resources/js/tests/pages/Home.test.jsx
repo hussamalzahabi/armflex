@@ -46,6 +46,10 @@ vi.mock('primereact/button', () => ({
     ),
 }));
 
+vi.mock('primereact/avatar', () => ({
+    Avatar: ({ label }) => <span>{label}</span>,
+}));
+
 vi.mock('@/hooks/useTheme', () => ({
     useTheme: () => ({
         isDark: false,
