@@ -15,6 +15,8 @@ class Program extends Model
         'experience_level',
         'training_days',
         'duration_weeks',
+        'profile_signature',
+        'program_signature',
     ];
 
     public function user(): BelongsTo

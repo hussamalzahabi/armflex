@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('programs', function (Blueprint $table) {
+            $table->string('profile_signature', 64)->nullable()->after('duration_weeks');
+            $table->string('program_signature', 64)->nullable()->after('profile_signature');
+            $table->index(['user_id', 'profile_signature']);
+            $table->index(['user_id', 'program_signature']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('programs', function (Blueprint $table) {
+            $table->dropIndex(['user_id', 'profile_signature']);
+            $table->dropIndex(['user_id', 'program_signature']);
+            $table->dropColumn(['profile_signature', 'program_signature']);
+        });
+    }
+};

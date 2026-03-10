@@ -51,7 +51,32 @@ class ProgramGenerationTest extends TestCase
         }
     }
 
-    public function test_generation_should_create_new_program_without_overwriting_previous(): void
+    public function test_generation_should_reuse_existing_program_when_profile_and_template_match(): void
+    {
+        $this->seedGenerationData();
+        $user = $this->createUserWithProfile(
+            styleSlug: 'mixed',
+            experienceLevel: 'intermediate',
+            trainingDaysPerWeek: 3,
+            equipmentNames: $this->allEquipmentNames()
+        );
+
+        $this->actingAs($user)
+            ->from('/')
+            ->post(route('programs.generate'))
+            ->assertRedirect('/')
+            ->assertSessionHas('success', 'Program generated successfully.');
+
+        $this->actingAs($user)
+            ->from('/')
+            ->post(route('programs.generate'))
+            ->assertRedirect('/')
+            ->assertSessionHas('success', 'An existing program already matches your current profile.');
+
+        $this->assertSame(1, Program::query()->where('user_id', $user->id)->count());
+    }
+
+    public function test_generation_should_create_a_new_program_when_profile_changes(): void
     {
         $this->seedGenerationData();
         $user = $this->createUserWithProfile(
@@ -62,6 +87,11 @@ class ProgramGenerationTest extends TestCase
         );
 
         $this->actingAs($user)->from('/')->post(route('programs.generate'))->assertRedirect('/');
+
+        $user->profile()->update([
+            'experience_level' => 'advanced',
+        ]);
+
         $this->actingAs($user)->from('/')->post(route('programs.generate'))->assertRedirect('/');
 
         $this->assertSame(2, Program::query()->where('user_id', $user->id)->count());

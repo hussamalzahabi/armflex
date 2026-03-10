@@ -41,7 +41,23 @@ class ProgramGeneratorService
 
         $styleSlug = (string) $profile->style->slug;
         $experienceLevel = (string) $profile->experience_level;
-        $userEquipmentIds = $user->equipments->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $generatedDays = $this->rules->generatedDaysCount((int) $profile->training_days_per_week);
+        $userEquipmentIds = $user->equipments
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+        $profileSignature = $this->buildProfileSignature(
+            (string) $profile->dominant_arm,
+            $styleSlug,
+            $experienceLevel,
+            (float) $profile->weight_kg,
+            $generatedDays,
+            $userEquipmentIds
+        );
+
         $eligibleExercises = $this->getEligibleExercises($userEquipmentIds, $experienceLevel);
 
         if ($eligibleExercises->isEmpty()) {
@@ -50,8 +66,12 @@ class ProgramGeneratorService
             ]);
         }
 
-        $scoredExercises = $this->scoreExercises($eligibleExercises, $styleSlug, $experienceLevel);
-        $generatedDays = $this->rules->generatedDaysCount((int) $profile->training_days_per_week);
+        $scoredExercises = $this->scoreExercises(
+            $eligibleExercises,
+            $styleSlug,
+            $experienceLevel,
+            $user->id
+        );
         $exercisesPerDay = $this->rules->exercisesPerDayCount($generatedDays);
         $weeklyTemplate = $this->distributeExercisesIntoDays(
             $scoredExercises,
@@ -59,13 +79,28 @@ class ProgramGeneratorService
             $generatedDays,
             $exercisesPerDay
         );
+        $programSignature = $this->buildProgramSignature($weeklyTemplate);
+
+        $existingProgram = $this->findExistingProgram(
+            $user->id,
+            $profileSignature,
+            $programSignature
+        );
+
+        if ($existingProgram !== null) {
+            $existingProgram->setAttribute('was_reused', true);
+
+            return $existingProgram;
+        }
 
         return DB::transaction(function () use (
             $user,
             $styleSlug,
             $experienceLevel,
             $generatedDays,
-            $weeklyTemplate
+            $weeklyTemplate,
+            $profileSignature,
+            $programSignature
         ): Program {
             $program = $user->programs()->create([
                 'name' => $this->rules->buildProgramName($styleSlug, $experienceLevel),
@@ -73,6 +108,8 @@ class ProgramGeneratorService
                 'experience_level' => $experienceLevel,
                 'training_days' => $generatedDays,
                 'duration_weeks' => 4,
+                'profile_signature' => $profileSignature,
+                'program_signature' => $programSignature,
             ]);
 
             foreach ($weeklyTemplate as $dayNumber => $exerciseRows) {
@@ -90,6 +127,8 @@ class ProgramGeneratorService
                     ]);
                 }
             }
+
+            $program->setAttribute('was_reused', false);
 
             return $program->load([
                 'days.exercises.exercise.category',
@@ -138,16 +177,18 @@ class ProgramGeneratorService
      *     category_slug: string|null,
      *     style_slugs: list<string>,
      *     style_phase: int,
-     *     score: int
+     *     score: int,
+     *     tie_breaker: int
      * }>
      */
     private function scoreExercises(
         EloquentCollection $eligibleExercises,
         string $styleSlug,
-        string $experienceLevel
+        string $experienceLevel,
+        int $userId
     ): Collection {
         return $eligibleExercises
-            ->map(function (Exercise $exercise) use ($styleSlug, $experienceLevel): array {
+            ->map(function (Exercise $exercise) use ($styleSlug, $experienceLevel, $userId): array {
                 $categorySlug = $exercise->category?->slug;
                 $styleSlugs = $exercise->styles->pluck('slug')->map(fn ($slug) => (string) $slug)->all();
                 $requiredEquipmentCount = $exercise->equipments->count();
@@ -166,15 +207,21 @@ class ProgramGeneratorService
                     'style_slugs' => $styleSlugs,
                     'style_phase' => $this->stylePhase($styleSlug, $styleSlugs),
                     'score' => $score,
+                    'tie_breaker' => $this->userTieBreaker($userId, (int) $exercise->id),
                 ];
             })
             ->sort(function (array $left, array $right): int {
-                return $this->rules->compareScoreAndId(
-                    $left['score'],
-                    (int) $left['exercise']->id,
-                    $right['score'],
-                    (int) $right['exercise']->id
-                );
+                $scoreComparison = $right['score'] <=> $left['score'];
+                if ($scoreComparison !== 0) {
+                    return $scoreComparison;
+                }
+
+                $tieBreakerComparison = $left['tie_breaker'] <=> $right['tie_breaker'];
+                if ($tieBreakerComparison !== 0) {
+                    return $tieBreakerComparison;
+                }
+
+                return $left['exercise']->id <=> $right['exercise']->id;
             })
             ->values();
     }
@@ -185,7 +232,8 @@ class ProgramGeneratorService
      *     category_slug: string|null,
      *     style_slugs: list<string>,
      *     style_phase: int,
-     *     score: int
+     *     score: int,
+     *     tie_breaker: int
      * }>  $scoredExercises
      * @return array<int, list<array{
      *     exercise_id: int,
@@ -250,7 +298,8 @@ class ProgramGeneratorService
      *     category_slug: string|null,
      *     style_slugs: list<string>,
      *     style_phase: int,
-     *     score: int
+     *     score: int,
+     *     tie_breaker: int
      * }>  $scoredExercises
      * @param  array<string, int>  $dayCategoryUsage
      * @param  array<int, int>  $weeklyUsage
@@ -259,7 +308,8 @@ class ProgramGeneratorService
      *     category_slug: string|null,
      *     style_slugs: list<string>,
      *     style_phase: int,
-     *     score: int
+     *     score: int,
+     *     tie_breaker: int
      * }|null
      */
     private function pickExerciseForSlot(
@@ -312,6 +362,11 @@ class ProgramGeneratorService
                         return $scoreComparison;
                     }
 
+                    $tieBreakerComparison = $left['tie_breaker'] <=> $right['tie_breaker'];
+                    if ($tieBreakerComparison !== 0) {
+                        return $tieBreakerComparison;
+                    }
+
                     $leftUsage = $weeklyUsage[(int) $left['exercise']->id] ?? 0;
                     $rightUsage = $weeklyUsage[(int) $right['exercise']->id] ?? 0;
                     $usageComparison = $leftUsage <=> $rightUsage;
@@ -333,7 +388,8 @@ class ProgramGeneratorService
          *     category_slug: string|null,
          *     style_slugs: list<string>,
          *     style_phase: int,
-         *     score: int
+         *     score: int,
+         *     tie_breaker: int
          * } $fallback
          */
         $fallback = $scoredExercises->first();
@@ -347,7 +403,8 @@ class ProgramGeneratorService
      *     category_slug: string|null,
      *     style_slugs: list<string>,
      *     style_phase: int,
-     *     score: int
+     *     score: int,
+     *     tie_breaker: int
      * }  $scoredExercise
      * @return array{sets: int, reps: string}
      */
@@ -388,5 +445,70 @@ class ProgramGeneratorService
         }
 
         return 3;
+    }
+
+    /**
+     * @param  array<int, list<array{
+     *     exercise_id: int,
+     *     order_index: int,
+     *     sets: int,
+     *     reps: string,
+     *     notes: string|null
+     * }>>  $weeklyTemplate
+     */
+    private function buildProgramSignature(array $weeklyTemplate): string
+    {
+        return hash('sha256', (string) json_encode($weeklyTemplate));
+    }
+
+    /**
+     * @param  list<int>  $equipmentIds
+     */
+    private function buildProfileSignature(
+        string $dominantArm,
+        string $styleSlug,
+        string $experienceLevel,
+        float $bodyWeightKg,
+        int $generatedDays,
+        array $equipmentIds
+    ): string {
+        $parts = [
+            strtolower(trim($dominantArm)),
+            strtolower(trim($styleSlug)),
+            strtolower(trim($experienceLevel)),
+            number_format($bodyWeightKg, 2, '.', ''),
+            (string) $generatedDays,
+            implode(',', $equipmentIds),
+        ];
+
+        return hash('sha256', implode('|', $parts));
+    }
+
+    private function userTieBreaker(int $userId, int $exerciseId): int
+    {
+        return (int) sprintf('%u', crc32($userId.':'.$exerciseId));
+    }
+
+    private function findExistingProgram(
+        int $userId,
+        string $profileSignature,
+        string $programSignature
+    ): ?Program {
+        $program = Program::query()
+            ->where('user_id', $userId)
+            ->where('profile_signature', $profileSignature)
+            ->where('program_signature', $programSignature)
+            ->latest('id')
+            ->first();
+
+        if ($program === null) {
+            return null;
+        }
+
+        return $program->load([
+            'days.exercises.exercise.category',
+            'days.exercises.exercise.styles',
+            'days.exercises.exercise.equipments',
+        ]);
     }
 }

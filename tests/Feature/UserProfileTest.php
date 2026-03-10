@@ -71,7 +71,7 @@ class UserProfileTest extends TestCase
             'weight_kg' => 95,
             'training_days_per_week' => 5,
             'notes' => 'Increase table time volume.',
-            'equipment_ids' => [$strap->id],
+            'equipment_ids' => [$strap->id, $bands->id],
         ]);
 
         $updateResponse->assertRedirect('/profile');
@@ -83,10 +83,14 @@ class UserProfileTest extends TestCase
             'training_days_per_week' => 5,
         ]);
         $this->assertDatabaseCount('user_profiles', 1);
-        $this->assertDatabaseCount('user_equipments', 1);
+        $this->assertDatabaseCount('user_equipments', 2);
         $this->assertDatabaseHas('user_equipments', [
             'user_id' => $user->id,
             'equipment_id' => $strap->id,
+        ]);
+        $this->assertDatabaseHas('user_equipments', [
+            'user_id' => $user->id,
+            'equipment_id' => $bands->id,
         ]);
     }
 
@@ -132,5 +136,42 @@ class UserProfileTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['equipment_ids.0']);
+    }
+
+    public function test_profile_update_should_require_at_least_one_equipment(): void
+    {
+        $user = User::factory()->create();
+        $toproll = Style::query()->firstOrCreate(['slug' => 'toproll'], ['name' => 'Toproll']);
+
+        $response = $this->actingAs($user)->put('/profile', [
+            'dominant_arm' => 'right',
+            'experience_level' => 'beginner',
+            'style_id' => $toproll->id,
+            'weight_kg' => 85,
+            'training_days_per_week' => 3,
+            'equipment_ids' => [],
+        ]);
+
+        $response->assertSessionHasErrors(['equipment_ids']);
+    }
+
+    public function test_profile_update_should_require_anchor_equipment_when_specific_tools_are_selected(): void
+    {
+        $user = User::factory()->create();
+        $toproll = Style::query()->firstOrCreate(['slug' => 'toproll'], ['name' => 'Toproll']);
+        $wristWrench = Equipment::query()->create(['name' => 'Wrist Wrench']);
+
+        $response = $this->actingAs($user)->from('/profile')->put('/profile', [
+            'dominant_arm' => 'right',
+            'experience_level' => 'beginner',
+            'style_id' => $toproll->id,
+            'weight_kg' => 85,
+            'training_days_per_week' => 3,
+            'equipment_ids' => [$wristWrench->id],
+        ]);
+
+        $response
+            ->assertRedirect('/profile')
+            ->assertSessionHasErrors(['equipment_ids']);
     }
 }

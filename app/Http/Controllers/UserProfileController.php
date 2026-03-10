@@ -72,11 +72,42 @@ class UserProfileController extends Controller
             'weight_kg' => ['nullable', 'numeric', 'between:30,300'],
             'training_days_per_week' => ['nullable', 'integer', 'between:1,7'],
             'notes' => ['nullable', 'string', 'max:1000'],
-            'equipment_ids' => ['nullable', 'array'],
+            'equipment_ids' => ['required', 'array', 'min:1'],
             'equipment_ids.*' => ['integer', 'distinct', 'exists:equipments,id'],
         ]);
 
-        $equipmentIds = $validated['equipment_ids'] ?? [];
+        $equipmentIds = collect($validated['equipment_ids'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->values()
+            ->all();
+        $selectedEquipmentNames = Equipment::query()
+            ->whereIn('id', $equipmentIds)
+            ->pluck('name')
+            ->values()
+            ->all();
+        $specificTools = [
+            'Wrist Wrench',
+            'Rolling Handle',
+            'Multispinner',
+            'Eccentric Handle',
+            'Table Strap',
+        ];
+        $anchorEquipments = [
+            'Cable Machine',
+            'Resistance Bands',
+        ];
+
+        $hasSpecificTool = count(array_intersect($selectedEquipmentNames, $specificTools)) > 0;
+        $hasAnchorEquipment = count(array_intersect($selectedEquipmentNames, $anchorEquipments)) > 0;
+
+        if ($hasSpecificTool && ! $hasAnchorEquipment) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'equipment_ids' => 'Select Cable Machine or Resistance Bands when choosing armwrestling specific tools.',
+                ]);
+        }
+
         unset($validated['equipment_ids']);
 
         $request->user()->profile()->updateOrCreate(

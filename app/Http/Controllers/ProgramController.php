@@ -79,11 +79,15 @@ class ProgramController extends Controller
     public function generate(Request $request, ProgramGeneratorService $programGeneratorService): RedirectResponse
     {
         try {
-            $programGeneratorService->generateForUser((int) $request->user()->id);
+            $program = $programGeneratorService->generateForUser((int) $request->user()->id);
         } catch (ValidationException $exception) {
             return back()->withErrors($exception->errors());
         }
 
-        return back()->with('success', 'Program generated successfully.');
+        $message = (bool) $program->getAttribute('was_reused')
+            ? 'An existing program already matches your current profile.'
+            : 'Program generated successfully.';
+
+        return back()->with('success', $message);
     }
 }
