@@ -185,6 +185,42 @@ html[data-theme='light'] .app-theme-toggle:hover {
     color: rgb(30 41 59);
 }
 
+html[data-theme='dark'] .p-button.p-button-loading {
+    opacity: 1;
+}
+
+html[data-theme='dark'] .p-button:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) {
+    color: rgb(241 245 249) !important;
+}
+
+html[data-theme='dark'] .p-button:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) .p-button-label,
+html[data-theme='dark'] .p-button:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) .p-button-icon {
+    color: inherit !important;
+}
+
+html[data-theme='dark'] .p-button:disabled:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle),
+html[data-theme='dark'] .p-button.p-disabled:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) {
+    opacity: 1 !important;
+    color: rgb(248 250 252) !important;
+    background: rgb(79 70 229 / 0.82) !important;
+    border-color: rgb(99 102 241 / 0.9) !important;
+}
+
+html[data-theme='dark'] .p-button:disabled:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) .p-button-label,
+html[data-theme='dark'] .p-button:disabled:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) .p-button-icon,
+html[data-theme='dark'] .p-button.p-disabled:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) .p-button-label,
+html[data-theme='dark'] .p-button.p-disabled:not(.p-button-text):not(.p-button-outlined):not(.app-theme-toggle) .p-button-icon {
+    color: rgb(248 250 252) !important;
+}
+
+html[data-theme='dark'] .p-button .p-button-loading-icon {
+    color: currentColor !important;
+    opacity: 1 !important;
+    filter:
+        drop-shadow(0 0 1px rgb(15 23 42 / 0.9))
+        drop-shadow(0 0 1px rgb(15 23 42 / 0.9));
+}
+
 .programs-hero {
     background:
         radial-gradient(circle at 18% 12%, rgb(99 102 241 / 0.28), transparent 38%),
