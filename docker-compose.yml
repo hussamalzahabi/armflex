@@ -18,19 +18,18 @@ services:
         restart: unless-stopped
 
     db:
-        image: mariadb:11
+        image: postgres:16
         container_name: armflex-db
         environment:
-            MARIADB_DATABASE: armflex
-            MARIADB_USER: armflex
-            MARIADB_PASSWORD: armflex
-            MARIADB_ROOT_PASSWORD: root
+            POSTGRES_DB: armflex
+            POSTGRES_USER: armflex
+            POSTGRES_PASSWORD: armflex
         ports:
-            - '3307:3306'
+            - '5433:5432'
         volumes:
-            - armflex_db_data:/var/lib/mysql
+            - armflex_db_data:/var/lib/postgresql/data
         healthcheck:
-            test: ['CMD', 'mariadb-admin', 'ping', '-h', 'localhost', '-uroot', '-proot']
+            test: ['CMD-SHELL', 'pg_isready -h localhost -U armflex -d armflex']
             interval: 5s
             timeout: 3s
             retries: 20

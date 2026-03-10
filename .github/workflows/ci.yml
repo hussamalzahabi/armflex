@@ -13,6 +13,20 @@ concurrency:
 jobs:
   commit_stage:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: armflex_ci
+          POSTGRES_USER: armflex
+          POSTGRES_PASSWORD: armflex
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U armflex -d armflex_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -22,6 +36,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          extensions: pdo_pgsql
           coverage: none
 
       - name: Setup Node
@@ -51,11 +66,6 @@ jobs:
       - name: Install JS dependencies
         run: yarn install --immutable
 
-      - name: Prepare test database
-        run: |
-          mkdir -p database
-          touch database/database.sqlite
-
       - name: PHP lint (Pint)
         run: composer run lint:php
 
@@ -69,13 +79,31 @@ jobs:
         env:
           APP_ENV: testing
           APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-        run: php artisan test --parallel --testsuite=Unit
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: armflex_ci
+          DB_USERNAME: armflex
+          DB_PASSWORD: armflex
+        run: php artisan test --testsuite=Unit
 
   acceptance_stage:
     needs: commit_stage
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: armflex_ci
+          POSTGRES_USER: armflex
+          POSTGRES_PASSWORD: armflex
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U armflex -d armflex_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -85,6 +113,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          extensions: pdo_pgsql
           coverage: none
 
       - name: Setup Node
@@ -120,53 +149,7 @@ jobs:
       - name: Frontend behavior tests (components/pages)
         run: yarn test:ui
 
-      - name: Prepare test database
-        run: |
-          mkdir -p database
-          touch database/database.sqlite
-
       - name: Run acceptance tests (feature suite)
-        env:
-          APP_ENV: testing
-          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-        run: php artisan test --parallel --testsuite=Feature
-
-  postgres_compat_stage:
-    needs: commit_stage
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: armflex_ci
-          POSTGRES_USER: armflex
-          POSTGRES_PASSWORD: armflex
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U armflex -d armflex_ci"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: pdo_pgsql
-          coverage: none
-
-      - name: Install PHP dependencies
-        run: composer install --no-interaction --no-progress --prefer-dist
-
-      - name: Run Postgres migration smoke test
         env:
           APP_ENV: testing
           APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
@@ -176,4 +159,4 @@ jobs:
           DB_DATABASE: armflex_ci
           DB_USERNAME: armflex
           DB_PASSWORD: armflex
-        run: php artisan migrate --force
+        run: php artisan test --testsuite=Feature
