@@ -476,10 +476,51 @@ html[data-theme='light'] .programs-days .programs-table .p-datatable-tbody > tr:
     padding-top: 0.25rem;
 }
 
+@media (max-width: 768px) {
+    .program-history-card .p-paginator {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 0.55rem;
+        column-gap: 0.35rem;
+        padding: 0.6rem 0.5rem;
+    }
+
+    .program-history-card .p-paginator .p-paginator-pages {
+        order: 1;
+    }
+
+    .program-history-card .p-paginator .p-paginator-current,
+    .program-history-card .p-paginator .p-dropdown {
+        order: 2;
+    }
+
+    .program-history-card .p-paginator .p-dropdown {
+        min-width: 4rem;
+    }
+
+    .program-history-card .p-paginator .p-paginator-element {
+        min-width: 2.2rem;
+        height: 2.2rem;
+    }
+}
+
 @media (max-width: 640px) {
     .p-toast {
         right: 0.75rem;
         left: 0.75rem;
         width: auto;
+    }
+
+    .program-history-card,
+    .program-history-card .p-card-body,
+    .program-history-card .p-card-content,
+    .program-history-card .programs-table .p-datatable-wrapper,
+    .program-history-card .programs-table .p-paginator {
+        border-radius: 0 !important;
+    }
+
+    .program-history-card .programs-table .p-datatable-wrapper {
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
     }
 }

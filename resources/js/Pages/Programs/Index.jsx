@@ -290,7 +290,7 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                     </Card>
 
                     <div className="mt-2 grid gap-3 xl:grid-cols-12">
-                        <Card className={`programs-content-card xl:col-span-5 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
+                        <Card className={`program-history-card programs-content-card xl:col-span-5 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
                             <div className="mb-3 flex items-center justify-between gap-3">
                                 <h4 className={`!m-0 !mb-2 text-lg font-semibold ${headlineClass}`}>Program History</h4>
                                 <Tag
