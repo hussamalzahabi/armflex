@@ -40,6 +40,9 @@ const Home = ({ title }) => {
                             You are signed in as <span className="font-semibold">{auth.user.name}</span> ({auth.user.email}).
                         </p>
                         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                            <Link href="/programs" className="w-full sm:w-auto">
+                                <Button label="Program Studio" className="w-full sm:w-auto sm:min-w-44" />
+                            </Link>
                             <Link href="/profile" className="w-full sm:w-auto">
                                 <Button label="Training profile" className="w-full sm:w-auto sm:min-w-44" />
                             </Link>

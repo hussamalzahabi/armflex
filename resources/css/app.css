@@ -185,6 +185,83 @@ html[data-theme='light'] .app-theme-toggle:hover {
     color: rgb(30 41 59);
 }
 
+.programs-hero {
+    background:
+        radial-gradient(circle at 16% 16%, rgb(14 165 233 / 0.35), transparent 40%),
+        radial-gradient(circle at 82% 10%, rgb(16 185 129 / 0.25), transparent 34%),
+        linear-gradient(135deg, rgb(15 23 42 / 0.88), rgb(30 41 59 / 0.88));
+}
+
+.programs-surface-dark {
+    background: rgb(15 23 42 / 0.92);
+    color: rgb(241 245 249);
+}
+
+.programs-surface-light {
+    background: rgb(255 255 255 / 0.96);
+    color: rgb(15 23 42);
+}
+
+.programs-table .p-datatable-thead > tr > th {
+    border: 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+}
+
+.programs-table .p-datatable-tbody > tr > td {
+    border-width: 0 0 1px;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+}
+
+.programs-days .p-accordion-header-link {
+    border-radius: 0.9rem;
+}
+
+html[data-theme='dark'] .programs-table .p-datatable-header,
+html[data-theme='dark'] .programs-table .p-datatable-thead > tr > th,
+html[data-theme='dark'] .programs-table .p-datatable-tbody > tr > td,
+html[data-theme='dark'] .programs-table .p-paginator {
+    background: rgb(15 23 42);
+    color: rgb(226 232 240);
+    border-color: rgb(51 65 85);
+}
+
+html[data-theme='dark'] .programs-table .p-datatable-tbody > tr.p-highlight,
+html[data-theme='dark'] .programs-table .p-datatable-tbody > tr.p-highlight > td {
+    background: rgb(30 41 59);
+    color: rgb(248 250 252);
+}
+
+html[data-theme='dark'] .programs-table .p-datatable-tbody > tr:not(.p-highlight):hover > td {
+    background: rgb(30 41 59 / 0.7);
+}
+
+html[data-theme='dark'] .programs-days .p-accordion-header-link,
+html[data-theme='dark'] .programs-days .p-accordion-content {
+    background: rgb(15 23 42);
+    color: rgb(226 232 240);
+    border-color: rgb(51 65 85);
+}
+
+html[data-theme='light'] .programs-table .p-datatable-header,
+html[data-theme='light'] .programs-table .p-datatable-thead > tr > th,
+html[data-theme='light'] .programs-table .p-datatable-tbody > tr > td,
+html[data-theme='light'] .programs-table .p-paginator {
+    background: rgb(248 250 252);
+    color: rgb(15 23 42);
+    border-color: rgb(226 232 240);
+}
+
+html[data-theme='light'] .programs-days .p-accordion-header-link,
+html[data-theme='light'] .programs-days .p-accordion-content {
+    background: rgb(248 250 252);
+    border-color: rgb(226 232 240);
+}
+
 @media (max-width: 640px) {
     .p-toast {
         right: 0.75rem;

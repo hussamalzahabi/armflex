@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('home');
 
+    Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
     Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [UserProfileController::class, 'update'])->name('profile.update');
     Route::post('/programs/generate', [ProgramController::class, 'generate'])->name('programs.generate');

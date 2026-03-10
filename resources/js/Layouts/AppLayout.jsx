@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/useTheme';
 
 const navItems = [
     { label: 'Dashboard', href: '/' },
+    { label: 'Programs', href: '/programs' },
     { label: 'Training Profile', href: '/profile' },
 ];
 
