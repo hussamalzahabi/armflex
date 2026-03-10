@@ -374,14 +374,16 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                                     value={day.exercises}
                                                     dataKey="id"
                                                     size="small"
-                                                    className="programs-table"
+                                                    className="programs-table programs-day-table"
                                                     emptyMessage="No exercises assigned."
+                                                    scrollable
+                                                    tableStyle={{ minWidth: '64rem' }}
                                                 >
                                                     <Column field="order_index" header="#" style={{ width: '4rem' }} />
-                                                    <Column field="exercise.name" header="Exercise" body={exerciseNameBody} />
-                                                    <Column field="exercise.category" header="Category" body={categoryBody} />
-                                                    <Column field="sets" header="Prescription" body={prescriptionBody} />
-                                                    <Column field="exercise.equipments" header="Equipment" body={equipmentBody} />
+                                                    <Column field="exercise.name" header="Exercise" body={exerciseNameBody} style={{ minWidth: '20rem' }} />
+                                                    <Column field="exercise.category" header="Category" body={categoryBody} style={{ minWidth: '10rem' }} />
+                                                    <Column field="sets" header="Prescription" body={prescriptionBody} style={{ minWidth: '10rem' }} />
+                                                    <Column field="exercise.equipments" header="Equipment" body={equipmentBody} style={{ minWidth: '16rem' }} />
                                                 </DataTable>
                                             </AccordionTab>
                                         ))}

@@ -282,10 +282,34 @@ html[data-theme='light'] .app-theme-toggle:hover {
 
 .programs-equipment-chip {
     border-radius: 999px;
+    padding: 0.25rem 0.4rem !important;
 }
 
 .programs-equipment-chip .p-chip-text {
     font-weight: 600;
+    white-space: nowrap;
+    line-height: 1.2;
+    margin: 0 0.2rem;
+}
+
+.programs-table .p-tag {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0.45rem 0.8rem;
+}
+
+.programs-table .p-tag .p-tag-value {
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.programs-day-table .p-datatable-wrapper {
+    overflow-x: auto;
+}
+
+.programs-day-table .p-datatable-table {
+    table-layout: fixed;
 }
 
 .programs-equipment-chip-dark {
