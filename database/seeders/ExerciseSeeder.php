@@ -164,6 +164,7 @@ class ExerciseSeeder extends Seeder
             $categorySlug = $exerciseData['category'];
             $exerciseStyles = $exerciseData['styles'];
             unset($exerciseData['equipment']);
+            unset($exerciseData['category']);
             unset($exerciseData['styles']);
 
             $exerciseData['category_id'] = $categoryBySlug->get($categorySlug);

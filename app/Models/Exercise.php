@@ -12,7 +12,6 @@ class Exercise extends Model
         'name',
         'slug',
         'description',
-        'category',
         'category_id',
         'difficulty_level',
         'is_active',
