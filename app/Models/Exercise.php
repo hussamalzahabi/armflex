@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Exercise extends Model
@@ -12,6 +13,7 @@ class Exercise extends Model
         'slug',
         'description',
         'category',
+        'category_id',
         'difficulty_level',
         'is_active',
     ];
@@ -31,5 +33,10 @@ class Exercise extends Model
     public function styles(): BelongsToMany
     {
         return $this->belongsToMany(Style::class, 'exercise_style');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 }

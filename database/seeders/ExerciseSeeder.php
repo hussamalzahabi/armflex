@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Equipment;
 use App\Models\Exercise;
 use App\Models\Style;
@@ -12,6 +13,7 @@ class ExerciseSeeder extends Seeder
     public function run(): void
     {
         $equipmentByName = Equipment::query()->pluck('id', 'name');
+        $categoryBySlug = Category::query()->pluck('id', 'slug');
         $styleBySlug = Style::query()->pluck('id', 'slug');
 
         $exercises = [
@@ -159,9 +161,12 @@ class ExerciseSeeder extends Seeder
 
         foreach ($exercises as $exerciseData) {
             $requiredEquipment = $exerciseData['equipment'];
+            $categorySlug = $exerciseData['category'];
             $exerciseStyles = $exerciseData['styles'];
             unset($exerciseData['equipment']);
             unset($exerciseData['styles']);
+
+            $exerciseData['category_id'] = $categoryBySlug->get($categorySlug);
 
             $exercise = Exercise::query()->updateOrCreate(
                 ['slug' => $exerciseData['slug']],

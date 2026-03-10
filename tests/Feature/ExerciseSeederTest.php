@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Equipment;
 use App\Models\Exercise;
 use App\Models\Style;
+use Database\Seeders\CategorySeeder;
 use Database\Seeders\EquipmentSeeder;
 use Database\Seeders\ExerciseSeeder;
 use Database\Seeders\StyleSeeder;
@@ -19,15 +21,17 @@ class ExerciseSeederTest extends TestCase
     {
         $this->seed([
             EquipmentSeeder::class,
+            CategorySeeder::class,
             StyleSeeder::class,
             ExerciseSeeder::class,
         ]);
 
         $this->assertDatabaseCount('exercises', 14);
 
+        $rising = Category::query()->where('slug', 'rising')->firstOrFail();
         $this->assertDatabaseHas('exercises', [
             'slug' => 'low-pulley-rising',
-            'category' => 'rising',
+            'category_id' => $rising->id,
             'difficulty_level' => 'beginner',
             'is_active' => true,
         ]);
