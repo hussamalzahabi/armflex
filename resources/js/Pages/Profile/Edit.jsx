@@ -1,7 +1,6 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { useRef } from 'react';
 import { Button } from 'primereact/button';
-import { BreadCrumb } from 'primereact/breadcrumb';
 import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
@@ -9,6 +8,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { RadioButton } from 'primereact/radiobutton';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
+import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -68,15 +68,7 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
     };
 
     const equipmentItemError = Object.keys(errors).find((key) => key.startsWith('equipment_ids.'));
-    const profileBreadcrumb = [
-        {
-            label: 'Dashboard',
-            command: () => router.visit('/'),
-        },
-        {
-            label: 'Profile',
-        },
-    ];
+    const profileBreadcrumb = [{ label: 'Dashboard', href: '/' }, { label: 'Profile' }];
 
     return (
         <>
@@ -84,16 +76,7 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
             <Toast ref={toast} />
             <AppLayout title="Training Profile">
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <section
-                        className={`mb-2 rounded-t-3xl px-6 py-4 ${
-                            isDark ? 'bg-slate-800/90 text-slate-100' : 'bg-white text-slate-900'
-                        }`}
-                    >
-                        <BreadCrumb
-                            model={profileBreadcrumb}
-                            className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
-                        />
-                    </section>
+                    <AppBreadcrumb items={profileBreadcrumb} />
                     <Card
                         className={`w-full rounded-b-3xl !rounded-t-none !border-0 ${isDark ? 'bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
                     >

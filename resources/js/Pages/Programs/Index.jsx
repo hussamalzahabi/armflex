@@ -1,7 +1,6 @@
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
-import { BreadCrumb } from 'primereact/breadcrumb';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Chip } from 'primereact/chip';
@@ -10,6 +9,7 @@ import { DataTable } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
+import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -79,7 +79,6 @@ const formatDate = (isoValue) => {
 const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const toast = useRef(null);
     const { isDark } = useTheme();
-    const { flash = {}, errors = {} } = usePage().props;
     const [isGenerating, setIsGenerating] = useState(false);
     const [selectedProgramId, setSelectedProgramId] = useState(programs[0]?.id ?? null);
 
@@ -102,36 +101,6 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
         }
     }, [programs, selectedProgramId]);
 
-    useEffect(() => {
-        if (!flash.success) {
-            return;
-        }
-
-        toast.current?.show({
-            severity: 'success',
-            summary: 'Program Generated',
-            detail: flash.success,
-            life: 3500,
-        });
-    }, [flash.success]);
-
-    useEffect(() => {
-        const firstErrorEntry = Object.entries(errors)[0];
-        if (!firstErrorEntry) {
-            return;
-        }
-
-        const [field, message] = firstErrorEntry;
-        const detail = Array.isArray(message) ? message[0] : message;
-
-        toast.current?.show({
-            severity: 'error',
-            summary: 'Generation Failed',
-            detail: `${humanizeSlug(field)}: ${detail}`,
-            life: 4500,
-        });
-    }, [errors]);
-
     const generateProgram = () => {
         setIsGenerating(true);
 
@@ -140,6 +109,35 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
             {},
             {
                 preserveScroll: true,
+                onSuccess: (page) => {
+                    const nextPrograms = Array.isArray(page.props?.programs) ? page.props.programs : [];
+                    const didCreateNewProgram = nextPrograms.length > programs.length;
+
+                    toast.current?.show({
+                        severity: 'success',
+                        summary: didCreateNewProgram ? 'Program Generated' : 'Program Reused',
+                        detail: didCreateNewProgram
+                            ? 'Program generated successfully.'
+                            : 'An existing program already matches your current profile.',
+                        life: 3500,
+                    });
+                },
+                onError: (errorBag) => {
+                    const firstErrorEntry = Object.entries(errorBag)[0];
+                    if (!firstErrorEntry) {
+                        return;
+                    }
+
+                    const [field, message] = firstErrorEntry;
+                    const detail = Array.isArray(message) ? message[0] : message;
+
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Generation Failed',
+                        detail: `${humanizeSlug(field)}: ${detail}`,
+                        life: 4500,
+                    });
+                },
                 onFinish: () => setIsGenerating(false),
             }
         );
@@ -220,15 +218,7 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const pageSurfaceClass = isDark ? 'programs-surface-dark' : 'programs-surface-light';
     const headlineClass = isDark ? 'text-slate-100' : 'text-slate-900';
     const subtitleClass = isDark ? 'text-slate-300' : 'text-slate-600';
-    const programBreadcrumb = [
-        {
-            label: 'Dashboard',
-            command: () => router.visit('/'),
-        },
-        {
-            label: 'Programs',
-        },
-    ];
+    const programBreadcrumb = [{ label: 'Dashboard', href: '/' }, { label: 'Programs' }];
 
     return (
         <>
@@ -236,14 +226,7 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
             <Toast ref={toast} />
             <AppLayout title="Programs">
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <section className={`mb-2 rounded-t-3xl px-6 py-4 ${isDark ? 'bg-slate-800/90 text-slate-100' : 'bg-white text-slate-900'}`}>
-                        <BreadCrumb
-                            model={programBreadcrumb}
-                            className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${
-                                isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'
-                            }`}
-                        />
-                    </section>
+                    <AppBreadcrumb items={programBreadcrumb} />
 
                     <Card className={`programs-hero !rounded-t-none !rounded-b-none !border-0 ${pageSurfaceClass}`}>
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

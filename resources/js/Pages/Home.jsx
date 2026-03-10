@@ -1,7 +1,7 @@
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { BreadCrumb } from 'primereact/breadcrumb';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -19,16 +19,7 @@ const Home = ({ title }) => {
             <Head title={title} />
             <AppLayout title="Dashboard">
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <section
-                        className={`mb-2 rounded-t-3xl px-6 py-4 ${
-                            isDark ? 'bg-slate-800/90 text-slate-100' : 'bg-white text-slate-900'
-                        }`}
-                    >
-                        <BreadCrumb
-                            model={dashboardBreadcrumb}
-                            className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
-                        />
-                    </section>
+                    <AppBreadcrumb items={dashboardBreadcrumb} />
                     <Card
                         className={`w-full rounded-b-3xl !rounded-t-none !border-0 shadow-xl ${
                             isDark

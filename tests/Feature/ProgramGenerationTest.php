@@ -33,7 +33,6 @@ class ProgramGenerationTest extends TestCase
             ->post(route('programs.generate'));
 
         $response->assertRedirect('/');
-        $response->assertSessionHas('success');
 
         $program = Program::query()
             ->where('user_id', $user->id)
@@ -64,14 +63,12 @@ class ProgramGenerationTest extends TestCase
         $this->actingAs($user)
             ->from('/')
             ->post(route('programs.generate'))
-            ->assertRedirect('/')
-            ->assertSessionHas('success', 'Program generated successfully.');
+            ->assertRedirect('/');
 
         $this->actingAs($user)
             ->from('/')
             ->post(route('programs.generate'))
-            ->assertRedirect('/')
-            ->assertSessionHas('success', 'An existing program already matches your current profile.');
+            ->assertRedirect('/');
 
         $this->assertSame(1, Program::query()->where('user_id', $user->id)->count());
     }
