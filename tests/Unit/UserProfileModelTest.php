@@ -13,7 +13,7 @@ class UserProfileModelTest extends TestCase
 
         $this->assertSame('decimal:2', $profile->getCasts()['weight_kg'] ?? null);
         $this->assertContains('experience_level', $profile->getFillable());
-        $this->assertContains('style', $profile->getFillable());
+        $this->assertContains('style_id', $profile->getFillable());
         $this->assertContains('training_days_per_week', $profile->getFillable());
     }
 }

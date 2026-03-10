@@ -14,7 +14,7 @@ class UserProfile extends Model
         'user_id',
         'dominant_arm',
         'experience_level',
-        'style',
+        'style_id',
         'weight_kg',
         'training_days_per_week',
         'notes',
@@ -30,5 +30,10 @@ class UserProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function style(): BelongsTo
+    {
+        return $this->belongsTo(Style::class);
     }
 }

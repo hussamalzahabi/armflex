@@ -23,22 +23,15 @@ const experienceOptions = [
     { label: 'Advanced', value: 'advanced' },
 ];
 
-const defaultStyleOptions = [
-    { label: 'Toproll', value: 'toproll' },
-    { label: 'Hook', value: 'hook' },
-    { label: 'Press', value: 'press' },
-    { label: 'Mixed', value: 'mixed' },
-];
-
 const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds }) => {
     const toast = useRef(null);
     const { isDark } = useTheme();
     const labelClass = `block text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`;
-    const resolvedStyleOptions = styleOptions?.length ? styleOptions : defaultStyleOptions;
+    const resolvedStyleOptions = styleOptions ?? [];
     const { data, setData, put, processing, errors } = useForm({
         dominant_arm: profile?.dominant_arm ?? 'right',
         experience_level: profile?.experience_level ?? 'beginner',
-        style: profile?.style ?? undefined,
+        style_id: profile?.style_id ?? null,
         weight_kg: profile?.weight_kg ? Number(profile.weight_kg) : null,
         training_days_per_week: profile?.training_days_per_week ?? null,
         notes: profile?.notes ?? '',
@@ -142,13 +135,14 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                             <div className="grid gap-2 sm:grid-cols-2">
                                 {resolvedStyleOptions.map((option) => {
                                     const radioId = `style-${option.value}`;
-                                    const isSelected = data.style === option.value;
+                                    const styleId = Number(option.value);
+                                    const isSelected = Number(data.style_id) === styleId;
 
                                     return (
                                         <label
                                             key={option.value}
                                             htmlFor={radioId}
-                                            onClick={() => setData('style', option.value)}
+                                            onClick={() => setData('style_id', styleId)}
                                             className={`flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 ${
                                                 isDark
                                                     ? 'border border-slate-600 bg-slate-700 hover:bg-slate-600'
@@ -157,17 +151,17 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
                                         >
                                             <RadioButton
                                                 inputId={radioId}
-                                                name="style"
-                                                value={option.value}
+                                                name="style_id"
+                                                value={styleId}
                                                 checked={isSelected}
-                                                onChange={(event) => setData('style', event.value)}
+                                                onChange={(event) => setData('style_id', Number(event.value))}
                                             />
                                             <span className={`text-sm ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>{option.label}</span>
                                         </label>
                                     );
                                 })}
                             </div>
-                            {errors.style && <small className="text-red-600">{errors.style}</small>}
+                            {errors.style_id && <small className="text-red-600">{errors.style_id}</small>}
                         </div>
 
                         <div className="space-y-2">

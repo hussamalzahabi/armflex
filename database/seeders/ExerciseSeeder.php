@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Equipment;
 use App\Models\Exercise;
+use App\Models\Style;
 use Illuminate\Database\Seeder;
 
 class ExerciseSeeder extends Seeder
@@ -11,6 +12,7 @@ class ExerciseSeeder extends Seeder
     public function run(): void
     {
         $equipmentByName = Equipment::query()->pluck('id', 'name');
+        $styleBySlug = Style::query()->pluck('id', 'slug');
 
         $exercises = [
             [
@@ -172,13 +174,14 @@ class ExerciseSeeder extends Seeder
                 ->values()
                 ->all();
 
+            $styleIds = collect($exerciseStyles)
+                ->map(fn (string $styleSlug) => $styleBySlug->get($styleSlug))
+                ->filter()
+                ->values()
+                ->all();
+
             $exercise->equipments()->sync($equipmentIds);
-            $exercise->styles()->delete();
-            $exercise->styles()->createMany(
-                collect($exerciseStyles)
-                    ->map(fn (string $style) => ['style' => $style])
-                    ->all()
-            );
+            $exercise->styles()->sync($styleIds);
         }
     }
 }

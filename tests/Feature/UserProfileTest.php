@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Equipment;
+use App\Models\Style;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -33,11 +34,13 @@ class UserProfileTest extends TestCase
         $dumbbells = Equipment::query()->create(['name' => 'Dumbbells']);
         $bands = Equipment::query()->create(['name' => 'Resistance Bands']);
         $strap = Equipment::query()->create(['name' => 'Table Strap']);
+        $toproll = Style::query()->firstOrCreate(['slug' => 'toproll'], ['name' => 'Toproll']);
+        $press = Style::query()->firstOrCreate(['slug' => 'press'], ['name' => 'Press']);
 
         $response = $this->actingAs($user)->put('/profile', [
             'dominant_arm' => 'right',
             'experience_level' => 'beginner',
-            'style' => 'toproll',
+            'style_id' => $toproll->id,
             'weight_kg' => 92.5,
             'training_days_per_week' => 4,
             'notes' => 'Focus on pronation and back pressure.',
@@ -49,7 +52,7 @@ class UserProfileTest extends TestCase
             'user_id' => $user->id,
             'dominant_arm' => 'right',
             'experience_level' => 'beginner',
-            'style' => 'toproll',
+            'style_id' => $toproll->id,
             'training_days_per_week' => 4,
         ]);
         $this->assertDatabaseHas('user_equipments', [
@@ -64,7 +67,7 @@ class UserProfileTest extends TestCase
         $updateResponse = $this->actingAs($user)->put('/profile', [
             'dominant_arm' => 'left',
             'experience_level' => 'intermediate',
-            'style' => 'press',
+            'style_id' => $press->id,
             'weight_kg' => 95,
             'training_days_per_week' => 5,
             'notes' => 'Increase table time volume.',
@@ -76,7 +79,7 @@ class UserProfileTest extends TestCase
             'user_id' => $user->id,
             'dominant_arm' => 'left',
             'experience_level' => 'intermediate',
-            'style' => 'press',
+            'style_id' => $press->id,
             'training_days_per_week' => 5,
         ]);
         $this->assertDatabaseCount('user_profiles', 1);
@@ -104,7 +107,7 @@ class UserProfileTest extends TestCase
         $response = $this->actingAs($user)->put('/profile', [
             'dominant_arm' => 'invalid',
             'experience_level' => 'expert',
-            'style' => 'inside',
+            'style_id' => 999,
             'weight_kg' => 10,
             'training_days_per_week' => 9,
         ]);
@@ -112,7 +115,7 @@ class UserProfileTest extends TestCase
         $response->assertSessionHasErrors([
             'dominant_arm',
             'experience_level',
-            'style',
+            'style_id',
             'weight_kg',
             'training_days_per_week',
         ]);

@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Equipment;
 use App\Models\Exercise;
+use App\Models\Style;
 use Database\Seeders\EquipmentSeeder;
 use Database\Seeders\ExerciseSeeder;
+use Database\Seeders\StyleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,6 +19,7 @@ class ExerciseSeederTest extends TestCase
     {
         $this->seed([
             EquipmentSeeder::class,
+            StyleSeeder::class,
             ExerciseSeeder::class,
         ]);
 
@@ -48,9 +51,11 @@ class ExerciseSeederTest extends TestCase
             Exercise::query()->doesntHave('equipments')->count()
         );
 
-        $this->assertDatabaseHas('exercise_styles', [
+        $toproll = Style::query()->where('slug', 'toproll')->firstOrFail();
+
+        $this->assertDatabaseHas('exercise_style', [
             'exercise_id' => $exercise->id,
-            'style' => 'toproll',
+            'style_id' => $toproll->id,
         ]);
 
         $this->assertSame(

@@ -17,7 +17,7 @@ vi.mock('@inertiajs/react', () => ({
         data: {
             dominant_arm: 'right',
             experience_level: 'beginner',
-            style: 'toproll',
+            style_id: 1,
             weight_kg: 90,
             training_days_per_week: 4,
             notes: '',
@@ -124,8 +124,8 @@ describe('Profile edit page', () => {
         },
     ];
     const styleOptions = [
-        { label: 'Toproll', value: 'toproll' },
-        { label: 'Hook', value: 'hook' },
+        { label: 'Toproll', value: 1 },
+        { label: 'Hook', value: 2 },
     ];
 
     it('should_render_equipment_and_profile_form_sections', () => {
@@ -178,6 +178,6 @@ describe('Profile edit page', () => {
 
         fireEvent.click(screen.getByText('Hook'));
 
-        expect(setDataMock).toHaveBeenCalledWith('style', 'hook');
+        expect(setDataMock).toHaveBeenCalledWith('style_id', 2);
     });
 });
