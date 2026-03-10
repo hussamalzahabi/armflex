@@ -218,6 +218,8 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const pageSurfaceClass = isDark ? 'programs-surface-dark' : 'programs-surface-light';
     const headlineClass = isDark ? 'text-slate-100' : 'text-slate-900';
     const subtitleClass = isDark ? 'text-slate-300' : 'text-slate-600';
+    const mobileExerciseCardClass = isDark ? 'border border-slate-700 bg-slate-900/45' : 'border border-slate-200 bg-slate-50';
+    const mobileLabelClass = isDark ? 'text-slate-400' : 'text-slate-500';
     const programBreadcrumb = [{ label: 'Dashboard', href: '/' }, { label: 'Programs' }];
 
     return (
@@ -353,21 +355,85 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                     <Accordion multiple activeIndex={selectedProgram.days.map((_, index) => index)} className="programs-days">
                                         {selectedProgram.days.map((day) => (
                                             <AccordionTab key={day.id} header={`Day ${day.day_number}`}>
-                                                <DataTable
-                                                    value={day.exercises}
-                                                    dataKey="id"
-                                                    size="small"
-                                                    className="programs-table programs-day-table"
-                                                    emptyMessage="No exercises assigned."
-                                                    scrollable
-                                                    tableStyle={{ minWidth: '64rem' }}
-                                                >
-                                                    <Column field="order_index" header="#" style={{ width: '4rem' }} />
-                                                    <Column field="exercise.name" header="Exercise" body={exerciseNameBody} style={{ minWidth: '20rem' }} />
-                                                    <Column field="exercise.category" header="Category" body={categoryBody} style={{ minWidth: '10rem' }} />
-                                                    <Column field="sets" header="Prescription" body={prescriptionBody} style={{ minWidth: '10rem' }} />
-                                                    <Column field="exercise.equipments" header="Equipment" body={equipmentBody} style={{ minWidth: '16rem' }} />
-                                                </DataTable>
+                                                <div className="hidden md:block">
+                                                    <DataTable
+                                                        value={day.exercises}
+                                                        dataKey="id"
+                                                        size="small"
+                                                        className="programs-table programs-day-table"
+                                                        emptyMessage="No exercises assigned."
+                                                        scrollable
+                                                        tableStyle={{ minWidth: '64rem' }}
+                                                    >
+                                                        <Column field="order_index" header="#" style={{ width: '4rem' }} />
+                                                        <Column field="exercise.name" header="Exercise" body={exerciseNameBody} style={{ minWidth: '20rem' }} />
+                                                        <Column field="exercise.category" header="Category" body={categoryBody} style={{ minWidth: '10rem' }} />
+                                                        <Column field="sets" header="Prescription" body={prescriptionBody} style={{ minWidth: '10rem' }} />
+                                                        <Column field="exercise.equipments" header="Equipment" body={equipmentBody} style={{ minWidth: '16rem' }} />
+                                                    </DataTable>
+                                                </div>
+
+                                                <div className="space-y-3 md:hidden">
+                                                    {day.exercises.length === 0 ? (
+                                                        <Message severity="info" text="No exercises assigned." className="w-full" />
+                                                    ) : (
+                                                        day.exercises.map((exerciseRow) => (
+                                                            <article
+                                                                key={exerciseRow.id}
+                                                                className={`rounded-2xl p-3.5 shadow-sm ${mobileExerciseCardClass}`}
+                                                            >
+                                                                <div className="mb-2 flex items-start justify-between gap-3">
+                                                                    <div className="min-w-0">
+                                                                        <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${mobileLabelClass}`}>
+                                                                            Exercise #{exerciseRow.order_index}
+                                                                        </p>
+                                                                        <div className="mt-0.5 space-y-0.5">
+                                                                            <p className="text-base font-semibold leading-tight">{exerciseRow.exercise.name}</p>
+                                                                            <p className={`text-[11px] leading-none ${mobileLabelClass}`}>
+                                                                                {humanizeSlug(exerciseRow.exercise.difficulty_level)}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    {categoryBody(exerciseRow)}
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                    <div>
+                                                                        <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${mobileLabelClass}`}>Prescription</p>
+                                                                        <p className="text-sm font-medium">
+                                                                            {exerciseRow.sets} x {exerciseRow.reps}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${mobileLabelClass}`}>Equipment</p>
+                                                                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                                                            {exerciseRow.exercise.equipments.length === 0 ? (
+                                                                                <Tag
+                                                                                    value="None"
+                                                                                    className={`!border-0 !text-xs !font-semibold ${
+                                                                                        isDark ? '!bg-slate-600 !text-slate-100' : '!bg-slate-200 !text-slate-700'
+                                                                                    }`}
+                                                                                    rounded
+                                                                                />
+                                                                            ) : (
+                                                                                exerciseRow.exercise.equipments.map((equipment) => (
+                                                                                    <Chip
+                                                                                        key={equipment.id}
+                                                                                        label={equipment.name}
+                                                                                        className={`programs-equipment-chip !text-xs ${
+                                                                                            isDark ? 'programs-equipment-chip-dark' : 'programs-equipment-chip-light'
+                                                                                        }`}
+                                                                                    />
+                                                                                ))
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </article>
+                                                        ))
+                                                    )}
+                                                </div>
                                             </AccordionTab>
                                         ))}
                                     </Accordion>
