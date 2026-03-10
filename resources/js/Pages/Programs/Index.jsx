@@ -1,6 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
+import { BreadCrumb } from 'primereact/breadcrumb';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Chip } from 'primereact/chip';
@@ -12,18 +13,42 @@ import { Toast } from 'primereact/toast';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
-const styleSeverityMap = {
-    toproll: 'info',
-    hook: 'warning',
-    press: 'danger',
-    mixed: 'success',
+const styleColorMap = {
+    toproll: {
+        dark: '!bg-sky-500/25 !text-sky-100',
+        light: '!bg-sky-100 !text-sky-700',
+    },
+    hook: {
+        dark: '!bg-orange-500/25 !text-orange-100',
+        light: '!bg-orange-100 !text-orange-700',
+    },
+    press: {
+        dark: '!bg-rose-500/25 !text-rose-100',
+        light: '!bg-rose-100 !text-rose-700',
+    },
+    mixed: {
+        dark: '!bg-emerald-500/25 !text-emerald-100',
+        light: '!bg-emerald-100 !text-emerald-700',
+    },
 };
 
-const levelSeverityMap = {
-    beginner: 'success',
-    intermediate: 'info',
-    advanced: 'warning',
-    elite: 'danger',
+const levelColorMap = {
+    beginner: {
+        dark: '!bg-emerald-500/25 !text-emerald-100',
+        light: '!bg-emerald-100 !text-emerald-700',
+    },
+    intermediate: {
+        dark: '!bg-cyan-500/25 !text-cyan-100',
+        light: '!bg-cyan-100 !text-cyan-700',
+    },
+    advanced: {
+        dark: '!bg-amber-500/30 !text-amber-100',
+        light: '!bg-amber-100 !text-amber-700',
+    },
+    elite: {
+        dark: '!bg-fuchsia-500/25 !text-fuchsia-100',
+        light: '!bg-fuchsia-100 !text-fuchsia-700',
+    },
 };
 
 const humanizeSlug = (value) => {
@@ -120,12 +145,36 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
         );
     };
 
+    const resolveStyleTagClass = (styleSlug) => {
+        const mappedClasses = styleColorMap[styleSlug];
+
+        if (!mappedClasses) {
+            return isDark ? '!bg-slate-600 !text-slate-100' : '!bg-slate-200 !text-slate-700';
+        }
+
+        return isDark ? mappedClasses.dark : mappedClasses.light;
+    };
+
+    const resolveLevelTagClass = (levelSlug) => {
+        const mappedClasses = levelColorMap[levelSlug];
+
+        if (!mappedClasses) {
+            return isDark ? '!bg-slate-600 !text-slate-100' : '!bg-slate-200 !text-slate-700';
+        }
+
+        return isDark ? mappedClasses.dark : mappedClasses.light;
+    };
+
     const programStyleBody = (rowData) => (
-        <Tag value={humanizeSlug(rowData.style)} severity={styleSeverityMap[rowData.style] ?? 'secondary'} rounded />
+        <Tag value={humanizeSlug(rowData.style)} className={`!border-0 !text-xs !font-semibold ${resolveStyleTagClass(rowData.style)}`} rounded />
     );
 
     const programLevelBody = (rowData) => (
-        <Tag value={humanizeSlug(rowData.experience_level)} severity={levelSeverityMap[rowData.experience_level] ?? 'secondary'} rounded />
+        <Tag
+            value={humanizeSlug(rowData.experience_level)}
+            className={`!border-0 !text-xs !font-semibold ${resolveLevelTagClass(rowData.experience_level)}`}
+            rounded
+        />
     );
 
     const programDateBody = (rowData) => <span>{formatDate(rowData.created_at)}</span>;
@@ -137,13 +186,18 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
         </div>
     );
 
-    const categoryBody = (rowData) => (
-        <Tag
-            value={rowData.exercise.category?.name ?? 'Uncategorized'}
-            severity={rowData.exercise.category ? 'info' : 'secondary'}
-            rounded
-        />
-    );
+    const categoryBody = (rowData) => {
+        const isKnownCategory = Boolean(rowData.exercise.category);
+        const categoryClass = isDark
+            ? isKnownCategory
+                ? '!bg-blue-500/25 !text-blue-100'
+                : '!bg-slate-600 !text-slate-100'
+            : isKnownCategory
+              ? '!bg-blue-100 !text-blue-700'
+              : '!bg-slate-200 !text-slate-700';
+
+        return <Tag value={rowData.exercise.category?.name ?? 'Uncategorized'} className={`!border-0 !text-xs !font-semibold ${categoryClass}`} rounded />;
+    };
 
     const prescriptionBody = (rowData) => (
         <span className="font-medium">
@@ -154,7 +208,11 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const equipmentBody = (rowData) => (
         <div className="flex flex-wrap gap-1.5">
             {rowData.exercise.equipments.map((equipment) => (
-                <Chip key={equipment.id} label={equipment.name} className="!text-xs" />
+                <Chip
+                    key={equipment.id}
+                    label={equipment.name}
+                    className={`programs-equipment-chip !text-xs ${isDark ? 'programs-equipment-chip-dark' : 'programs-equipment-chip-light'}`}
+                />
             ))}
         </div>
     );
@@ -162,34 +220,62 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const pageSurfaceClass = isDark ? 'programs-surface-dark' : 'programs-surface-light';
     const headlineClass = isDark ? 'text-slate-100' : 'text-slate-900';
     const subtitleClass = isDark ? 'text-slate-300' : 'text-slate-600';
+    const programBreadcrumb = [
+        {
+            label: 'Dashboard',
+            command: () => router.visit('/'),
+        },
+        {
+            label: 'Programs',
+        },
+    ];
 
     return (
         <>
             <Head title="Programs" />
             <Toast ref={toast} />
-            <AppLayout
-                title="Programs"
-                breadcrumb={[
-                    { label: 'Dashboard', href: '/' },
-                    { label: 'Programs' },
-                ]}
-            >
+            <AppLayout title="Programs">
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <Card className={`programs-hero !rounded-3xl !border-0 ${pageSurfaceClass}`}>
+                    <section className={`mb-2 rounded-t-3xl px-6 py-4 ${isDark ? 'bg-slate-800/90 text-slate-100' : 'bg-white text-slate-900'}`}>
+                        <BreadCrumb
+                            model={programBreadcrumb}
+                            className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${
+                                isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'
+                            }`}
+                        />
+                    </section>
+
+                    <Card className={`programs-hero !rounded-t-none !rounded-b-none !border-0 ${pageSurfaceClass}`}>
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div className="space-y-2">
-                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Program Studio</p>
+                                <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>
+                                    Program Studio
+                                </p>
                                 <h3 className={`text-2xl font-semibold tracking-tight ${headlineClass}`}>Build your 4-week training template</h3>
                                 <p className={`max-w-2xl text-sm ${subtitleClass}`}>
                                     Generates a deterministic weekly structure based on your profile, equipment, style, and level. The weekly plan repeats for
                                     4 weeks.
                                 </p>
                                 <div className="flex flex-wrap gap-2 pt-1">
-                                    <Chip label={`Programs: ${programs.length}`} />
-                                    <Chip label={`Profile style: ${profileSummary?.style ?? 'Not set'}`} />
+                                    <Chip
+                                        label={`Programs: ${programs.length}`}
+                                        className={`${isDark ? 'programs-summary-chip-dark' : 'programs-summary-chip-light'}`}
+                                    />
+                                    <Chip
+                                        label={`Profile style: ${profileSummary?.style ?? 'Not set'}`}
+                                        className={`${isDark ? 'programs-summary-chip-dark' : 'programs-summary-chip-light'}`}
+                                    />
                                     <Chip
                                         label={`Training days: ${profileSummary?.training_days_per_week ?? 'Not set'}`}
-                                        className={profileSummary?.training_days_per_week ? '' : 'border-red-400/50'}
+                                        className={
+                                            profileSummary?.training_days_per_week
+                                                ? isDark
+                                                    ? 'programs-summary-chip-dark'
+                                                    : 'programs-summary-chip-light'
+                                                : isDark
+                                                  ? 'programs-summary-chip-danger-dark'
+                                                  : 'programs-summary-chip-danger-light'
+                                        }
                                     />
                                 </div>
                             </div>
@@ -203,11 +289,17 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                         </div>
                     </Card>
 
-                    <div className="mt-3 grid gap-3 xl:grid-cols-12">
-                        <Card className={`xl:col-span-5 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
+                    <div className="mt-2 grid gap-3 xl:grid-cols-12">
+                        <Card className={`programs-content-card xl:col-span-5 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
                             <div className="mb-3 flex items-center justify-between gap-3">
-                                <h4 className={`text-lg font-semibold ${headlineClass}`}>Program History</h4>
-                                <Tag value={`${programs.length} total`} severity="contrast" />
+                                <h4 className={`!m-0 !mb-2 text-lg font-semibold ${headlineClass}`}>Program History</h4>
+                                <Tag
+                                    value={`${programs.length} total`}
+                                    className={`!border-0 !text-xs !font-semibold ${
+                                        isDark ? '!bg-indigo-500/25 !text-indigo-100' : '!bg-indigo-100 !text-indigo-700'
+                                    }`}
+                                    rounded
+                                />
                             </div>
 
                             {programs.length === 0 ? (
@@ -240,20 +332,38 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                             )}
                         </Card>
 
-                        <Card className={`xl:col-span-7 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
+                        <Card className={`programs-content-card xl:col-span-7 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
                             {!selectedProgram ? (
                                 <Message severity="info" text="Generate your first program to preview the weekly template." />
                             ) : (
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap items-start justify-between gap-3">
                                         <div className="space-y-1">
-                                            <h4 className={`text-xl font-semibold tracking-tight ${headlineClass}`}>{selectedProgram.name}</h4>
-                                            <p className={`text-sm ${subtitleClass}`}>Created {formatDate(selectedProgram.created_at)}</p>
+                                            <h4 className={`!m-0 text-xl font-semibold tracking-tight ${headlineClass}`}>{selectedProgram.name}</h4>
+                                            <p className={`!my-2 text-sm ${subtitleClass}`}>Created {formatDate(selectedProgram.created_at)}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
-                                            <Tag value={`${selectedProgram.training_days} days/week`} severity="info" />
-                                            <Tag value={`${selectedProgram.duration_weeks} weeks`} severity="success" />
-                                            <Tag value={`${totalExercisesInSelectedProgram} exercises/week`} severity="warning" />
+                                            <Tag
+                                                value={`${selectedProgram.training_days} days/week`}
+                                                className={`!border-0 !text-xs !font-semibold ${
+                                                    isDark ? '!bg-blue-500/25 !text-blue-100' : '!bg-blue-100 !text-blue-700'
+                                                }`}
+                                                rounded
+                                            />
+                                            <Tag
+                                                value={`${selectedProgram.duration_weeks} weeks`}
+                                                className={`!border-0 !text-xs !font-semibold ${
+                                                    isDark ? '!bg-emerald-500/25 !text-emerald-100' : '!bg-emerald-100 !text-emerald-700'
+                                                }`}
+                                                rounded
+                                            />
+                                            <Tag
+                                                value={`${totalExercisesInSelectedProgram} exercises/week`}
+                                                className={`!border-0 !text-xs !font-semibold ${
+                                                    isDark ? '!bg-amber-500/25 !text-amber-100' : '!bg-amber-100 !text-amber-700'
+                                                }`}
+                                                rounded
+                                            />
                                         </div>
                                     </div>
 
@@ -263,7 +373,6 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                                 <DataTable
                                                     value={day.exercises}
                                                     dataKey="id"
-                                                    stripedRows
                                                     size="small"
                                                     className="programs-table"
                                                     emptyMessage="No exercises assigned."

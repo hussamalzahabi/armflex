@@ -187,9 +187,9 @@ html[data-theme='light'] .app-theme-toggle:hover {
 
 .programs-hero {
     background:
-        radial-gradient(circle at 16% 16%, rgb(14 165 233 / 0.35), transparent 40%),
-        radial-gradient(circle at 82% 10%, rgb(16 185 129 / 0.25), transparent 34%),
-        linear-gradient(135deg, rgb(15 23 42 / 0.88), rgb(30 41 59 / 0.88));
+        radial-gradient(circle at 18% 12%, rgb(99 102 241 / 0.28), transparent 38%),
+        radial-gradient(circle at 82% 8%, rgb(30 64 175 / 0.18), transparent 34%),
+        linear-gradient(140deg, rgb(15 23 42 / 0.9), rgb(30 41 59 / 0.92));
 }
 
 .programs-surface-dark {
@@ -217,8 +217,87 @@ html[data-theme='light'] .app-theme-toggle:hover {
     padding-bottom: 0.8rem;
 }
 
+.programs-table .p-datatable-wrapper {
+    border-top-left-radius: 0.9rem;
+    border-top-right-radius: 0.9rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    overflow: hidden;
+}
+
+.programs-table .p-datatable-table,
+.programs-table .p-datatable-table > .p-datatable-tbody {
+    border-radius: 0 !important;
+}
+
+.programs-table .p-datatable-table .p-datatable-tbody > tr:last-child > td:first-child,
+.programs-table .p-datatable-table .p-datatable-tbody > tr:last-child > td:last-child {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 .programs-days .p-accordion-header-link {
     border-radius: 0.9rem;
+}
+
+.programs-days .p-accordion-tab {
+    margin-bottom: 0.75rem;
+    border-radius: 0.9rem;
+    overflow: hidden;
+}
+
+.programs-days .p-accordion-tab.p-accordion-tab-active > .p-accordion-header .p-accordion-header-link {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.programs-days .p-accordion-content {
+    border-bottom-left-radius: 0.9rem;
+    border-bottom-right-radius: 0.9rem;
+}
+
+.programs-summary-chip-dark {
+    background: rgb(30 41 59 / 0.92) !important;
+    color: rgb(226 232 240) !important;
+    border: 1px solid rgb(71 85 105 / 0.9) !important;
+}
+
+.programs-summary-chip-light {
+    background: rgb(226 232 240 / 0.98) !important;
+    color: rgb(30 41 59) !important;
+    border: 1px solid rgb(203 213 225 / 0.95) !important;
+}
+
+.programs-summary-chip-danger-dark {
+    background: rgb(127 29 29 / 0.45) !important;
+    color: rgb(254 226 226) !important;
+    border: 1px solid rgb(248 113 113 / 0.4) !important;
+}
+
+.programs-summary-chip-danger-light {
+    background: rgb(254 226 226) !important;
+    color: rgb(127 29 29) !important;
+    border: 1px solid rgb(252 165 165) !important;
+}
+
+.programs-equipment-chip {
+    border-radius: 999px;
+}
+
+.programs-equipment-chip .p-chip-text {
+    font-weight: 600;
+}
+
+.programs-equipment-chip-dark {
+    background: rgb(30 41 59) !important;
+    color: rgb(226 232 240) !important;
+    border: 1px solid rgb(71 85 105) !important;
+}
+
+.programs-equipment-chip-light {
+    background: rgb(226 232 240 / 0.95) !important;
+    color: rgb(30 41 59) !important;
+    border: 1px solid rgb(203 213 225) !important;
 }
 
 html[data-theme='dark'] .programs-table .p-datatable-header,
@@ -232,12 +311,20 @@ html[data-theme='dark'] .programs-table .p-paginator {
 
 html[data-theme='dark'] .programs-table .p-datatable-tbody > tr.p-highlight,
 html[data-theme='dark'] .programs-table .p-datatable-tbody > tr.p-highlight > td {
-    background: rgb(30 41 59);
+    background: rgb(79 70 229 / 0.7);
     color: rgb(248 250 252);
 }
 
+html[data-theme='dark'] .programs-table .p-datatable-tbody > tr.p-highlight:focus-within > td {
+    background: rgb(79 70 229 / 0.7);
+}
+
+html[data-theme='dark'] .programs-table .p-datatable-tbody > tr.p-highlight:hover > td {
+    background: rgb(79 70 229 / 0.7);
+}
+
 html[data-theme='dark'] .programs-table .p-datatable-tbody > tr:not(.p-highlight):hover > td {
-    background: rgb(30 41 59 / 0.7);
+    background: rgb(30 41 59);
 }
 
 html[data-theme='dark'] .programs-days .p-accordion-header-link,
@@ -245,6 +332,10 @@ html[data-theme='dark'] .programs-days .p-accordion-content {
     background: rgb(15 23 42);
     color: rgb(226 232 240);
     border-color: rgb(51 65 85);
+}
+
+html[data-theme='dark'] .programs-days .p-accordion-header .p-accordion-header-link {
+    box-shadow: none;
 }
 
 html[data-theme='light'] .programs-table .p-datatable-header,
@@ -256,10 +347,109 @@ html[data-theme='light'] .programs-table .p-paginator {
     border-color: rgb(226 232 240);
 }
 
+html[data-theme='light'] .programs-table .p-datatable-tbody > tr.p-highlight,
+html[data-theme='light'] .programs-table .p-datatable-tbody > tr.p-highlight > td {
+    background: rgb(199 210 254);
+    color: rgb(15 23 42);
+}
+
+html[data-theme='light'] .programs-table .p-datatable-tbody > tr.p-highlight:focus-within > td {
+    background: rgb(199 210 254);
+}
+
+html[data-theme='light'] .programs-table .p-datatable-tbody > tr.p-highlight:hover > td {
+    background: rgb(199 210 254);
+}
+
+html[data-theme='light'] .programs-table .p-datatable-tbody > tr:not(.p-highlight):hover > td {
+    background: rgb(224 231 255 / 0.65);
+}
+
 html[data-theme='light'] .programs-days .p-accordion-header-link,
 html[data-theme='light'] .programs-days .p-accordion-content {
     background: rgb(248 250 252);
     border-color: rgb(226 232 240);
+}
+
+html[data-theme='light'] .programs-days .p-accordion-header .p-accordion-header-link {
+    box-shadow: none;
+}
+
+.programs-table .p-paginator {
+    border-bottom-left-radius: 0.9rem;
+    border-bottom-right-radius: 0.9rem;
+    overflow: hidden;
+}
+
+.programs-table .p-sortable-column .p-sortable-column-icon {
+    opacity: 1;
+}
+
+html[data-theme='dark'] .programs-table .p-sortable-column .p-sortable-column-icon,
+html[data-theme='dark'] .programs-table .p-sortable-column .p-column-title {
+    color: rgb(191 219 254);
+}
+
+html[data-theme='light'] .programs-table .p-sortable-column .p-sortable-column-icon,
+html[data-theme='light'] .programs-table .p-sortable-column .p-column-title {
+    color: rgb(51 65 85);
+}
+
+.programs-table .p-paginator .p-paginator-element {
+    border-radius: 0.5rem;
+}
+
+.programs-table .p-paginator .p-paginator-element .p-paginator-icon {
+    color: inherit !important;
+}
+
+html[data-theme='dark'] .programs-table .p-paginator .p-paginator-element {
+    color: rgb(226 232 240);
+}
+
+html[data-theme='dark'] .programs-table .p-paginator .p-paginator-element.p-disabled {
+    color: rgb(148 163 184);
+    opacity: 1;
+}
+
+html[data-theme='dark'] .programs-table .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background: rgb(67 56 202 / 0.7);
+    color: rgb(255 255 255);
+}
+
+html[data-theme='dark'] .programs-table .p-paginator .p-paginator-element:not(.p-disabled):hover {
+    background: rgb(30 41 59);
+    color: rgb(224 231 255);
+}
+
+html[data-theme='dark'] .programs-days .programs-table .p-datatable-tbody > tr:hover > td {
+    background: rgb(30 41 59) !important;
+}
+
+html[data-theme='light'] .programs-table .p-paginator .p-paginator-element {
+    color: rgb(51 65 85);
+}
+
+html[data-theme='light'] .programs-table .p-paginator .p-paginator-element.p-disabled {
+    color: rgb(100 116 139);
+    opacity: 1;
+}
+
+html[data-theme='light'] .programs-table .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background: rgb(199 210 254);
+    color: rgb(30 41 59);
+}
+
+html[data-theme='light'] .programs-table .p-paginator .p-paginator-element:not(.p-disabled):hover {
+    background: rgb(226 232 240);
+}
+
+html[data-theme='light'] .programs-days .programs-table .p-datatable-tbody > tr:hover > td {
+    background: rgb(224 231 255 / 0.65) !important;
+}
+
+.programs-content-card .p-card-content {
+    padding-top: 0.25rem;
 }
 
 @media (max-width: 640px) {

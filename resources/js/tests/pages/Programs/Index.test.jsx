@@ -95,7 +95,7 @@ describe('Programs page', () => {
     it('should_render_program_studio_and_history_sections', () => {
         render(<ProgramsIndex programs={[]} profileSummary={{ exists: false }} />);
 
-        expect(screen.getByText('Program Studio')).toBeInTheDocument();
+        expect(screen.getAllByText('Program Studio').length).toBeGreaterThan(0);
         expect(screen.getByRole('button', { name: 'Generate Program' })).toBeInTheDocument();
         expect(screen.getByText('Program History')).toBeInTheDocument();
     });
