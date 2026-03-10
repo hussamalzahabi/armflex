@@ -10,8 +10,11 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasColumn('exercises', 'category')) {
-            // Compatibility across SQLite/MySQL when index may already be missing.
-            DB::statement('DROP INDEX IF EXISTS exercises_category_index');
+            if ($this->hasIndex('exercises', 'exercises_category_index')) {
+                Schema::table('exercises', function (Blueprint $table) {
+                    $table->dropIndex('exercises_category_index');
+                });
+            }
 
             Schema::table('exercises', function (Blueprint $table) {
                 $table->dropColumn('category');
@@ -27,5 +30,32 @@ return new class extends Migration
                 $table->index('category');
             });
         }
+    }
+
+    private function hasIndex(string $table, string $index): bool
+    {
+        $driver = DB::getDriverName();
+
+        if (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $database = DB::getDatabaseName();
+
+            return DB::table('information_schema.statistics')
+                ->where('table_schema', $database)
+                ->where('table_name', $table)
+                ->where('index_name', $index)
+                ->exists();
+        }
+
+        if ($driver === 'sqlite') {
+            $result = DB::select('PRAGMA index_list('.$table.')');
+
+            foreach ($result as $row) {
+                if (($row->name ?? null) === $index) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 };
