@@ -35,6 +35,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     libzip-dev \
     libpq-dev \
+    postgresql-client \
     && docker-php-ext-install pdo_mysql pdo_pgsql bcmath opcache \
     && rm -rf /var/lib/apt/lists/*
 

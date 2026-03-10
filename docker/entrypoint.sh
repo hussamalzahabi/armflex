@@ -40,6 +40,19 @@ if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
 fi
 
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
+  if [ "${DB_CONNECTION:-}" = "pgsql" ]; then
+    # Wait until Docker DNS resolves DB_HOST and Postgres is accepting connections.
+    until getent hosts "${DB_HOST}" >/dev/null 2>&1; do
+      echo "Waiting for DB host ${DB_HOST} to resolve..."
+      sleep 2
+    done
+
+    until pg_isready -h "${DB_HOST}" -p "${DB_PORT}" -U "${DB_USERNAME}" -d "${DB_DATABASE}" >/dev/null 2>&1; do
+      echo "Waiting for Postgres ${DB_HOST}:${DB_PORT}/${DB_DATABASE}..."
+      sleep 2
+    done
+  fi
+
   php artisan migrate --force
 fi
 
