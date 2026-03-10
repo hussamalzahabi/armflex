@@ -174,7 +174,6 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         <div className="flex items-center justify-between gap-6">
                             <div className="min-w-0">
                                 <p className={`mb-0.5 text-[11px] uppercase tracking-[0.18em] ${mutedClass}`}>Workspace</p>
-                                <h2 className="truncate text-xl font-semibold tracking-tight">{title}</h2>
                                 {breadcrumbModel.length > 0 && (
                                     <BreadCrumb
                                         model={breadcrumbModel}
