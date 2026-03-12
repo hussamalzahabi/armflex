@@ -3,6 +3,8 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+            args:
+                INSTALL_XDEBUG: '1'
         image: armflex:local
         container_name: armflex-app
         depends_on:
@@ -15,6 +17,13 @@ services:
         environment:
             RUN_MIGRATIONS: 'true'
             RUN_SEEDERS: 'true'
+            XDEBUG_MODE: ${XDEBUG_MODE:-off}
+            XDEBUG_START_WITH_REQUEST: ${XDEBUG_START_WITH_REQUEST:-trigger}
+            XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
+            XDEBUG_CLIENT_PORT: ${XDEBUG_CLIENT_PORT:-9003}
+            XDEBUG_IDEKEY: ${XDEBUG_IDEKEY:-VSCODE}
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
         restart: unless-stopped
 
     db:

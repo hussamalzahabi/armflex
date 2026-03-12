@@ -64,3 +64,31 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Docker Xdebug (local)
+
+Xdebug is enabled in the local Docker build and can be toggled at runtime through `.env.docker`:
+
+- `XDEBUG_MODE=off|debug|coverage`
+- `XDEBUG_START_WITH_REQUEST=trigger|yes`
+- `XDEBUG_CLIENT_HOST=host.docker.internal`
+- `XDEBUG_CLIENT_PORT=9003`
+
+Rebuild the app image after changing Docker build config:
+
+```bash
+docker compose build app
+docker compose up -d
+```
+
+Run tests with coverage from Docker:
+
+```bash
+docker compose exec -e XDEBUG_MODE=coverage app php artisan test --coverage
+```
+
+Run CLI debugging from Docker (when IDE is listening on port `9003`):
+
+```bash
+docker compose exec -e XDEBUG_MODE=debug -e XDEBUG_SESSION=1 app php artisan test --filter=ProgramGenerationTest
+```

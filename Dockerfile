@@ -30,6 +30,8 @@ FROM php:8.3-cli-bookworm AS app
 
 WORKDIR /var/www/html
 
+ARG INSTALL_XDEBUG=0
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
@@ -37,6 +39,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     postgresql-client \
     && docker-php-ext-install pdo_mysql pdo_pgsql bcmath opcache \
+    && if [ "${INSTALL_XDEBUG}" = "1" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends ${PHPIZE_DEPS} && \
+        pecl install xdebug && \
+        docker-php-ext-enable xdebug && \
+        { \
+            echo "xdebug.mode=\${XDEBUG_MODE}"; \
+            echo "xdebug.start_with_request=\${XDEBUG_START_WITH_REQUEST}"; \
+            echo "xdebug.client_host=\${XDEBUG_CLIENT_HOST}"; \
+            echo "xdebug.client_port=\${XDEBUG_CLIENT_PORT}"; \
+            echo "xdebug.idekey=\${XDEBUG_IDEKEY}"; \
+            echo "xdebug.discover_client_host=0"; \
+        } > /usr/local/etc/php/conf.d/99-xdebug.ini && \
+        apt-get purge -y --auto-remove ${PHPIZE_DEPS} && \
+        rm -rf /tmp/pear; \
+    fi \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .
