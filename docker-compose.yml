@@ -46,5 +46,21 @@ services:
             retries: 20
         restart: unless-stopped
 
+    node:
+        image: node:20-bookworm-slim
+        container_name: armflex-node
+        working_dir: /workspace
+        volumes:
+            - ./:/workspace
+            - armflex_node_modules:/workspace/node_modules
+        command: >
+            sh -lc "corepack enable
+            && corepack prepare yarn@4.13.0 --activate
+            && tail -f /dev/null"
+        stdin_open: true
+        tty: true
+        restart: unless-stopped
+
 volumes:
     armflex_db_data:
+    armflex_node_modules:

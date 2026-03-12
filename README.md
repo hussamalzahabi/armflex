@@ -92,3 +92,26 @@ Run CLI debugging from Docker (when IDE is listening on port `9003`):
 ```bash
 docker compose exec -e XDEBUG_MODE=debug -e XDEBUG_SESSION=1 app php artisan test --filter=ProgramGenerationTest
 ```
+
+### Running Yarn inside Docker
+
+The PHP `app` container does not include Node/Yarn. Use the `node` service:
+
+```bash
+docker compose up -d node
+docker compose exec node yarn --version
+```
+
+Install frontend dependencies inside Docker:
+
+```bash
+docker compose exec node yarn install
+```
+
+Run common frontend commands inside Docker:
+
+```bash
+docker compose exec node yarn test:ui
+docker compose exec node yarn lint
+docker compose exec node yarn dev --host
+```
