@@ -1,0 +1,192 @@
+import { Card } from 'primereact/card';
+import { useTheme } from '@/hooks/useTheme';
+
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const parseDate = (value) => {
+    const [year, month, day] = value.split('-').map(Number);
+
+    return new Date(year, month - 1, day);
+};
+
+const toDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
+const addDays = (date, amount) => {
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + amount);
+
+    return nextDate;
+};
+
+const startOfWeek = (date) => addDays(date, -date.getDay());
+
+const endOfWeek = (date) => addDays(date, 6 - date.getDay());
+
+const formatMonth = (date) =>
+    date.toLocaleDateString('en-CA', {
+        month: 'short',
+    });
+
+const buildWeeks = (days) => {
+    if (!Array.isArray(days) || days.length === 0) {
+        return [];
+    }
+
+    const firstDate = parseDate(days[0].date);
+    const lastDate = parseDate(days[days.length - 1].date);
+    const gridStart = startOfWeek(firstDate);
+    const gridEnd = endOfWeek(lastDate);
+    const activityByDate = new Map(days.map((day) => [day.date, day]));
+    const weeks = [];
+    let cursor = gridStart;
+
+    while (cursor <= gridEnd) {
+        const week = [];
+
+        for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+            const dateString = toDateString(cursor);
+            const activityDay = activityByDate.get(dateString);
+
+            week.push(
+                activityDay ?? {
+                    date: dateString,
+                    active: false,
+                    outsideRange: true,
+                }
+            );
+
+            cursor = addDays(cursor, 1);
+        }
+
+        weeks.push(week);
+    }
+
+    return weeks;
+};
+
+const buildMonthLabels = (weeks) => {
+    let previousMonth = null;
+
+    return weeks.map((week, index) => {
+        const firstVisibleDay = week.find((day) => !day.outsideRange);
+
+        if (!firstVisibleDay) {
+            return '';
+        }
+
+        const monthLabel = formatMonth(parseDate(firstVisibleDay.date));
+
+        if (index === 0 || monthLabel !== previousMonth) {
+            previousMonth = monthLabel;
+
+            return monthLabel;
+        }
+
+        return '';
+    });
+};
+
+const TrainingStreakCard = ({ streak }) => {
+    const { isDark } = useTheme();
+
+    if (!streak) {
+        return null;
+    }
+
+    const surfaceClass = isDark ? 'bg-slate-800 shadow-black/20' : 'bg-white shadow-slate-200/70';
+    const titleClass = isDark ? 'text-slate-50' : 'text-slate-900';
+    const subtitleClass = isDark ? 'text-slate-300' : 'text-slate-600';
+    const accentClass = isDark ? 'text-emerald-200' : 'text-emerald-700';
+    const weeks = buildWeeks(streak.activity_days);
+    const monthLabels = buildMonthLabels(weeks);
+
+    const squareClass = (day) => {
+        if (day.outsideRange) {
+            return isDark ? 'border-slate-800/40 bg-slate-900/25' : 'border-slate-100 bg-slate-50';
+        }
+
+        if (day.active) {
+            return isDark ? 'border-emerald-300/40 bg-emerald-400/80' : 'border-emerald-400 bg-emerald-500';
+        }
+
+        return isDark ? 'border-slate-700 bg-slate-900/60' : 'border-slate-200 bg-slate-100';
+    };
+
+    const labelClass = isDark ? 'text-slate-400' : 'text-slate-500';
+
+    const titleForDay = (day) =>
+        `${day.date}${day.outsideRange ? ' — outside visible range' : day.active ? ' — workout completed' : ' — no completed workout'}`;
+
+    return (
+        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
+            <div className="space-y-4">
+                <div className="space-y-1">
+                    <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${accentClass}`}>Training Streak</p>
+                    <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>Consistency at a glance</h3>
+                    <p className={`max-w-2xl text-sm leading-relaxed ${subtitleClass}`}>{streak.message}</p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <div className={`rounded-2xl border px-4 py-3 ${isDark ? 'border-slate-700 bg-slate-900/55' : 'border-slate-200 bg-slate-50'}`}>
+                        <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>Current streak</p>
+                        <p className={`mt-2 text-3xl font-semibold ${titleClass}`}>{streak.current_streak}</p>
+                        <p className={`!m-0 text-sm ${subtitleClass}`}>days</p>
+                    </div>
+                    <div className={`rounded-2xl border px-4 py-3 ${isDark ? 'border-slate-700 bg-slate-900/55' : 'border-slate-200 bg-slate-50'}`}>
+                        <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>Longest streak</p>
+                        <p className={`mt-2 text-3xl font-semibold ${titleClass}`}>{streak.longest_streak}</p>
+                        <p className={`!m-0 text-sm ${subtitleClass}`}>days</p>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>Last 8 weeks</p>
+                    <div className="overflow-x-auto">
+                        <div className="min-w-fit" aria-label="Training activity grid">
+                            <div className="mb-2 ml-10 flex gap-1.5">
+                                {monthLabels.map((label, index) => (
+                                    <div key={`month-${index}`} className={`w-5 text-[11px] font-medium ${labelClass}`}>
+                                        {label}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex items-start gap-2">
+                                <div className="grid grid-rows-7 gap-1.5 pt-0.5">
+                                    {WEEKDAY_LABELS.map((label) => (
+                                        <div key={label} className={`flex h-5 items-center text-[11px] font-medium ${labelClass}`}>
+                                            {label}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-1.5">
+                                    {weeks.map((week, weekIndex) => (
+                                        <div key={`week-${weekIndex}`} className="grid grid-rows-7 gap-1.5">
+                                            {week.map((day) => (
+                                                <div
+                                                    key={day.date}
+                                                    className={`h-5 w-5 rounded-[5px] border ${squareClass(day)}`}
+                                                    title={titleForDay(day)}
+                                                    aria-label={`${day.date} ${day.active ? 'active' : 'inactive'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Card>
+    );
+};
+
+export default TrainingStreakCard;

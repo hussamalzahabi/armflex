@@ -3,10 +3,11 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import OnboardingChecklistCard from '@/Components/OnboardingChecklistCard';
+import TrainingStreakCard from '@/Components/TrainingStreakCard';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
-const Home = ({ title, onboardingChecklist }) => {
+const Home = ({ title, onboardingChecklist, trainingStreak }) => {
     const { auth } = usePage().props;
     const { isDark } = useTheme();
 
@@ -44,6 +45,10 @@ const Home = ({ title, onboardingChecklist }) => {
 
                     <div className="mt-3">
                         <OnboardingChecklistCard checklist={onboardingChecklist} />
+                    </div>
+
+                    <div className="mt-3">
+                        <TrainingStreakCard streak={trainingStreak} />
                     </div>
                 </div>
             </AppLayout>

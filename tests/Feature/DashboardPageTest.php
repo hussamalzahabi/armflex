@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Equipment;
 use App\Models\User;
 use App\Models\UserProfile;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -20,6 +21,7 @@ class DashboardPageTest extends TestCase
 
     public function test_authenticated_user_should_view_incomplete_onboarding_checklist(): void
     {
+        CarbonImmutable::setTestNow('2026-03-13 10:00:00');
         $user = User::factory()->create();
 
         $this->actingAs($user)
@@ -27,6 +29,9 @@ class DashboardPageTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
+                ->where('trainingStreak.current_streak', 0)
+                ->where('trainingStreak.longest_streak', 0)
+                ->has('trainingStreak.activity_days', 56)
                 ->where('onboardingStatus.completed_count', 0)
                 ->where('onboardingStatus.total_count', 5)
                 ->where('onboardingStatus.all_completed', false)
@@ -40,6 +45,7 @@ class DashboardPageTest extends TestCase
 
     public function test_authenticated_user_should_view_completed_onboarding_summary_when_activation_steps_exist(): void
     {
+        CarbonImmutable::setTestNow('2026-03-13 10:00:00');
         $user = User::factory()->create();
 
         UserProfile::query()->create([
@@ -76,11 +82,22 @@ class DashboardPageTest extends TestCase
             'notes' => null,
         ]);
 
+        $user->workouts()->create([
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+            'started_at' => now()->subDays(2),
+            'completed_at' => now()->subDay(),
+            'notes' => null,
+        ]);
+
         $this->actingAs($user)
             ->get('/')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
+                ->where('trainingStreak.current_streak', 2)
+                ->where('trainingStreak.longest_streak', 2)
+                ->has('trainingStreak.activity_days', 56)
                 ->where('onboardingStatus.completed_count', 5)
                 ->where('onboardingStatus.total_count', 5)
                 ->where('onboardingStatus.all_completed', true)
