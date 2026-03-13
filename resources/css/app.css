@@ -370,6 +370,10 @@ html[data-theme='dark'] .p-button .p-button-loading-icon {
     padding: 1rem 3rem 1rem 1rem;
 }
 
+.app-user-menu .p-overlaypanel-content {
+    padding: 1rem;
+}
+
 .app-overlay-panel .p-overlaypanel-close {
     position: absolute;
     top: 0.5rem;

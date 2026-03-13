@@ -1,8 +1,8 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { Avatar } from 'primereact/avatar';
 import { BreadCrumb } from 'primereact/breadcrumb';
 import ThemeToggle from '@/Components/ThemeToggle';
+import UserActionMenu from '@/Components/UserActionMenu';
 import { useTheme } from '@/hooks/useTheme';
 
 const navItems = [
@@ -86,7 +86,10 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                     Menu
                 </button>
                 <p className="text-sm font-semibold tracking-wide">ArmFlex</p>
-                <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+                <div className="flex items-center gap-2">
+                    <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+                    <UserActionMenu user={auth?.user} compact />
+                </div>
             </div>
 
             {mobileMenuOpen && (
@@ -212,11 +215,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
 
                             <div className="flex items-center gap-4">
                                 <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-                                <Avatar
-                                    label={(auth?.user?.name?.[0] ?? 'U').toUpperCase()}
-                                    shape="circle"
-                                    className={isDark ? 'bg-slate-700 text-slate-100' : 'bg-slate-200 text-slate-700'}
-                                />
+                                <UserActionMenu user={auth?.user} />
                             </div>
                         </div>
                     </header>

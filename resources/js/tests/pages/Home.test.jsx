@@ -91,6 +91,17 @@ const trainingStreak = {
     activity_days: buildActivityDays(),
 };
 
+const dashboardHero = {
+    title: 'Welcome back, Test',
+    subtitle: 'Ready for today’s training?',
+    start_workout_target: {
+        kind: 'start_program_day',
+        label: 'Start Workout',
+        program_id: 7,
+        program_day_id: 11,
+    },
+};
+
 const { logoutPostMock, routerGetMock } = vi.hoisted(() => ({
     logoutPostMock: vi.fn(),
     routerGetMock: vi.fn(),
@@ -121,6 +132,7 @@ vi.mock('@inertiajs/react', () => ({
     router: {
         get: routerGetMock,
         post: logoutPostMock,
+        visit: vi.fn(),
     },
 }));
 
@@ -157,6 +169,23 @@ vi.mock('primereact/avatar', () => ({
     Avatar: ({ label }) => <span>{label}</span>,
 }));
 
+vi.mock('primereact/overlaypanel', async () => {
+    const React = await import('react');
+
+    return {
+        OverlayPanel: React.forwardRef(function OverlayPanelMock({ children }, ref) {
+            const [open, setOpen] = React.useState(false);
+
+            React.useImperativeHandle(ref, () => ({
+                toggle: () => setOpen((value) => !value),
+                hide: () => setOpen(false),
+            }));
+
+            return open ? <div>{children}</div> : null;
+        }),
+    };
+});
+
 vi.mock('@/hooks/useTheme', () => ({
     useTheme: () => ({
         isDark: false,
@@ -166,11 +195,19 @@ vi.mock('@/hooks/useTheme', () => ({
 
 describe('Home page', () => {
     it('should_render_authenticated_user_summary', () => {
-        render(<Home title="Dashboard" onboardingChecklist={onboardingChecklist} trainingStreak={trainingStreak} />);
+        render(
+            <Home
+                title="Dashboard"
+                onboardingChecklist={onboardingChecklist}
+                trainingStreak={trainingStreak}
+                dashboardHero={dashboardHero}
+            />
+        );
 
         expect(screen.getAllByRole('heading', { name: 'Dashboard' }).length).toBeGreaterThan(0);
-        expect(screen.getAllByText(/Test User/).length).toBeGreaterThan(0);
-        expect(screen.getAllByText(/test@example.com/).length).toBeGreaterThan(0);
+        expect(screen.getByText('Welcome back, Test')).toBeInTheDocument();
+        expect(screen.getByText('Ready for today’s training?')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Start Workout' })).toBeInTheDocument();
         expect(screen.getByText('Get started with your training')).toBeInTheDocument();
         expect(screen.getAllByText('Progress: 2 / 5 steps completed').length).toBeGreaterThan(0);
         expect(screen.getByText('Create a personalized training template based on your profile.')).toBeInTheDocument();
@@ -185,16 +222,34 @@ describe('Home page', () => {
         expect(screen.getByLabelText('Training activity grid')).toBeInTheDocument();
     });
 
-    it('should_post_logout_request_when_logout_is_clicked', () => {
-        render(<Home title="Dashboard" onboardingChecklist={onboardingChecklist} trainingStreak={trainingStreak} />);
+    it('should_open_user_menu_and_post_logout_request_when_logout_is_clicked', () => {
+        render(
+            <Home
+                title="Dashboard"
+                onboardingChecklist={onboardingChecklist}
+                trainingStreak={trainingStreak}
+                dashboardHero={dashboardHero}
+            />
+        );
 
+        fireEvent.click(screen.getAllByRole('button', { name: 'Open user menu' })[0]);
         fireEvent.click(screen.getByRole('button', { name: 'Logout' }));
 
+        expect(screen.getByText('Training Profile')).toBeInTheDocument();
+        expect(screen.getByText('Programs')).toBeInTheDocument();
+        expect(screen.getByText('Workouts')).toBeInTheDocument();
         expect(logoutPostMock).toHaveBeenCalledWith('/logout');
     });
 
     it('should_change_streak_year_when_year_selector_changes', () => {
-        render(<Home title="Dashboard" onboardingChecklist={onboardingChecklist} trainingStreak={trainingStreak} />);
+        render(
+            <Home
+                title="Dashboard"
+                onboardingChecklist={onboardingChecklist}
+                trainingStreak={trainingStreak}
+                dashboardHero={dashboardHero}
+            />
+        );
 
         fireEvent.change(screen.getByLabelText('Year'), { target: { value: '2025' } });
 
@@ -209,8 +264,39 @@ describe('Home page', () => {
         );
     });
 
+    it('should_post_start_workout_when_dashboard_primary_cta_is_clicked', () => {
+        render(
+            <Home
+                title="Dashboard"
+                onboardingChecklist={onboardingChecklist}
+                trainingStreak={trainingStreak}
+                dashboardHero={dashboardHero}
+            />
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'Start Workout' }));
+
+        expect(logoutPostMock).toHaveBeenCalledWith(
+            '/workouts/start',
+            {
+                program_id: 7,
+                program_day_id: 11,
+            },
+            expect.objectContaining({
+                preserveScroll: true,
+            })
+        );
+    });
+
     it('should_render_onboarding_success_state_when_all_steps_are_complete', () => {
-        render(<Home title="Dashboard" onboardingChecklist={completedChecklist} trainingStreak={trainingStreak} />);
+        render(
+            <Home
+                title="Dashboard"
+                onboardingChecklist={completedChecklist}
+                trainingStreak={trainingStreak}
+                dashboardHero={dashboardHero}
+            />
+        );
 
         expect(screen.getByText("You're ready to train")).toBeInTheDocument();
         expect(screen.getByText('Progress: 5 / 5 steps completed')).toBeInTheDocument();

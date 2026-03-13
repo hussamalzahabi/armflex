@@ -22,7 +22,9 @@ class DashboardPageTest extends TestCase
     public function test_authenticated_user_should_view_incomplete_onboarding_checklist(): void
     {
         CarbonImmutable::setTestNow('2026-03-13 10:00:00');
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'name' => '',
+        ]);
 
         $this->actingAs($user)
             ->get('/')
@@ -33,6 +35,10 @@ class DashboardPageTest extends TestCase
                 ->where('trainingStreak.longest_streak', 0)
                 ->has('trainingStreak.activity_days', 365)
                 ->where('trainingStreak.selected_year', 2026)
+                ->where('dashboardHero.title', 'Welcome back')
+                ->where('dashboardHero.subtitle', 'Ready for today’s training?')
+                ->where('dashboardHero.start_workout_target.kind', 'open_programs')
+                ->where('dashboardHero.start_workout_target.url', route('programs.index'))
                 ->where('onboardingStatus.completed_count', 0)
                 ->where('onboardingStatus.total_count', 5)
                 ->where('onboardingStatus.all_completed', false)
@@ -47,7 +53,9 @@ class DashboardPageTest extends TestCase
     public function test_authenticated_user_should_view_completed_onboarding_summary_when_activation_steps_exist(): void
     {
         CarbonImmutable::setTestNow('2026-03-13 10:00:00');
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'name' => '',
+        ]);
 
         UserProfile::query()->create([
             'user_id' => $user->id,
@@ -100,6 +108,10 @@ class DashboardPageTest extends TestCase
                 ->where('trainingStreak.longest_streak', 2)
                 ->has('trainingStreak.activity_days', 365)
                 ->where('trainingStreak.selected_year', 2026)
+                ->where('dashboardHero.title', 'Welcome back')
+                ->where('dashboardHero.start_workout_target.kind', 'start_program_day')
+                ->where('dashboardHero.start_workout_target.program_id', $program->id)
+                ->where('dashboardHero.start_workout_target.program_day_id', $programDay->id)
                 ->where('onboardingStatus.completed_count', 5)
                 ->where('onboardingStatus.total_count', 5)
                 ->where('onboardingStatus.all_completed', true)
@@ -108,5 +120,43 @@ class DashboardPageTest extends TestCase
                 ->where('onboardingChecklist.all_completed', true)
                 ->where('onboardingChecklist.items.0.completed', true)
                 ->where('onboardingChecklist.items.4.completed', true));
+    }
+
+    public function test_dashboard_should_target_next_program_day_when_no_workout_is_in_progress(): void
+    {
+        CarbonImmutable::setTestNow('2026-03-13 10:00:00');
+        $user = User::factory()->create([
+            'name' => 'Hussam Alzahabi',
+        ]);
+
+        $program = $user->programs()->create([
+            'name' => 'Mixed Foundation Program',
+            'style' => 'mixed',
+            'experience_level' => 'beginner',
+            'training_days' => 3,
+            'duration_weeks' => 4,
+            'profile_signature' => 'dashboard-profile-signature',
+            'program_signature' => 'dashboard-program-signature',
+        ]);
+
+        $dayOne = $program->days()->create(['day_number' => 1]);
+        $dayTwo = $program->days()->create(['day_number' => 2]);
+
+        $user->workouts()->create([
+            'program_id' => $program->id,
+            'program_day_id' => $dayOne->id,
+            'started_at' => now()->subDay(),
+            'completed_at' => now()->subDay(),
+        ]);
+
+        $this->actingAs($user)
+            ->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Home')
+                ->where('dashboardHero.title', 'Welcome back, Hussam')
+                ->where('dashboardHero.start_workout_target.kind', 'start_program_day')
+                ->where('dashboardHero.start_workout_target.program_id', $program->id)
+                ->where('dashboardHero.start_workout_target.program_day_id', $dayTwo->id));
     }
 }

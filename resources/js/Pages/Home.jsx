@@ -1,4 +1,4 @@
-import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import AppBreadcrumb from '@/Components/AppBreadcrumb';
@@ -7,12 +7,34 @@ import TrainingStreakCard from '@/Components/TrainingStreakCard';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
-const Home = ({ title, onboardingChecklist, trainingStreak }) => {
-    const { auth } = usePage().props;
+const Home = ({ title, onboardingChecklist, trainingStreak, dashboardHero }) => {
     const { isDark } = useTheme();
 
-    const logout = () => {
-        router.post('/logout');
+    const startWorkout = () => {
+        const target = dashboardHero?.start_workout_target;
+
+        if (!target) {
+            router.visit('/programs');
+
+            return;
+        }
+
+        if (target.kind === 'start_program_day') {
+            router.post(
+                '/workouts/start',
+                {
+                    program_id: target.program_id,
+                    program_day_id: target.program_day_id,
+                },
+                {
+                    preserveScroll: true,
+                }
+            );
+
+            return;
+        }
+
+        router.visit(target.url);
     };
     const dashboardBreadcrumb = [{ label: 'Dashboard' }];
 
@@ -29,17 +51,28 @@ const Home = ({ title, onboardingChecklist, trainingStreak }) => {
                                 : 'bg-white shadow-slate-200/70'
                         }`}
                     >
-                        <p>
-                            You are signed in as <span className="font-semibold">{auth.user.name}</span> ({auth.user.email}).
-                        </p>
-                        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                            <Link href="/programs" className="w-full sm:w-auto">
-                                <Button label="Program Studio" className="w-full sm:w-auto sm:min-w-44" />
-                            </Link>
-                            <Link href="/profile" className="w-full sm:w-auto">
-                                <Button label="Training profile" className="w-full sm:w-auto sm:min-w-44" />
-                            </Link>
-                            <Button label="Logout" severity="secondary" onClick={logout} className="w-full sm:w-auto sm:min-w-44" />
+                        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                            <div className="space-y-2">
+                                <p className={`mb-0 text-[11px] font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-emerald-200' : 'text-emerald-700'}`}>
+                                    Dashboard
+                                </p>
+                                <div className="space-y-1">
+                                    <h2 className={`m-0 text-3xl font-semibold tracking-tight ${isDark ? 'text-slate-50' : 'text-slate-900'}`}>
+                                        {dashboardHero?.title ?? 'Welcome back'}
+                                    </h2>
+                                    <p className={`m-0 text-base ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                                        {dashboardHero?.subtitle ?? 'Ready for today’s training?'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="w-full md:w-auto">
+                                <Button
+                                    label="Start Workout"
+                                    onClick={startWorkout}
+                                    className="w-full md:w-auto md:min-w-48"
+                                />
+                            </div>
                         </div>
                     </Card>
 
