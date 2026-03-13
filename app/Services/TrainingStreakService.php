@@ -14,19 +14,21 @@ class TrainingStreakService
     {
         $today = CarbonImmutable::today();
         $selectedYear = $year ?: $today->year;
-        $activeDateStrings = $this->getActiveDatesForUser($userId)->all();
+        $completedWorkoutCounts = $this->getCompletedWorkoutCountsByDateForUser($userId);
+        $activeDateStrings = array_keys($completedWorkoutCounts);
         $currentStreak = $this->calculateCurrentStreak($activeDateStrings, $today);
         $yearOptions = $this->yearOptionsForActivityDates($activeDateStrings, $selectedYear);
         $clampedYear = in_array($selectedYear, $yearOptions, true) ? $selectedYear : $yearOptions[0];
-        $activityDatesForYear = array_values(array_filter(
-            $activeDateStrings,
-            fn (string $dateString) => CarbonImmutable::parse($dateString)->year === $clampedYear
-        ));
+        $activityCountsForYear = array_filter(
+            $completedWorkoutCounts,
+            fn (int $count, string $dateString) => CarbonImmutable::parse($dateString)->year === $clampedYear,
+            ARRAY_FILTER_USE_BOTH
+        );
 
         return [
             'current_streak' => $currentStreak,
             'longest_streak' => $this->calculateLongestStreak($activeDateStrings),
-            'activity_days' => $this->buildActivityDaysForYear($activityDatesForYear, $clampedYear),
+            'activity_days' => $this->buildActivityDaysForYear($activityCountsForYear, $clampedYear),
             'selected_year' => $clampedYear,
             'year_options' => $yearOptions,
             'message' => $this->messageForStreak($currentStreak),
@@ -35,7 +37,7 @@ class TrainingStreakService
 
     /**
      * @param  array<int, string>  $activeDateStrings
-     * @return array<int, array{date: string, active: bool}>
+     * @return array<int, array{date: string, active: bool, workout_count: int}>
      */
     public function buildActivityDays(array $activeDateStrings, ?CarbonImmutable $today = null): array
     {
@@ -49,6 +51,7 @@ class TrainingStreakService
             $days[] = [
                 'date' => $date,
                 'active' => isset($activeLookup[$date]),
+                'workout_count' => isset($activeLookup[$date]) ? 1 : 0,
             ];
         }
 
@@ -56,12 +59,11 @@ class TrainingStreakService
     }
 
     /**
-     * @param  array<int, string>  $activeDateStrings
-     * @return array<int, array{date: string, active: bool}>
+     * @param  array<string, int>  $completedWorkoutCounts
+     * @return array<int, array{date: string, active: bool, workout_count: int}>
      */
-    public function buildActivityDaysForYear(array $activeDateStrings, int $year): array
+    public function buildActivityDaysForYear(array $completedWorkoutCounts, int $year): array
     {
-        $activeLookup = array_fill_keys($activeDateStrings, true);
         $startDate = CarbonImmutable::create($year, 1, 1)->startOfDay();
         $endDate = $startDate->endOfYear();
         $days = [];
@@ -69,9 +71,11 @@ class TrainingStreakService
 
         while ($currentDate->lte($endDate)) {
             $date = $currentDate->toDateString();
+            $workoutCount = $completedWorkoutCounts[$date] ?? 0;
             $days[] = [
                 'date' => $date,
-                'active' => isset($activeLookup[$date]),
+                'active' => $workoutCount > 0,
+                'workout_count' => $workoutCount,
             ];
 
             $currentDate = $currentDate->addDay();
@@ -152,19 +156,19 @@ class TrainingStreakService
     }
 
     /**
-     * @return Collection<int, string>
+     * @return array<string, int>
      */
-    private function getActiveDatesForUser(int $userId): Collection
+    private function getCompletedWorkoutCountsByDateForUser(int $userId): array
     {
         $user = User::query()->findOrFail($userId);
 
         return $user->workouts()
             ->whereNotNull('completed_at')
-            ->orderBy('completed_at')
             ->get(['completed_at'])
-            ->map(fn ($workout) => $workout->completed_at->toDateString())
-            ->unique()
-            ->values();
+            ->groupBy(fn ($workout) => $workout->completed_at->toDateString())
+            ->map(fn (Collection $workouts) => $workouts->count())
+            ->sortKeys()
+            ->all();
     }
 
     /**

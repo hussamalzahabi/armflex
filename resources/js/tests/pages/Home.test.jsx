@@ -77,6 +77,7 @@ const buildActivityDays = () => {
         return {
             date: `${year}-${month}-${day}`,
             active: index % 4 === 0,
+            workout_count: index % 12 === 0 ? 3 : index % 8 === 0 ? 2 : index % 4 === 0 ? 1 : 0,
         };
     });
 };

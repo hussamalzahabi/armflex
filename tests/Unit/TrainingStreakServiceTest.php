@@ -60,8 +60,10 @@ class TrainingStreakServiceTest extends TestCase
         $this->assertCount(56, $days);
         $this->assertSame('2026-01-17', $days[0]['date']);
         $this->assertFalse($days[0]['active']);
+        $this->assertSame(0, $days[0]['workout_count']);
         $this->assertSame('2026-03-13', $days[55]['date']);
         $this->assertTrue($days[55]['active']);
+        $this->assertSame(1, $days[55]['workout_count']);
     }
 
     public function test_year_activity_grid_should_cover_the_selected_year(): void
@@ -69,15 +71,18 @@ class TrainingStreakServiceTest extends TestCase
         $service = new TrainingStreakService;
 
         $days = $service->buildActivityDaysForYear([
-            '2026-01-01',
-            '2026-03-13',
-            '2026-12-31',
+            '2026-01-01' => 1,
+            '2026-03-13' => 2,
+            '2026-12-31' => 4,
         ], 2026);
 
         $this->assertCount(365, $days);
         $this->assertSame('2026-01-01', $days[0]['date']);
         $this->assertTrue($days[0]['active']);
+        $this->assertSame(1, $days[0]['workout_count']);
+        $this->assertSame(2, $days[71]['workout_count']);
         $this->assertSame('2026-12-31', $days[364]['date']);
         $this->assertTrue($days[364]['active']);
+        $this->assertSame(4, $days[364]['workout_count']);
     }
 }

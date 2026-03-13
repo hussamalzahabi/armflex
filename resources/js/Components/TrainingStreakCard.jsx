@@ -59,6 +59,7 @@ const buildWeeks = (days) => {
                 activityDay ?? {
                     date: dateString,
                     active: false,
+                    workout_count: 0,
                     outsideRange: true,
                 }
             );
@@ -104,8 +105,16 @@ const TrainingStreakCard = ({ streak }) => {
             return isDark ? 'border-slate-800/40 bg-slate-900/25' : 'border-slate-100 bg-slate-50';
         }
 
-        if (day.active) {
-            return isDark ? 'border-emerald-300/40 bg-emerald-400/80' : 'border-emerald-400 bg-emerald-500';
+        if (day.workout_count >= 3) {
+            return isDark ? 'border-emerald-200/60 bg-emerald-300' : 'border-emerald-600 bg-emerald-500';
+        }
+
+        if (day.workout_count === 2) {
+            return isDark ? 'border-emerald-300/50 bg-emerald-400/80' : 'border-emerald-500 bg-emerald-400';
+        }
+
+        if (day.workout_count === 1) {
+            return isDark ? 'border-emerald-400/40 bg-emerald-500/55' : 'border-emerald-400 bg-emerald-300';
         }
 
         return isDark ? 'border-slate-700 bg-slate-900/60' : 'border-slate-200 bg-slate-100';
@@ -113,8 +122,22 @@ const TrainingStreakCard = ({ streak }) => {
 
     const labelClass = isDark ? 'text-slate-400' : 'text-slate-500';
 
-    const titleForDay = (day) =>
-        `${day.date}${day.outsideRange ? ' — outside visible range' : day.active ? ' — workout completed' : ' — no completed workout'}`;
+    const titleForDay = (day) => {
+        if (day.outsideRange) {
+            return `${day.date} — outside visible range`;
+        }
+
+        const workoutLabel =
+            day.workout_count === 0
+                ? '0 workouts'
+                : day.workout_count === 1
+                  ? '1 workout'
+                  : day.workout_count === 2
+                    ? '2 workouts'
+                    : '3+ workouts';
+
+        return `${day.date} — ${workoutLabel}`;
+    };
 
     const handleYearChange = (event) => {
         router.get(
