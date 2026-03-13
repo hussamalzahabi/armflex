@@ -252,7 +252,7 @@ const WorkoutsShow = ({ workout }) => {
                                                     aria-label="Why Finish Workout is disabled"
                                                     onClick={(event) => finishHelpOverlay.current?.toggle(event)}
                                                 >
-                                                    <span aria-hidden="true">i</span>
+                                                    <i className="pi pi-info-circle text-sm" aria-hidden="true" />
                                                 </button>
                                                 <OverlayPanel
                                                     ref={finishHelpOverlay}

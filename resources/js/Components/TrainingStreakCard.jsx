@@ -74,7 +74,7 @@ const buildWeeks = (days) => {
 };
 
 const buildMonthLabels = (weeks) => {
-    return weeks.map((week, index) => {
+    return weeks.map((week) => {
         const monthStartDay = week.find((day) => !day.outsideRange && parseDate(day.date).getDate() === 1);
 
         if (!monthStartDay) {
@@ -192,8 +192,8 @@ const TrainingStreakCard = ({ streak }) => {
                     <div className="overflow-x-auto pt-1 pb-2">
                         <div className="min-w-fit" aria-label="Training activity grid">
                             <div className="mb-4 ml-10 flex gap-1.5">
-                                {monthLabels.map((label, index) => (
-                                    <div key={`month-${index}`} className={`w-5 text-xs font-medium ${labelClass}`}>
+                                {monthLabels.map((label, monthIndex) => (
+                                    <div key={`month-${monthIndex}`} className={`w-5 text-xs font-medium ${labelClass}`}>
                                         {label}
                                     </div>
                                 ))}
