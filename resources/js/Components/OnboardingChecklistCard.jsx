@@ -21,13 +21,13 @@ const OnboardingChecklistCard = ({ checklist }) => {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="space-y-1">
                             <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${progressClass}`}>Onboarding Complete</p>
-                            <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>You&apos;re set to train.</h3>
+                            <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>You&apos;re ready to train</h3>
                             <p className={`max-w-2xl text-sm leading-relaxed ${subtitleClass}`}>
-                                Your profile, equipment, first program, and first completed workout are in place.
+                                Your training system is fully set up. Start your next workout or generate a new program anytime.
                             </p>
                         </div>
                         <p className={`text-sm font-semibold ${progressClass}`}>
-                            {checklist.completed_count} / {checklist.total_count} complete
+                            Progress: {checklist.completed_count} / {checklist.total_count} steps completed
                         </p>
                     </div>
 
@@ -38,15 +38,15 @@ const OnboardingChecklistCard = ({ checklist }) => {
                                 isDark ? 'bg-slate-700 text-slate-50 hover:bg-slate-600' : 'bg-slate-900 text-white hover:bg-slate-700'
                             }`}
                         >
-                            Open Programs
+                            Start workout
                         </Link>
                         <Link
-                            href="/workouts"
+                            href="/programs"
                             className={`inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium no-underline ${
                                 isDark ? 'bg-slate-900 text-slate-50 hover:bg-slate-800' : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
                             }`}
                         >
-                            View Workouts
+                            View programs
                         </Link>
                     </div>
                 </div>
@@ -60,13 +60,13 @@ const OnboardingChecklistCard = ({ checklist }) => {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
                         <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${progressClass}`}>Getting Started</p>
-                        <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>Complete your activation path.</h3>
+                        <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>Get started with your training</h3>
                         <p className={`max-w-2xl text-sm leading-relaxed ${subtitleClass}`}>
-                            Finish these first five steps to unlock the full profile → program → workout loop.
+                            Follow these steps to set up your training system and start logging workouts.
                         </p>
                     </div>
                     <p className={`text-sm font-semibold ${progressClass}`}>
-                        {checklist.completed_count} / {checklist.total_count} complete
+                        Progress: {checklist.completed_count} / {checklist.total_count} steps completed
                     </p>
                 </div>
 
@@ -94,7 +94,9 @@ const OnboardingChecklistCard = ({ checklist }) => {
                                 </span>
                                 <div className="space-y-1">
                                     <p className={`!m-0 text-sm font-medium ${titleClass}`}>{item.label}</p>
-                                    <p className={`!m-0 text-xs ${subtitleClass}`}>{item.completed ? 'Done' : 'Still needed'}</p>
+                                    <p className={`!m-0 text-xs leading-relaxed ${subtitleClass}`}>
+                                        {item.completed ? `✓ ${item.completed_label}` : item.description}
+                                    </p>
                                 </div>
                             </div>
 
@@ -110,7 +112,7 @@ const OnboardingChecklistCard = ({ checklist }) => {
                                           : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
                                 }`}
                             >
-                                {item.completed ? 'Review' : 'Go to step'}
+                                {item.completed ? 'Open' : item.action_label}
                             </Link>
                         </div>
                     ))}

@@ -8,11 +8,51 @@ const onboardingChecklist = {
     total_count: 5,
     all_completed: false,
     items: [
-        { key: 'training_profile_completed', label: 'Complete training profile', completed: true, action_url: '/profile' },
-        { key: 'equipment_added', label: 'Add available equipment', completed: true, action_url: '/profile' },
-        { key: 'program_generated', label: 'Generate first program', completed: false, action_url: '/programs' },
-        { key: 'workout_started', label: 'Start first workout', completed: false, action_url: '/programs' },
-        { key: 'workout_completed', label: 'Complete first workout', completed: false, action_url: '/workouts' },
+        {
+            key: 'training_profile_completed',
+            label: 'Complete your training profile',
+            description: 'Set your training level, style, and weekly schedule.',
+            completed: true,
+            action_url: '/profile',
+            action_label: 'Open profile',
+            completed_label: 'Training profile completed',
+        },
+        {
+            key: 'equipment_added',
+            label: 'Add your equipment',
+            description: 'Tell us what tools you have so we can generate the right exercises.',
+            completed: true,
+            action_url: '/profile',
+            action_label: 'Open equipment',
+            completed_label: 'Equipment added',
+        },
+        {
+            key: 'program_generated',
+            label: 'Generate your first program',
+            description: 'Create a personalized training template based on your profile.',
+            completed: false,
+            action_url: '/programs',
+            action_label: 'Generate program',
+            completed_label: 'First program generated',
+        },
+        {
+            key: 'workout_started',
+            label: 'Start your first workout',
+            description: 'Begin your first training session from your generated program.',
+            completed: false,
+            action_url: '/programs',
+            action_label: 'Start workout',
+            completed_label: 'First workout started',
+        },
+        {
+            key: 'workout_completed',
+            label: 'Complete your first workout',
+            description: 'Finish a session to unlock progress tracking and history.',
+            completed: false,
+            action_url: '/workouts',
+            action_label: 'Open workouts',
+            completed_label: 'First workout completed',
+        },
     ],
 };
 
@@ -89,8 +129,11 @@ describe('Home page', () => {
         expect(screen.getAllByRole('heading', { name: 'Dashboard' }).length).toBeGreaterThan(0);
         expect(screen.getAllByText(/Test User/).length).toBeGreaterThan(0);
         expect(screen.getAllByText(/test@example.com/).length).toBeGreaterThan(0);
-        expect(screen.getByText('Complete your activation path.')).toBeInTheDocument();
-        expect(screen.getAllByText('2 / 5 complete').length).toBeGreaterThan(0);
+        expect(screen.getByText('Get started with your training')).toBeInTheDocument();
+        expect(screen.getAllByText('Progress: 2 / 5 steps completed').length).toBeGreaterThan(0);
+        expect(screen.getByText('Create a personalized training template based on your profile.')).toBeInTheDocument();
+        expect(screen.getByText('✓ Training profile completed')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Generate program' })).toBeInTheDocument();
     });
 
     it('should_post_logout_request_when_logout_is_clicked', () => {
@@ -104,7 +147,8 @@ describe('Home page', () => {
     it('should_render_onboarding_success_state_when_all_steps_are_complete', () => {
         render(<Home title="Dashboard" onboardingChecklist={completedChecklist} />);
 
-        expect(screen.getByText("You're set to train.")).toBeInTheDocument();
-        expect(screen.getByText('5 / 5 complete')).toBeInTheDocument();
+        expect(screen.getByText("You're ready to train")).toBeInTheDocument();
+        expect(screen.getByText('Progress: 5 / 5 steps completed')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Start workout' })).toBeInTheDocument();
     });
 });

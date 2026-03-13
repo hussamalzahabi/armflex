@@ -117,7 +117,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                             >
                                 <p className={`mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${mutedClass}`}>Onboarding</p>
                                 <p className="text-sm font-medium">
-                                    {onboardingStatus.completed_count} / {onboardingStatus.total_count} complete
+                                    Progress: {onboardingStatus.completed_count} / {onboardingStatus.total_count} steps completed
                                 </p>
                             </div>
                         )}
@@ -165,7 +165,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                             >
                                 <p className={`mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${mutedClass}`}>Onboarding</p>
                                 <p className="text-sm font-medium">
-                                    {onboardingStatus.completed_count} / {onboardingStatus.total_count} complete
+                                    Progress: {onboardingStatus.completed_count} / {onboardingStatus.total_count} steps completed
                                 </p>
                             </div>
                         )}
