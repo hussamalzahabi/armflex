@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\OnboardingChecklistService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,10 +36,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $onboardingChecklistService = app(OnboardingChecklistService::class);
+
         return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $request->user(),
             ],
+            'onboardingStatus' => fn () => $request->user()
+                ? $onboardingChecklistService->getChecklistSummaryForUser($request->user()->id)
+                : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
             ],

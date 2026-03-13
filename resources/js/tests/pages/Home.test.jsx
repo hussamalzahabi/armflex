@@ -42,6 +42,11 @@ vi.mock('@inertiajs/react', () => ({
                     email: 'test@example.com',
                 },
             },
+            onboardingStatus: {
+                completed_count: onboardingChecklist.completed_count,
+                total_count: onboardingChecklist.total_count,
+                all_completed: onboardingChecklist.all_completed,
+            },
         },
     }),
     router: {
@@ -85,7 +90,7 @@ describe('Home page', () => {
         expect(screen.getAllByText(/Test User/).length).toBeGreaterThan(0);
         expect(screen.getAllByText(/test@example.com/).length).toBeGreaterThan(0);
         expect(screen.getByText('Complete your activation path.')).toBeInTheDocument();
-        expect(screen.getByText('2 / 5 complete')).toBeInTheDocument();
+        expect(screen.getAllByText('2 / 5 complete').length).toBeGreaterThan(0);
     });
 
     it('should_post_logout_request_when_logout_is_clicked', () => {

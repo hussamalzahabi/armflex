@@ -27,6 +27,9 @@ class DashboardPageTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
+                ->where('onboardingStatus.completed_count', 0)
+                ->where('onboardingStatus.total_count', 5)
+                ->where('onboardingStatus.all_completed', false)
                 ->where('onboardingChecklist.completed_count', 0)
                 ->where('onboardingChecklist.total_count', 5)
                 ->where('onboardingChecklist.all_completed', false)
@@ -78,6 +81,9 @@ class DashboardPageTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
+                ->where('onboardingStatus.completed_count', 5)
+                ->where('onboardingStatus.total_count', 5)
+                ->where('onboardingStatus.all_completed', true)
                 ->where('onboardingChecklist.completed_count', 5)
                 ->where('onboardingChecklist.total_count', 5)
                 ->where('onboardingChecklist.all_completed', true)

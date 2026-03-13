@@ -28,6 +28,9 @@ class ProgramPageTest extends TestCase
         $response->assertInertia(
             fn (Assert $page) => $page
                 ->component('Programs/Index')
+                ->where('onboardingStatus.completed_count', 0)
+                ->where('onboardingStatus.total_count', 5)
+                ->where('onboardingStatus.all_completed', false)
                 ->where('programs', [])
                 ->where('profileSummary.exists', false)
         );

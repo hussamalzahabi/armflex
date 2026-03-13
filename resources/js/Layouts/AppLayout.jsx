@@ -7,9 +7,9 @@ import { useTheme } from '@/hooks/useTheme';
 
 const navItems = [
     { label: 'Dashboard', href: '/' },
+    { label: 'Training Profile', href: '/profile' },
     { label: 'Programs', href: '/programs' },
     { label: 'Workouts', href: '/workouts' },
-    { label: 'Training Profile', href: '/profile' },
 ];
 
 const isActivePath = (currentPath, href) => {
@@ -44,7 +44,7 @@ const toBreadcrumbItems = (breadcrumb) => {
 
 const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { auth } = usePage().props;
+    const { auth, onboardingStatus } = usePage().props;
     const { isDark, toggleTheme } = useTheme();
 
     const currentPath = useMemo(() => {
@@ -109,6 +109,19 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                             </button>
                         </div>
 
+                        {onboardingStatus && !onboardingStatus.all_completed && (
+                            <div
+                                className={`mb-5 rounded-xl border px-3 py-2 ${
+                                    isDark ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-slate-50'
+                                }`}
+                            >
+                                <p className={`mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${mutedClass}`}>Onboarding</p>
+                                <p className="text-sm font-medium">
+                                    {onboardingStatus.completed_count} / {onboardingStatus.total_count} complete
+                                </p>
+                            </div>
+                        )}
+
                         <nav className="space-y-2">
                             {navItems.map((item) => {
                                 const isActive = isActivePath(currentPath, item.href);
@@ -143,6 +156,19 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         <Link href="/" className="app-brand-link text-xs uppercase tracking-[0.2em] text-slate-500">
                             ArmFlex
                         </Link>
+
+                        {onboardingStatus && !onboardingStatus.all_completed && (
+                            <div
+                                className={`mt-4 rounded-xl border px-3 py-2 ${
+                                    isDark ? 'border-slate-700 bg-slate-800/80' : 'border-slate-200 bg-slate-50'
+                                }`}
+                            >
+                                <p className={`mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${mutedClass}`}>Onboarding</p>
+                                <p className="text-sm font-medium">
+                                    {onboardingStatus.completed_count} / {onboardingStatus.total_count} complete
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <nav className="flex-1 space-y-2 p-4">

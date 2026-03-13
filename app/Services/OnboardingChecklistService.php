@@ -8,15 +8,7 @@ class OnboardingChecklistService
 {
     public function getChecklistForUser(int $userId): array
     {
-        $user = User::query()
-            ->withCount([
-                'profile',
-                'equipments',
-                'programs',
-                'workouts',
-                'workouts as completed_workouts_count' => fn ($query) => $query->whereNotNull('completed_at'),
-            ])
-            ->findOrFail($userId);
+        $user = $this->getUserWithChecklistCounts($userId);
 
         $items = [
             [
@@ -59,5 +51,37 @@ class OnboardingChecklistService
             'all_completed' => $completedCount === count($items),
             'items' => $items,
         ];
+    }
+
+    public function getChecklistSummaryForUser(int $userId): array
+    {
+        $user = $this->getUserWithChecklistCounts($userId);
+
+        $completedCount = collect([
+            $user->profile_count > 0,
+            $user->equipments_count > 0,
+            $user->programs_count > 0,
+            $user->workouts_count > 0,
+            $user->completed_workouts_count > 0,
+        ])->filter()->count();
+
+        return [
+            'completed_count' => $completedCount,
+            'total_count' => 5,
+            'all_completed' => $completedCount === 5,
+        ];
+    }
+
+    private function getUserWithChecklistCounts(int $userId): User
+    {
+        return User::query()
+            ->withCount([
+                'profile',
+                'equipments',
+                'programs',
+                'workouts',
+                'workouts as completed_workouts_count' => fn ($query) => $query->whereNotNull('completed_at'),
+            ])
+            ->findOrFail($userId);
     }
 }
