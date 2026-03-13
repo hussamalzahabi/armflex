@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WorkoutController;
 use App\Http\Controllers\WorkoutSetController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -18,11 +18,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        return Inertia::render('Home', [
-            'title' => 'Dashboard',
-        ]);
-    })->name('home');
+    Route::get('/', DashboardController::class)->name('home');
 
     Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
     Route::get('/workouts', [WorkoutController::class, 'index'])->name('workouts.index');

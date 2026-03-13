@@ -2,10 +2,11 @@ import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import AppBreadcrumb from '@/Components/AppBreadcrumb';
+import OnboardingChecklistCard from '@/Components/OnboardingChecklistCard';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
-const Home = ({ title }) => {
+const Home = ({ title, onboardingChecklist }) => {
     const { auth } = usePage().props;
     const { isDark } = useTheme();
 
@@ -40,6 +41,10 @@ const Home = ({ title }) => {
                             <Button label="Logout" severity="secondary" onClick={logout} className="w-full sm:w-auto sm:min-w-44" />
                         </div>
                     </Card>
+
+                    <div className="mt-3">
+                        <OnboardingChecklistCard checklist={onboardingChecklist} />
+                    </div>
                 </div>
             </AppLayout>
         </>
