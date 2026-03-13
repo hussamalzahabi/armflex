@@ -67,7 +67,7 @@ jobs:
         run: yarn install --immutable
 
       - name: PHP lint (Pint)
-        run: composer run lint:php
+        run: composer run lint
 
       - name: Frontend lint
         run: yarn lint
