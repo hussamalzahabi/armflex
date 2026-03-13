@@ -6,33 +6,34 @@ class ProgramGenerationRules
 {
     private const NO_SCORE = 0;
 
-    private const PRIMARY_CATEGORY_SCORE = 3;
+    private const CATEGORY_PRIORITY_SCORES = [
+        'primary' => 3,
+        'secondary' => 2,
+        'optional' => 1,
+    ];
 
-    private const SECONDARY_CATEGORY_SCORE = 2;
+    private const DIFFICULTY_FIT_SCORES = [
+        'exact' => 2,
+        'lower_or_general' => 1,
+    ];
 
-    private const OPTIONAL_CATEGORY_SCORE = 1;
+    private const STYLE_TAG_SCORES = [
+        'exact' => 2,
+        'flexible' => 1,
+    ];
 
-    private const EXACT_DIFFICULTY_FIT_SCORE = 2;
+    private const SCHEDULE_RULES = [
+        'minimum_days' => 2,
+        'maximum_days' => 5,
+        'cap_threshold' => 6,
+        'two_day_plan' => 2,
+        'two_day_exercises_per_day' => 4,
+        'standard_exercises_per_day' => 3,
+    ];
 
-    private const LOWER_OR_GENERAL_DIFFICULTY_FIT_SCORE = 1;
-
-    private const EXACT_STYLE_TAG_SCORE = 2;
-
-    private const FLEXIBLE_STYLE_TAG_SCORE = 1;
-
-    private const MIN_GENERATED_DAYS = 2;
-
-    private const MAX_GENERATED_DAYS = 5;
-
-    private const CAP_GENERATED_DAYS_THRESHOLD = 6;
-
-    private const TWO_DAY_PLAN = 2;
-
-    private const TWO_DAY_PLAN_EXERCISES_PER_DAY = 4;
-
-    private const STANDARD_PLAN_EXERCISES_PER_DAY = 3;
-
-    private const BEGINNER_PROGRAM_LEVEL_LABEL = 'Foundation';
+    private const PROGRAM_LEVEL_LABELS = [
+        'beginner' => 'Foundation',
+    ];
 
     /**
      * @var array<string, array{primary: list<string>, secondary: list<string>, optional: list<string>}>
@@ -101,15 +102,15 @@ class ProgramGenerationRules
         $categorySlug = $this->normalize($categorySlug);
 
         if (in_array($categorySlug, $priorities['primary'], true)) {
-            return self::PRIMARY_CATEGORY_SCORE;
+            return self::CATEGORY_PRIORITY_SCORES['primary'];
         }
 
         if (in_array($categorySlug, $priorities['secondary'], true)) {
-            return self::SECONDARY_CATEGORY_SCORE;
+            return self::CATEGORY_PRIORITY_SCORES['secondary'];
         }
 
         if (in_array($categorySlug, $priorities['optional'], true)) {
-            return self::OPTIONAL_CATEGORY_SCORE;
+            return self::CATEGORY_PRIORITY_SCORES['optional'];
         }
 
         return self::NO_SCORE;
@@ -163,18 +164,18 @@ class ProgramGenerationRules
         }
 
         if ($exerciseDifficulty === $experienceLevel) {
-            return self::EXACT_DIFFICULTY_FIT_SCORE;
+            return self::DIFFICULTY_FIT_SCORES['exact'];
         }
 
         if ($exerciseDifficulty === 'general') {
-            return self::LOWER_OR_GENERAL_DIFFICULTY_FIT_SCORE;
+            return self::DIFFICULTY_FIT_SCORES['lower_or_general'];
         }
 
         $userRank = self::DIFFICULTY_RANKS[$experienceLevel] ?? self::DIFFICULTY_RANKS['beginner'];
         $exerciseRank = self::DIFFICULTY_RANKS[$exerciseDifficulty] ?? self::DIFFICULTY_RANKS['beginner'];
 
         return $exerciseRank < $userRank
-            ? self::LOWER_OR_GENERAL_DIFFICULTY_FIT_SCORE
+            ? self::DIFFICULTY_FIT_SCORES['lower_or_general']
             : self::NO_SCORE;
     }
 
@@ -191,11 +192,11 @@ class ProgramGenerationRules
         $normalized = array_values(array_unique(array_map([$this, 'normalize'], $exerciseStyleSlugs)));
 
         if (in_array($userStyleSlug, $normalized, true)) {
-            return self::EXACT_STYLE_TAG_SCORE;
+            return self::STYLE_TAG_SCORES['exact'];
         }
 
         if (in_array('mixed', $normalized, true) || in_array('general', $normalized, true)) {
-            return self::FLEXIBLE_STYLE_TAG_SCORE;
+            return self::STYLE_TAG_SCORES['flexible'];
         }
 
         return self::NO_SCORE;
@@ -203,12 +204,12 @@ class ProgramGenerationRules
 
     public function generatedDaysCount(int $trainingDaysPerWeek): int
     {
-        if ($trainingDaysPerWeek <= self::MIN_GENERATED_DAYS) {
-            return self::MIN_GENERATED_DAYS;
+        if ($trainingDaysPerWeek <= self::SCHEDULE_RULES['minimum_days']) {
+            return self::SCHEDULE_RULES['minimum_days'];
         }
 
-        if ($trainingDaysPerWeek >= self::CAP_GENERATED_DAYS_THRESHOLD) {
-            return self::MAX_GENERATED_DAYS;
+        if ($trainingDaysPerWeek >= self::SCHEDULE_RULES['cap_threshold']) {
+            return self::SCHEDULE_RULES['maximum_days'];
         }
 
         return $trainingDaysPerWeek;
@@ -216,9 +217,9 @@ class ProgramGenerationRules
 
     public function exercisesPerDayCount(int $generatedDays): int
     {
-        return $generatedDays === self::TWO_DAY_PLAN
-            ? self::TWO_DAY_PLAN_EXERCISES_PER_DAY
-            : self::STANDARD_PLAN_EXERCISES_PER_DAY;
+        return $generatedDays === self::SCHEDULE_RULES['two_day_plan']
+            ? self::SCHEDULE_RULES['two_day_exercises_per_day']
+            : self::SCHEDULE_RULES['standard_exercises_per_day'];
     }
 
     public function styleLabel(string $styleSlug): string
@@ -230,8 +231,8 @@ class ProgramGenerationRules
     {
         $experienceLevel = $this->normalize($experienceLevel);
 
-        if ($experienceLevel === 'beginner') {
-            return self::BEGINNER_PROGRAM_LEVEL_LABEL;
+        if (isset(self::PROGRAM_LEVEL_LABELS[$experienceLevel])) {
+            return self::PROGRAM_LEVEL_LABELS[$experienceLevel];
         }
 
         return ucfirst($experienceLevel);

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ExerciseStylePhase;
 use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\User;
@@ -12,33 +13,22 @@ use Illuminate\Validation\ValidationException;
 
 class ProgramGeneratorService
 {
-    private const PROGRAM_DURATION_WEEKS = 4;
+    private const GENERATION_RULES = [
+        'program_duration_weeks' => 4,
+        'single_equipment_count' => 1,
+        'simplicity_bonus_score' => 1,
+        'max_category_appearances_per_day' => 1,
+        'max_weekly_exercise_repeats' => 2,
+    ];
 
-    private const SINGLE_EQUIPMENT_COUNT = 1;
-
-    private const SIMPLICITY_BONUS_SCORE = 1;
-
-    private const MAX_CATEGORY_APPEARANCES_PER_DAY = 1;
-
-    private const MAX_WEEKLY_EXERCISE_REPEATS = 2;
-
-    private const STYLE_PHASE_EXACT = 1;
-
-    private const STYLE_PHASE_FLEXIBLE = 2;
-
-    private const STYLE_PHASE_FALLBACK = 3;
-
-    private const HOLD_OR_ISOMETRIC_SETS = 3;
-
-    private const HOLD_OR_ISOMETRIC_REPS = '10-20 sec';
-
-    private const PRIMARY_EXERCISE_SETS = 4;
-
-    private const PRIMARY_EXERCISE_REPS = '6-8';
-
-    private const SUPPORT_EXERCISE_SETS = 3;
-
-    private const SUPPORT_EXERCISE_REPS = '10-15';
+    private const PRESCRIPTION_RULES = [
+        'hold_sets' => 3,
+        'hold_reps' => '10-20 sec',
+        'primary_sets' => 4,
+        'primary_reps' => '6-8',
+        'support_sets' => 3,
+        'support_reps' => '10-15',
+    ];
 
     public function __construct(private readonly ProgramGenerationRules $rules) {}
 
@@ -135,7 +125,7 @@ class ProgramGeneratorService
                 'style' => $styleSlug,
                 'experience_level' => $experienceLevel,
                 'training_days' => $generatedDays,
-                'duration_weeks' => self::PROGRAM_DURATION_WEEKS,
+                'duration_weeks' => self::GENERATION_RULES['program_duration_weeks'],
                 'profile_signature' => $profileSignature,
                 'program_signature' => $programSignature,
             ]);
@@ -204,7 +194,7 @@ class ProgramGeneratorService
      *     exercise: Exercise,
      *     category_slug: string|null,
      *     style_slugs: list<string>,
-     *     style_phase: int,
+     *     style_phase: ExerciseStylePhase,
      *     score: int,
      *     tie_breaker: int
      * }>
@@ -225,8 +215,8 @@ class ProgramGeneratorService
                 $score += $this->rules->styleTagScore($styleSlug, $styleSlugs);
                 $score += $this->rules->difficultyFitScore($experienceLevel, $exercise->difficulty_level);
 
-                if ($requiredEquipmentCount === self::SINGLE_EQUIPMENT_COUNT) {
-                    $score += self::SIMPLICITY_BONUS_SCORE;
+                if ($requiredEquipmentCount === self::GENERATION_RULES['single_equipment_count']) {
+                    $score += self::GENERATION_RULES['simplicity_bonus_score'];
                 }
 
                 return [
@@ -259,7 +249,7 @@ class ProgramGeneratorService
      *     exercise: Exercise,
      *     category_slug: string|null,
      *     style_slugs: list<string>,
-     *     style_phase: int,
+     *     style_phase: ExerciseStylePhase,
      *     score: int,
      *     tie_breaker: int
      * }>  $scoredExercises
@@ -334,7 +324,7 @@ class ProgramGeneratorService
      *     exercise: Exercise,
      *     category_slug: string|null,
      *     style_slugs: list<string>,
-     *     style_phase: int,
+     *     style_phase: ExerciseStylePhase,
      *     score: int,
      *     tie_breaker: int
      * }|null
@@ -389,7 +379,7 @@ class ProgramGeneratorService
          *     exercise: Exercise,
          *     category_slug: string|null,
          *     style_slugs: list<string>,
-         *     style_phase: int,
+         *     style_phase: ExerciseStylePhase,
          *     score: int,
          *     tie_breaker: int
          * } $fallback
@@ -404,7 +394,7 @@ class ProgramGeneratorService
      *     exercise: Exercise,
      *     category_slug: string|null,
      *     style_slugs: list<string>,
-     *     style_phase: int,
+     *     style_phase: ExerciseStylePhase,
      *     score: int,
      *     tie_breaker: int
      * }  $scoredExercise
@@ -417,50 +407,50 @@ class ProgramGeneratorService
 
         if (str_contains($name, 'hold') || str_contains($name, 'isometric')) {
             return [
-                'sets' => self::HOLD_OR_ISOMETRIC_SETS,
-                'reps' => self::HOLD_OR_ISOMETRIC_REPS,
+                'sets' => self::PRESCRIPTION_RULES['hold_sets'],
+                'reps' => self::PRESCRIPTION_RULES['hold_reps'],
             ];
         }
 
         if ($this->rules->isPrimaryCategory($styleSlug, $scoredExercise['category_slug'])) {
             return [
-                'sets' => self::PRIMARY_EXERCISE_SETS,
-                'reps' => self::PRIMARY_EXERCISE_REPS,
+                'sets' => self::PRESCRIPTION_RULES['primary_sets'],
+                'reps' => self::PRESCRIPTION_RULES['primary_reps'],
             ];
         }
 
         return [
-            'sets' => self::SUPPORT_EXERCISE_SETS,
-            'reps' => self::SUPPORT_EXERCISE_REPS,
+            'sets' => self::PRESCRIPTION_RULES['support_sets'],
+            'reps' => self::PRESCRIPTION_RULES['support_reps'],
         ];
     }
 
     /**
      * @param  list<string>  $exerciseStyleSlugs
      */
-    private function stylePhase(string $userStyleSlug, array $exerciseStyleSlugs): int
+    private function stylePhase(string $userStyleSlug, array $exerciseStyleSlugs): ExerciseStylePhase
     {
         if ($exerciseStyleSlugs === []) {
-            return self::STYLE_PHASE_EXACT;
+            return ExerciseStylePhase::Exact;
         }
 
         $normalized = array_map(static fn (string $slug): string => strtolower(trim($slug)), $exerciseStyleSlugs);
         $userStyleSlug = strtolower(trim($userStyleSlug));
 
         if (in_array($userStyleSlug, $normalized, true)) {
-            return self::STYLE_PHASE_EXACT;
+            return ExerciseStylePhase::Exact;
         }
 
         if (in_array('mixed', $normalized, true) || in_array('general', $normalized, true)) {
-            return self::STYLE_PHASE_FLEXIBLE;
+            return ExerciseStylePhase::Flexible;
         }
 
-        return self::STYLE_PHASE_FALLBACK;
+        return ExerciseStylePhase::Fallback;
     }
 
     /**
      * @return list<array{
-     *     phases: list<int>,
+     *     phases: list<ExerciseStylePhase>,
      *     max_repeat: int|null,
      *     enforce_category_uniqueness: bool
      * }>
@@ -469,37 +459,37 @@ class ProgramGeneratorService
     {
         return [
             [
-                'phases' => [self::STYLE_PHASE_EXACT],
-                'max_repeat' => self::MAX_WEEKLY_EXERCISE_REPEATS,
+                'phases' => [ExerciseStylePhase::Exact],
+                'max_repeat' => self::GENERATION_RULES['max_weekly_exercise_repeats'],
                 'enforce_category_uniqueness' => true,
             ],
             [
-                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE],
-                'max_repeat' => self::MAX_WEEKLY_EXERCISE_REPEATS,
+                'phases' => [ExerciseStylePhase::Exact, ExerciseStylePhase::Flexible],
+                'max_repeat' => self::GENERATION_RULES['max_weekly_exercise_repeats'],
                 'enforce_category_uniqueness' => true,
             ],
             [
-                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE],
+                'phases' => [ExerciseStylePhase::Exact, ExerciseStylePhase::Flexible],
                 'max_repeat' => null,
                 'enforce_category_uniqueness' => true,
             ],
             [
-                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE],
+                'phases' => [ExerciseStylePhase::Exact, ExerciseStylePhase::Flexible],
                 'max_repeat' => null,
                 'enforce_category_uniqueness' => false,
             ],
             [
-                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE, self::STYLE_PHASE_FALLBACK],
-                'max_repeat' => self::MAX_WEEKLY_EXERCISE_REPEATS,
+                'phases' => [ExerciseStylePhase::Exact, ExerciseStylePhase::Flexible, ExerciseStylePhase::Fallback],
+                'max_repeat' => self::GENERATION_RULES['max_weekly_exercise_repeats'],
                 'enforce_category_uniqueness' => true,
             ],
             [
-                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE, self::STYLE_PHASE_FALLBACK],
+                'phases' => [ExerciseStylePhase::Exact, ExerciseStylePhase::Flexible, ExerciseStylePhase::Fallback],
                 'max_repeat' => null,
                 'enforce_category_uniqueness' => true,
             ],
             [
-                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE, self::STYLE_PHASE_FALLBACK],
+                'phases' => [ExerciseStylePhase::Exact, ExerciseStylePhase::Flexible, ExerciseStylePhase::Fallback],
                 'max_repeat' => null,
                 'enforce_category_uniqueness' => false,
             ],
@@ -511,12 +501,12 @@ class ProgramGeneratorService
      *     exercise: Exercise,
      *     category_slug: string|null,
      *     style_slugs: list<string>,
-     *     style_phase: int,
+     *     style_phase: ExerciseStylePhase,
      *     score: int,
      *     tie_breaker: int
      * }  $item
      * @param  array{
-     *     phases: list<int>,
+     *     phases: list<ExerciseStylePhase>,
      *     max_repeat: int|null,
      *     enforce_category_uniqueness: bool
      * }  $pass
@@ -546,7 +536,7 @@ class ProgramGeneratorService
         ) {
             $categoryUsage = $dayCategoryUsage[$item['category_slug']] ?? 0;
 
-            if ($categoryUsage >= self::MAX_CATEGORY_APPEARANCES_PER_DAY) {
+            if ($categoryUsage >= self::GENERATION_RULES['max_category_appearances_per_day']) {
                 return false;
             }
         }
