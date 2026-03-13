@@ -165,6 +165,17 @@ vi.mock('primereact/dropdown', () => ({
     ),
 }));
 
+vi.mock('primereact/inputswitch', () => ({
+    InputSwitch: ({ checked, onChange, ...props }) => (
+        <button
+            type="button"
+            aria-pressed={checked}
+            onClick={() => onChange?.({ value: !checked })}
+            {...props}
+        />
+    ),
+}));
+
 vi.mock('primereact/avatar', () => ({
     Avatar: ({ label }) => <span>{label}</span>,
 }));

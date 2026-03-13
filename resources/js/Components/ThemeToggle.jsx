@@ -1,14 +1,12 @@
-import { Button } from 'primereact/button';
+import { InputSwitch } from 'primereact/inputswitch';
 
 const ThemeToggle = ({ isDark, onToggle }) => {
     return (
-        <Button
-            type="button"
-            label={isDark ? 'Light mode' : 'Dark mode'}
-            icon={isDark ? 'pi pi-sun' : 'pi pi-moon'}
-            onClick={onToggle}
-            size="small"
-            outlined
+        <InputSwitch
+            checked={isDark}
+            onChange={onToggle}
+            aria-label="Toggle theme"
+            title="Toggle theme"
             className="app-theme-toggle"
         />
     );

@@ -1,13 +1,12 @@
 import { Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
-import { Avatar } from 'primereact/avatar';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { useTheme } from '@/hooks/useTheme';
 
 const menuItems = [
-    { label: 'Training Profile', href: '/profile' },
-    { label: 'Programs', href: '/programs' },
-    { label: 'Workouts', href: '/workouts' },
+    { label: 'Training Profile', href: '/profile', icon: 'pi pi-user-edit' },
+    { label: 'Programs', href: '/programs', icon: 'pi pi-sparkles' },
+    { label: 'Workouts', href: '/workouts', icon: 'pi pi-play-circle' },
 ];
 
 const UserActionMenu = ({ user, compact = false }) => {
@@ -35,20 +34,16 @@ const UserActionMenu = ({ user, compact = false }) => {
             <button
                 type="button"
                 onClick={toggleMenu}
-                className={`inline-flex items-center justify-center rounded-full border transition ${
+                className={`inline-flex cursor-pointer items-center justify-center rounded-full border transition ${
                     isDark
-                        ? 'border-slate-700 bg-slate-800/80 hover:border-slate-600'
-                        : 'border-slate-200 bg-white hover:border-slate-300'
+                        ? 'border-slate-700 bg-slate-800/90 text-slate-100 shadow-[0_10px_25px_rgba(15,23,42,0.28)] hover:border-slate-500 hover:bg-slate-700/90'
+                        : 'border-slate-200 bg-white text-slate-700 shadow-[0_10px_25px_rgba(148,163,184,0.18)] hover:border-slate-300 hover:bg-slate-50'
                 } ${compact ? 'h-10 w-10' : 'h-11 w-11'}`}
                 aria-label="Open user menu"
             >
-                <Avatar
-                    label={avatarLabel}
-                    shape="circle"
-                    className={`${compact ? 'h-8 w-8 text-sm' : 'h-9 w-9 text-sm'} ${
-                        isDark ? 'bg-slate-700 text-slate-100' : 'bg-slate-200 text-slate-700'
-                    }`}
-                />
+                <span className={`flex h-full w-full items-center justify-center rounded-full font-semibold ${compact ? 'text-sm' : 'text-base'}`}>
+                    {avatarLabel}
+                </span>
             </button>
 
             <OverlayPanel
@@ -73,10 +68,11 @@ const UserActionMenu = ({ user, compact = false }) => {
                                 key={item.href}
                                 href={item.href}
                                 onClick={closeMenu}
-                                className={`block rounded-lg px-3 py-2 text-sm font-medium no-underline transition ${
+                                className={`flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline transition ${
                                     isDark ? 'text-slate-100 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
                                 }`}
                             >
+                                <i className={`${item.icon} text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`} aria-hidden="true" />
                                 {item.label}
                             </Link>
                         ))}
@@ -87,10 +83,11 @@ const UserActionMenu = ({ user, compact = false }) => {
                     <button
                         type="button"
                         onClick={logout}
-                        className={`block w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+                        className={`flex w-full cursor-pointer items-center gap-2 rounded-lg border-0 bg-transparent px-3 py-2 text-left text-sm font-medium transition appearance-none ${
                             isDark ? 'text-rose-200 hover:bg-rose-500/10' : 'text-rose-700 hover:bg-rose-50'
                         }`}
                     >
+                        <i className="pi pi-sign-out text-xs" aria-hidden="true" />
                         Logout
                     </button>
                 </div>
