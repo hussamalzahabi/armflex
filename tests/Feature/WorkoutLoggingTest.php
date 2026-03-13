@@ -96,11 +96,32 @@ class WorkoutLoggingTest extends TestCase
         ]);
 
         $workout = Workout::query()->firstOrFail();
+        WorkoutSet::query()->firstOrFail()->update([
+            'reps' => 9,
+        ]);
 
         $response = $this->actingAs($user)->post("/workouts/{$workout->id}/finish");
 
         $response->assertRedirect("/workouts/{$workout->id}");
         $this->assertNotNull($workout->fresh()->completed_at);
+    }
+
+    public function test_user_should_not_finish_an_empty_workout(): void
+    {
+        [$user, $program, $programDay] = $this->createProgramDayTemplate();
+
+        $this->actingAs($user)->post('/workouts/start', [
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+        ]);
+
+        $workout = Workout::query()->firstOrFail();
+
+        $response = $this->actingAs($user)->from("/workouts/{$workout->id}")->post("/workouts/{$workout->id}/finish");
+
+        $response->assertRedirect("/workouts/{$workout->id}");
+        $response->assertSessionHasErrors(['workout']);
+        $this->assertNull($workout->fresh()->completed_at);
     }
 
     public function test_user_should_not_update_another_users_workout_set(): void

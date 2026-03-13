@@ -6,6 +6,7 @@ use App\Models\Workout;
 use App\Services\WorkoutSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -70,7 +71,11 @@ class WorkoutController extends Controller
 
     public function finish(Request $request, Workout $workout, WorkoutSessionService $workoutSessionService): RedirectResponse
     {
-        $finishedWorkout = $workoutSessionService->finishForUser($workout, (int) $request->user()->id);
+        try {
+            $finishedWorkout = $workoutSessionService->finishForUser($workout, (int) $request->user()->id);
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
+        }
 
         return redirect()->route('workouts.show', $finishedWorkout);
     }

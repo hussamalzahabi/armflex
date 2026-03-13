@@ -22,6 +22,13 @@ class ProgramController extends Controller
             ->whereNull('completed_at')
             ->get(['id', 'program_day_id', 'started_at'])
             ->keyBy('program_day_id');
+        $completedWorkoutsByDay = Workout::query()
+            ->where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->get(['id', 'program_day_id', 'completed_at'])
+            ->unique('program_day_id')
+            ->keyBy('program_day_id');
         $programs = Program::query()
             ->where('user_id', $user->id)
             ->with([
@@ -32,7 +39,7 @@ class ProgramController extends Controller
             ->get();
 
         return Inertia::render('Programs/Index', [
-            'programs' => $programs->map(function (Program $program) use ($activeWorkoutsByDay) {
+            'programs' => $programs->map(function (Program $program) use ($activeWorkoutsByDay, $completedWorkoutsByDay) {
                 return [
                     'id' => $program->id,
                     'name' => $program->name,
@@ -41,14 +48,17 @@ class ProgramController extends Controller
                     'training_days' => $program->training_days,
                     'duration_weeks' => $program->duration_weeks,
                     'created_at' => optional($program->created_at)->toIso8601String(),
-                    'days' => $program->days->map(function ($day) use ($activeWorkoutsByDay) {
+                    'days' => $program->days->map(function ($day) use ($activeWorkoutsByDay, $completedWorkoutsByDay) {
                         $activeWorkout = $activeWorkoutsByDay->get($day->id);
+                        $latestCompletedWorkout = $completedWorkoutsByDay->get($day->id);
 
                         return [
                             'id' => $day->id,
                             'day_number' => $day->day_number,
                             'active_workout_id' => $activeWorkout?->id,
                             'active_workout_started_at' => optional($activeWorkout?->started_at)->toIso8601String(),
+                            'latest_completed_workout_id' => $latestCompletedWorkout?->id,
+                            'latest_completed_workout_at' => optional($latestCompletedWorkout?->completed_at)->toIso8601String(),
                             'exercises' => $day->exercises->map(function ($programDayExercise) {
                                 $exercise = $programDayExercise->exercise;
 

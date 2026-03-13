@@ -133,6 +133,8 @@ describe('Programs page', () => {
                                 day_number: 1,
                                 active_workout_id: null,
                                 active_workout_started_at: null,
+                                latest_completed_workout_id: null,
+                                latest_completed_workout_at: null,
                                 exercises: [],
                             },
                         ],
@@ -155,5 +157,37 @@ describe('Programs page', () => {
                 onFinish: expect.any(Function),
             })
         );
+    });
+
+    it('should_render_start_new_workout_label_when_day_was_completed_before', () => {
+        render(
+            <ProgramsIndex
+                programs={[
+                    {
+                        id: 7,
+                        name: 'Mixed Intermediate Program',
+                        style: 'mixed',
+                        experience_level: 'intermediate',
+                        training_days: 3,
+                        duration_weeks: 4,
+                        created_at: '2026-03-12T10:00:00Z',
+                        days: [
+                            {
+                                id: 11,
+                                day_number: 1,
+                                active_workout_id: null,
+                                active_workout_started_at: null,
+                                latest_completed_workout_id: 88,
+                                latest_completed_workout_at: '2026-03-12T11:00:00Z',
+                                exercises: [],
+                            },
+                        ],
+                    },
+                ]}
+                profileSummary={{ exists: true, style: 'Mixed', training_days_per_week: 3 }}
+            />
+        );
+
+        expect(screen.getByRole('button', { name: 'Start New Workout' })).toBeInTheDocument();
     });
 });

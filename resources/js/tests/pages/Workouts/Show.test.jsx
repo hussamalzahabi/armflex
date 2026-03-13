@@ -97,6 +97,12 @@ describe('Workout session page', () => {
         expect(screen.getByRole('button', { name: 'Finish Workout' })).toBeInTheDocument();
     });
 
+    it('should_disable_finish_when_no_results_have_been_logged', () => {
+        render(<WorkoutsShow workout={buildWorkout()} />);
+
+        expect(screen.getByRole('button', { name: 'Finish Workout' })).toBeDisabled();
+    });
+
     it('should_save_set_values_on_blur', async () => {
         render(<WorkoutsShow workout={buildWorkout()} />);
 
@@ -113,7 +119,7 @@ describe('Workout session page', () => {
     });
 
     it('should_post_finish_request_when_finish_workout_is_clicked', () => {
-        render(<WorkoutsShow workout={buildWorkout()} />);
+        render(<WorkoutsShow workout={buildWorkout({ reps: 9 })} />);
 
         fireEvent.click(screen.getByRole('button', { name: 'Finish Workout' }));
 
@@ -128,7 +134,7 @@ describe('Workout session page', () => {
     });
 });
 
-const buildWorkout = () => ({
+const buildWorkout = ({ reps = null } = {}) => ({
     id: 55,
     program: {
         id: 7,
@@ -162,7 +168,7 @@ const buildWorkout = () => ({
                 equipments: [{ id: 1, name: 'Resistance Bands' }],
             },
             sets: [
-                { id: 102, set_number: 1, reps: null, weight: null, duration_seconds: null, notes: null },
+                { id: 102, set_number: 1, reps, weight: null, duration_seconds: null, notes: null },
             ],
         },
     ],

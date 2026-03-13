@@ -144,6 +144,30 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
         );
     };
 
+    const dayStatusMeta = (day) => {
+        if (day.active_workout_id) {
+            return {
+                message: `Workout started ${formatDate(day.active_workout_started_at)}`,
+                actionLabel: 'Continue Workout',
+                actionIcon: 'pi pi-play-circle',
+            };
+        }
+
+        if (day.latest_completed_workout_at) {
+            return {
+                message: `Last completed ${formatDate(day.latest_completed_workout_at)}`,
+                actionLabel: 'Start New Workout',
+                actionIcon: 'pi pi-refresh',
+            };
+        }
+
+        return {
+            message: 'Use this day as the workout template when you are ready to train.',
+            actionLabel: 'Start Workout',
+            actionIcon: 'pi pi-bolt',
+        };
+    };
+
     const startWorkout = (programId, programDayId) => {
         setStartingWorkoutDayId(programDayId);
 
@@ -386,17 +410,18 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                     </div>
 
                                     <Accordion multiple activeIndex={selectedProgram.days.map((_, index) => index)} className="programs-days">
-                                        {selectedProgram.days.map((day) => (
+                                        {selectedProgram.days.map((day) => {
+                                            const statusMeta = dayStatusMeta(day);
+
+                                            return (
                                             <AccordionTab key={day.id} header={`Day ${day.day_number}`}>
                                                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                                                     <div className={`text-sm ${subtitleClass}`}>
-                                                        {day.active_workout_id
-                                                            ? `Workout started ${formatDate(day.active_workout_started_at)}`
-                                                            : 'Use this day as the workout template when you are ready to train.'}
+                                                        {statusMeta.message}
                                                     </div>
                                                     <Button
-                                                        label={day.active_workout_id ? 'Continue Workout' : 'Start Workout'}
-                                                        icon={day.active_workout_id ? 'pi pi-play-circle' : 'pi pi-bolt'}
+                                                        label={statusMeta.actionLabel}
+                                                        icon={statusMeta.actionIcon}
                                                         size="small"
                                                         loading={startingWorkoutDayId === day.id}
                                                         onClick={() => startWorkout(selectedProgram.id, day.id)}
@@ -484,7 +509,8 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                                     )}
                                                 </div>
                                             </AccordionTab>
-                                        ))}
+                                            );
+                                        })}
                                     </Accordion>
                                 </div>
                             )}

@@ -7,6 +7,7 @@ use App\Models\ProgramDay;
 use App\Models\Workout;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class WorkoutSessionService
 {
@@ -65,6 +66,22 @@ class WorkoutSessionService
     public function finishForUser(Workout $workout, int $userId): Workout
     {
         abort_unless($workout->user_id === $userId, 404);
+
+        $workout->loadMissing('exercises.sets');
+
+        $hasLoggedPerformance = $workout->exercises
+            ->flatMap(fn ($exercise) => $exercise->sets)
+            ->contains(function ($set): bool {
+                return $set->reps !== null
+                    || $set->weight !== null
+                    || $set->duration_seconds !== null;
+            });
+
+        if (! $hasLoggedPerformance) {
+            throw ValidationException::withMessages([
+                'workout' => 'Log at least one set result before finishing the workout.',
+            ]);
+        }
 
         if ($workout->completed_at === null) {
             $workout->forceFill([

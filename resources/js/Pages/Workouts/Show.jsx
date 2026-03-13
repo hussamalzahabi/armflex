@@ -59,6 +59,13 @@ const WorkoutsShow = ({ workout }) => {
         () => exerciseRows.reduce((carry, exercise) => carry + exercise.sets.length, 0),
         [exerciseRows]
     );
+    const hasLoggedPerformance = useMemo(
+        () =>
+            exerciseRows.some((exercise) =>
+                exercise.sets.some((set) => set.reps !== null || set.weight !== null || set.duration_seconds !== null)
+            ),
+        [exerciseRows]
+    );
 
     const updateSetField = (exerciseId, setId, field, value) => {
         setExerciseRows((currentRows) =>
@@ -118,6 +125,17 @@ const WorkoutsShow = ({ workout }) => {
     };
 
     const finishWorkout = () => {
+        if (!hasLoggedPerformance) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Add Results First',
+                detail: 'Log at least one set result before finishing the workout.',
+                life: 4000,
+            });
+
+            return;
+        }
+
         setIsFinishing(true);
 
         router.post(
@@ -157,7 +175,7 @@ const WorkoutsShow = ({ workout }) => {
                     <AppBreadcrumb items={breadcrumbItems} />
 
                     <Card className={`!rounded-t-none !rounded-b-none !border-0 ${pageSurfaceClass}`}>
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="space-y-3">
                             <div className="space-y-2">
                                 <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>
                                     Workout Session
@@ -204,7 +222,7 @@ const WorkoutsShow = ({ workout }) => {
                                 <Button
                                     label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
                                     icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
-                                    disabled={isCompleted}
+                                    disabled={isCompleted || !hasLoggedPerformance}
                                     loading={isFinishing}
                                     onClick={finishWorkout}
                                 />
@@ -305,11 +323,11 @@ const WorkoutsShow = ({ workout }) => {
                                                         />
 
                                                         {exerciseRow.prescription.is_duration_based ? (
-                                                            <div className={`flex items-center rounded-xl border px-3 text-sm ${inputPanelClass}`}>
+                                                            <div className={`flex min-h-12 items-center rounded-xl border px-3 py-3 text-sm ${inputPanelClass}`}>
                                                                 Target {exerciseRow.prescription.reps}
                                                             </div>
                                                         ) : (
-                                                            <div className={`flex items-center rounded-xl border px-3 text-sm ${inputPanelClass}`}>
+                                                            <div className={`flex min-h-12 items-center rounded-xl border px-3 py-3 text-sm ${inputPanelClass}`}>
                                                                 Target {exerciseRow.prescription.reps}
                                                             </div>
                                                         )}
