@@ -19,6 +19,8 @@ describe('ThemeToggle', () => {
         render(<ThemeToggle isDark={false} onToggle={vi.fn()} />);
 
         expect(screen.getByRole('button', { name: 'Toggle theme' })).toBeInTheDocument();
+        expect(document.querySelector('.pi-sun')).not.toBeNull();
+        expect(document.querySelector('.pi-moon')).not.toBeNull();
     });
 
     it('should_call_toggle_handler_when_clicked', () => {

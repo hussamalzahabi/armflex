@@ -4290,6 +4290,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"primeicons@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "primeicons@npm:7.0.0"
+  checksum: 10c0/a7f6344d6db49e785d2040b35f8cae761d15bb8f8ee70ade8981d45438245414e913fe7235921122aade2b0a11a032c98b44dc527be2da11aa791ff145099c06
+  languageName: node
+  linkType: hard
+
 "primereact@npm:^10.9.7":
   version: 10.9.7
   resolution: "primereact@npm:10.9.7"
@@ -4610,6 +4617,7 @@ __metadata:
     jsdom: "npm:^28.1.0"
     laravel-vite-plugin: "npm:^1.0"
     prettier: "npm:^3.5.3"
+    primeicons: "npm:^7.0.0"
     primereact: "npm:^10.9.7"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
