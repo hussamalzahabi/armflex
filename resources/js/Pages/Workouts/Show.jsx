@@ -206,12 +206,16 @@ const WorkoutsShow = ({ workout }) => {
 
                     <Card className={`mt-2 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
                         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                            <div className="space-y-1">
-                                <p className={`!m-0 text-sm ${subtitleClass}`}>Fill in reps, weight, or duration. Set values save when the field loses focus.</p>
+                            <div className="max-w-2xl space-y-1.5">
+                                <p className={`!m-0 text-sm font-semibold ${headlineClass}`}>
+                                    Log reps, weight, or duration. Changes save automatically.
+                                </p>
                                 {isCompleted ? (
                                     <Message severity="success" text="This workout is completed. Values are now locked." className="w-full" />
                                 ) : (
-                                    <Message severity="info" text="You can leave optional fields empty and return later before finishing." className="w-full" />
+                                    <p className={`!m-0 text-sm leading-relaxed ${subtitleClass}`}>
+                                        Optional fields can stay empty until you&apos;re ready to finish the workout.
+                                    </p>
                                 )}
                             </div>
 
