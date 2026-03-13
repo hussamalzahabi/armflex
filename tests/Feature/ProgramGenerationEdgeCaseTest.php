@@ -97,6 +97,9 @@ class ProgramGenerationEdgeCaseTest extends TestCase
     public function test_generation_should_use_fallback_rules_and_fill_days_when_exercise_pool_is_small(): void
     {
         $this->seedGenerationData();
+
+        // This profile intentionally creates a tiny pool so the generator must
+        // relax its normal variety rules and still build a complete week.
         $user = $this->createUserWithProfile(
             styleSlug: 'toproll',
             experienceLevel: 'intermediate',
@@ -145,6 +148,9 @@ class ProgramGenerationEdgeCaseTest extends TestCase
 
     public function test_generation_should_apply_primary_and_support_prescriptions_from_style_priorities(): void
     {
+        // Build the smallest possible fixture where one exercise is primary
+        // for Toproll and one is only support-level, so the prescription split
+        // reads like a direct business example.
         $toprollStyle = Style::query()->firstOrCreate(['slug' => 'toproll'], ['name' => 'Toproll']);
         $mixedStyle = Style::query()->firstOrCreate(['slug' => 'mixed'], ['name' => 'Mixed']);
         $risingCategory = Category::query()->firstOrCreate(['slug' => 'rising'], ['name' => 'Rising']);

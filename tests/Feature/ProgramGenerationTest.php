@@ -41,13 +41,8 @@ class ProgramGenerationTest extends TestCase
 
         $this->assertSame('mixed', $program->style);
         $this->assertSame('intermediate', $program->experience_level);
-        $this->assertSame(3, $program->training_days);
         $this->assertSame(4, $program->duration_weeks);
-        $this->assertCount(3, $program->days);
-
-        foreach ($program->days as $day) {
-            $this->assertCount(3, $day->exercises);
-        }
+        $this->assertProgramStructure($program, expectedDays: 3, expectedExercisesPerDay: 3);
     }
 
     public function test_generation_should_reuse_existing_program_when_profile_and_template_match(): void
@@ -111,12 +106,7 @@ class ProgramGenerationTest extends TestCase
             ->with('days.exercises')
             ->firstOrFail();
 
-        $this->assertSame(2, $program->training_days);
-        $this->assertCount(2, $program->days);
-
-        foreach ($program->days as $day) {
-            $this->assertCount(4, $day->exercises);
-        }
+        $this->assertProgramStructure($program, expectedDays: 2, expectedExercisesPerDay: 4);
     }
 
     public function test_three_day_profile_should_generate_three_days_with_three_exercises_each(): void
@@ -136,12 +126,7 @@ class ProgramGenerationTest extends TestCase
             ->with('days.exercises')
             ->firstOrFail();
 
-        $this->assertSame(3, $program->training_days);
-        $this->assertCount(3, $program->days);
-
-        foreach ($program->days as $day) {
-            $this->assertCount(3, $day->exercises);
-        }
+        $this->assertProgramStructure($program, expectedDays: 3, expectedExercisesPerDay: 3);
     }
 
     public function test_six_or_seven_day_profile_should_cap_generation_at_five_days_only(): void
@@ -161,8 +146,7 @@ class ProgramGenerationTest extends TestCase
             ->with('days.exercises')
             ->firstOrFail();
 
-        $this->assertSame(5, $program->training_days);
-        $this->assertCount(5, $program->days);
+        $this->assertProgramStructure($program, expectedDays: 5);
     }
 
     public function test_generation_should_filter_out_exercises_when_required_equipment_is_missing(): void
@@ -312,5 +296,22 @@ class ProgramGenerationTest extends TestCase
             'Eccentric Handle',
             'Table Strap',
         ];
+    }
+
+    private function assertProgramStructure(
+        Program $program,
+        int $expectedDays,
+        ?int $expectedExercisesPerDay = null
+    ): void {
+        $this->assertSame($expectedDays, $program->training_days);
+        $this->assertCount($expectedDays, $program->days);
+
+        if ($expectedExercisesPerDay === null) {
+            return;
+        }
+
+        foreach ($program->days as $day) {
+            $this->assertCount($expectedExercisesPerDay, $day->exercises);
+        }
     }
 }

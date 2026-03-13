@@ -11,6 +11,7 @@ class ProgramGenerationRulesTest extends TestCase
     {
         $rules = new ProgramGenerationRules;
 
+        // Toproll should strongly prefer rising, then cupping, then general.
         $this->assertSame(3, $rules->categoryScoreForStyle('toproll', 'rising'));
         $this->assertSame(2, $rules->categoryScoreForStyle('toproll', 'cupping'));
         $this->assertSame(1, $rules->categoryScoreForStyle('toproll', 'general'));
@@ -37,6 +38,8 @@ class ProgramGenerationRulesTest extends TestCase
     {
         $rules = new ProgramGenerationRules;
 
+        // v0.1 caps long availability at five generated days and uses denser
+        // two-day plans to keep total weekly work reasonable.
         $this->assertSame(2, $rules->generatedDaysCount(2));
         $this->assertSame(3, $rules->generatedDaysCount(3));
         $this->assertSame(5, $rules->generatedDaysCount(7));
@@ -62,6 +65,7 @@ class ProgramGenerationRulesTest extends TestCase
             $right['id']
         ));
 
+        // Higher scores should win, and exact ties should fall back to id.
         $this->assertSame([3, 2, 10], array_column($rows, 'id'));
     }
 }

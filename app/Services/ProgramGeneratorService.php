@@ -12,6 +12,34 @@ use Illuminate\Validation\ValidationException;
 
 class ProgramGeneratorService
 {
+    private const PROGRAM_DURATION_WEEKS = 4;
+
+    private const SINGLE_EQUIPMENT_COUNT = 1;
+
+    private const SIMPLICITY_BONUS_SCORE = 1;
+
+    private const MAX_CATEGORY_APPEARANCES_PER_DAY = 1;
+
+    private const MAX_WEEKLY_EXERCISE_REPEATS = 2;
+
+    private const STYLE_PHASE_EXACT = 1;
+
+    private const STYLE_PHASE_FLEXIBLE = 2;
+
+    private const STYLE_PHASE_FALLBACK = 3;
+
+    private const HOLD_OR_ISOMETRIC_SETS = 3;
+
+    private const HOLD_OR_ISOMETRIC_REPS = '10-20 sec';
+
+    private const PRIMARY_EXERCISE_SETS = 4;
+
+    private const PRIMARY_EXERCISE_REPS = '6-8';
+
+    private const SUPPORT_EXERCISE_SETS = 3;
+
+    private const SUPPORT_EXERCISE_REPS = '10-15';
+
     public function __construct(private readonly ProgramGenerationRules $rules) {}
 
     public function generateForUser(int $userId): Program
@@ -107,7 +135,7 @@ class ProgramGeneratorService
                 'style' => $styleSlug,
                 'experience_level' => $experienceLevel,
                 'training_days' => $generatedDays,
-                'duration_weeks' => 4,
+                'duration_weeks' => self::PROGRAM_DURATION_WEEKS,
                 'profile_signature' => $profileSignature,
                 'program_signature' => $programSignature,
             ]);
@@ -197,8 +225,8 @@ class ProgramGeneratorService
                 $score += $this->rules->styleTagScore($styleSlug, $styleSlugs);
                 $score += $this->rules->difficultyFitScore($experienceLevel, $exercise->difficulty_level);
 
-                if ($requiredEquipmentCount === 1) {
-                    $score += 1;
+                if ($requiredEquipmentCount === self::SINGLE_EQUIPMENT_COUNT) {
+                    $score += self::SIMPLICITY_BONUS_SCORE;
                 }
 
                 return [
@@ -260,7 +288,6 @@ class ProgramGeneratorService
             for ($slot = 1; $slot <= $exercisesPerDay; $slot++) {
                 $selected = $this->pickExerciseForSlot(
                     $scoredExercises,
-                    $styleSlug,
                     $dayCategoryUsage[$dayNumber],
                     $weeklyUsage
                 );
@@ -314,7 +341,6 @@ class ProgramGeneratorService
      */
     private function pickExerciseForSlot(
         Collection $scoredExercises,
-        string $styleSlug,
         array $dayCategoryUsage,
         array $weeklyUsage
     ): ?array {
@@ -322,40 +348,16 @@ class ProgramGeneratorService
             return null;
         }
 
-        $passes = [
-            ['phases' => [1], 'max_repeat' => 2, 'enforce_category' => true],
-            ['phases' => [1, 2], 'max_repeat' => 2, 'enforce_category' => true],
-            ['phases' => [1, 2], 'max_repeat' => null, 'enforce_category' => true],
-            ['phases' => [1, 2], 'max_repeat' => null, 'enforce_category' => false],
-            ['phases' => [1, 2, 3], 'max_repeat' => 2, 'enforce_category' => true],
-            ['phases' => [1, 2, 3], 'max_repeat' => null, 'enforce_category' => true],
-            ['phases' => [1, 2, 3], 'max_repeat' => null, 'enforce_category' => false],
-        ];
-
-        foreach ($passes as $pass) {
+        // Fill each slot by starting with the strictest, cleanest match first,
+        // then relaxing style, repeat, and category constraints only when needed.
+        foreach ($this->slotSelectionPasses() as $pass) {
             $candidate = $scoredExercises
-                ->filter(function (array $item) use ($pass, $dayCategoryUsage, $weeklyUsage): bool {
-                    if (! in_array($item['style_phase'], $pass['phases'], true)) {
-                        return false;
-                    }
-
-                    $exerciseId = (int) $item['exercise']->id;
-                    $currentWeeklyUsage = $weeklyUsage[$exerciseId] ?? 0;
-
-                    if (is_int($pass['max_repeat']) && $currentWeeklyUsage >= $pass['max_repeat']) {
-                        return false;
-                    }
-
-                    if ($pass['enforce_category'] && $item['category_slug'] !== null) {
-                        $categoryUsage = $dayCategoryUsage[$item['category_slug']] ?? 0;
-
-                        if ($categoryUsage >= 1) {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                })
+                ->filter(fn (array $item): bool => $this->matchesSelectionPass(
+                    $item,
+                    $pass,
+                    $dayCategoryUsage,
+                    $weeklyUsage
+                ))
                 ->sort(function (array $left, array $right) use ($weeklyUsage): int {
                     $scoreComparison = $right['score'] <=> $left['score'];
                     if ($scoreComparison !== 0) {
@@ -414,14 +416,23 @@ class ProgramGeneratorService
         $name = strtolower($exercise->name);
 
         if (str_contains($name, 'hold') || str_contains($name, 'isometric')) {
-            return ['sets' => 3, 'reps' => '10-20 sec'];
+            return [
+                'sets' => self::HOLD_OR_ISOMETRIC_SETS,
+                'reps' => self::HOLD_OR_ISOMETRIC_REPS,
+            ];
         }
 
         if ($this->rules->isPrimaryCategory($styleSlug, $scoredExercise['category_slug'])) {
-            return ['sets' => 4, 'reps' => '6-8'];
+            return [
+                'sets' => self::PRIMARY_EXERCISE_SETS,
+                'reps' => self::PRIMARY_EXERCISE_REPS,
+            ];
         }
 
-        return ['sets' => 3, 'reps' => '10-15'];
+        return [
+            'sets' => self::SUPPORT_EXERCISE_SETS,
+            'reps' => self::SUPPORT_EXERCISE_REPS,
+        ];
     }
 
     /**
@@ -430,21 +441,117 @@ class ProgramGeneratorService
     private function stylePhase(string $userStyleSlug, array $exerciseStyleSlugs): int
     {
         if ($exerciseStyleSlugs === []) {
-            return 1;
+            return self::STYLE_PHASE_EXACT;
         }
 
         $normalized = array_map(static fn (string $slug): string => strtolower(trim($slug)), $exerciseStyleSlugs);
         $userStyleSlug = strtolower(trim($userStyleSlug));
 
         if (in_array($userStyleSlug, $normalized, true)) {
-            return 1;
+            return self::STYLE_PHASE_EXACT;
         }
 
         if (in_array('mixed', $normalized, true) || in_array('general', $normalized, true)) {
-            return 2;
+            return self::STYLE_PHASE_FLEXIBLE;
         }
 
-        return 3;
+        return self::STYLE_PHASE_FALLBACK;
+    }
+
+    /**
+     * @return list<array{
+     *     phases: list<int>,
+     *     max_repeat: int|null,
+     *     enforce_category_uniqueness: bool
+     * }>
+     */
+    private function slotSelectionPasses(): array
+    {
+        return [
+            [
+                'phases' => [self::STYLE_PHASE_EXACT],
+                'max_repeat' => self::MAX_WEEKLY_EXERCISE_REPEATS,
+                'enforce_category_uniqueness' => true,
+            ],
+            [
+                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE],
+                'max_repeat' => self::MAX_WEEKLY_EXERCISE_REPEATS,
+                'enforce_category_uniqueness' => true,
+            ],
+            [
+                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE],
+                'max_repeat' => null,
+                'enforce_category_uniqueness' => true,
+            ],
+            [
+                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE],
+                'max_repeat' => null,
+                'enforce_category_uniqueness' => false,
+            ],
+            [
+                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE, self::STYLE_PHASE_FALLBACK],
+                'max_repeat' => self::MAX_WEEKLY_EXERCISE_REPEATS,
+                'enforce_category_uniqueness' => true,
+            ],
+            [
+                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE, self::STYLE_PHASE_FALLBACK],
+                'max_repeat' => null,
+                'enforce_category_uniqueness' => true,
+            ],
+            [
+                'phases' => [self::STYLE_PHASE_EXACT, self::STYLE_PHASE_FLEXIBLE, self::STYLE_PHASE_FALLBACK],
+                'max_repeat' => null,
+                'enforce_category_uniqueness' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @param  array{
+     *     exercise: Exercise,
+     *     category_slug: string|null,
+     *     style_slugs: list<string>,
+     *     style_phase: int,
+     *     score: int,
+     *     tie_breaker: int
+     * }  $item
+     * @param  array{
+     *     phases: list<int>,
+     *     max_repeat: int|null,
+     *     enforce_category_uniqueness: bool
+     * }  $pass
+     * @param  array<string, int>  $dayCategoryUsage
+     * @param  array<int, int>  $weeklyUsage
+     */
+    private function matchesSelectionPass(
+        array $item,
+        array $pass,
+        array $dayCategoryUsage,
+        array $weeklyUsage
+    ): bool {
+        if (! in_array($item['style_phase'], $pass['phases'], true)) {
+            return false;
+        }
+
+        $exerciseId = (int) $item['exercise']->id;
+        $currentWeeklyUsage = $weeklyUsage[$exerciseId] ?? 0;
+
+        if (is_int($pass['max_repeat']) && $currentWeeklyUsage >= $pass['max_repeat']) {
+            return false;
+        }
+
+        if (
+            $pass['enforce_category_uniqueness']
+            && $item['category_slug'] !== null
+        ) {
+            $categoryUsage = $dayCategoryUsage[$item['category_slug']] ?? 0;
+
+            if ($categoryUsage >= self::MAX_CATEGORY_APPEARANCES_PER_DAY) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
