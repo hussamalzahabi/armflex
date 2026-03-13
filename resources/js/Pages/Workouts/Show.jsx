@@ -234,10 +234,8 @@ const WorkoutsShow = ({ workout }) => {
                                         {finishDisabledReason && (
                                             <button
                                                 type="button"
-                                                className={`finish-workout-help inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm ${
-                                                    isDark
-                                                        ? 'border-slate-600 bg-slate-800 text-slate-200'
-                                                        : 'border-slate-300 bg-slate-100 text-slate-700'
+                                                className={`finish-workout-help inline-flex h-8 w-8 items-center justify-center rounded-full text-base transition-colors ${
+                                                    isDark ? 'text-slate-300 hover:text-slate-100' : 'text-slate-500 hover:text-slate-700'
                                                 }`}
                                                 aria-label={finishDisabledReason}
                                             >
