@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\Exercise;
 use App\Models\Program;
 use App\Models\User;
-use Illuminate\Support\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 

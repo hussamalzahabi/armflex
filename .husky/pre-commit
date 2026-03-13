@@ -2,4 +2,4 @@
 set -e
 
 yarn lint
-composer run lint:php
+composer run lint

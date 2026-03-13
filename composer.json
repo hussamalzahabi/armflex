@@ -50,10 +50,10 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
         ],
-        "lint:php": [
+        "lint": [
             "@php vendor/bin/pint --test"
         ],
-        "format:php": [
+        "lint:fix": [
             "@php vendor/bin/pint"
         ]
     },
