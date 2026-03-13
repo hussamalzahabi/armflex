@@ -97,21 +97,31 @@ docker compose exec -e XDEBUG_MODE=debug -e XDEBUG_SESSION=1 app php artisan tes
 
 The PHP `app` container does not include Node/Yarn. Use the `node` service:
 
-```bash
-docker compose up -d node
-docker compose exec node yarn --version
-```
-
-Install frontend dependencies inside Docker:
+Start the full Docker development stack:
 
 ```bash
-docker compose exec node yarn install
+docker compose up -d app db node
 ```
+
+Development behavior:
+
+- `app` now mounts the local project, so PHP changes are reflected immediately at `http://localhost:10000`
+- `node` runs the Vite dev server automatically at `http://localhost:5173`
+- frontend changes should hot-reload through Vite without rebuilding the PHP image
+- the Docker containers pin `.env.docker` as their in-container `.env`, so local/Herd `.env` values do not override Docker database settings
 
 Run common frontend commands inside Docker:
 
 ```bash
+docker compose exec node yarn --version
 docker compose exec node yarn test:ui
 docker compose exec node yarn lint
-docker compose exec node yarn dev --host
+```
+
+If you want a production-style asset build instead of Vite dev mode:
+
+```bash
+docker compose exec node yarn build
+docker compose build app
+docker compose up -d app
 ```

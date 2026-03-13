@@ -32,7 +32,7 @@ class ProgramController extends Controller
             ->get();
 
         return Inertia::render('Programs/Index', [
-            'programs' => $programs->map(function (Program $program) {
+            'programs' => $programs->map(function (Program $program) use ($activeWorkoutsByDay) {
                 return [
                     'id' => $program->id,
                     'name' => $program->name,

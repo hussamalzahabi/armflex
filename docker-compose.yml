@@ -12,6 +12,9 @@ services:
                 condition: service_healthy
         ports:
             - '10000:10000'
+        volumes:
+            - ./:/var/www/html
+            - ./.env.docker:/var/www/html/.env:ro
         env_file:
             - .env.docker
         environment:
@@ -45,13 +48,17 @@ services:
         image: node:20-bookworm-slim
         container_name: armflex-node
         working_dir: /workspace
+        ports:
+            - '5173:5173'
         volumes:
             - ./:/workspace
+            - ./.env.docker:/workspace/.env:ro
             - armflex_node_modules:/workspace/node_modules
         command: >
             sh -lc "corepack enable
             && corepack prepare yarn@4.13.0 --activate
-            && tail -f /dev/null"
+            && yarn install
+            && yarn dev --host 0.0.0.0 --port 5173"
         stdin_open: true
         tty: true
         restart: unless-stopped
