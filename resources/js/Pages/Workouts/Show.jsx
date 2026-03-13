@@ -6,6 +6,7 @@ import { Card } from 'primereact/card';
 import { Chip } from 'primereact/chip';
 import { InputNumber } from 'primereact/inputnumber';
 import { Message } from 'primereact/message';
+import { OverlayPanel } from 'primereact/overlaypanel';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Tooltip } from 'primereact/tooltip';
@@ -41,6 +42,7 @@ const formatDate = (isoValue) => {
 const WorkoutsShow = ({ workout }) => {
     const { isDark } = useTheme();
     const toast = useRef(null);
+    const finishHelpOverlay = useRef(null);
     const [exerciseRows, setExerciseRows] = useState(workout.exercises);
     const [savingSetIds, setSavingSetIds] = useState([]);
     const [isFinishing, setIsFinishing] = useState(false);
@@ -172,7 +174,7 @@ const WorkoutsShow = ({ workout }) => {
         <>
             <Head title={`Workout Day ${workout.program_day.day_number}`} />
             <Toast ref={toast} />
-            {finishDisabledReason && <Tooltip target=".finish-workout-help" content={finishDisabledReason} position="top" />}
+            {finishDisabledReason && <Tooltip target=".finish-workout-trigger" content={finishDisabledReason} position="top" />}
             <AppLayout title={`Workout Day ${workout.program_day.day_number}`}>
                 <div className="w-full lg:max-w-[1100px] lg:mr-auto">
                     <AppBreadcrumb items={breadcrumbItems} />
@@ -223,32 +225,53 @@ const WorkoutsShow = ({ workout }) => {
                                     View History
                                 </Link>
                                 <div className="flex flex-col items-start gap-1">
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
-                                            icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
-                                            disabled={isCompleted || !hasLoggedPerformance}
-                                            loading={isFinishing}
-                                            onClick={finishWorkout}
-                                        />
+                                    <div className="flex items-center gap-2 md:gap-2">
+                                        <span className={finishDisabledReason ? 'finish-workout-trigger inline-flex cursor-not-allowed' : 'inline-flex'}>
+                                            <Button
+                                                label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
+                                                icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
+                                                disabled={isCompleted || !hasLoggedPerformance}
+                                                loading={isFinishing}
+                                                onClick={finishWorkout}
+                                            />
+                                        </span>
+
                                         {finishDisabledReason && (
-                                            <button
-                                                type="button"
-                                                className={`finish-workout-help inline-flex h-8 w-8 items-center justify-center rounded-full text-base transition-colors ${
-                                                    isDark ? 'text-slate-300 hover:text-slate-100' : 'text-slate-500 hover:text-slate-700'
-                                                }`}
-                                                aria-label={finishDisabledReason}
-                                            >
-                                                <i className="pi pi-info-circle" />
-                                            </button>
+                                            <>
+                                                <button
+                                                    type="button"
+                                                    className={`inline-flex h-9 w-9 -ml-1 items-center justify-center rounded-lg border text-[0.7rem] font-semibold leading-none md:hidden ${
+                                                        isDark
+                                                            ? 'border-slate-600 bg-slate-800 text-slate-200'
+                                                            : 'border-slate-300 bg-slate-100 text-slate-700'
+                                                    }`}
+                                                    aria-label="Why Finish Workout is disabled"
+                                                    onClick={(event) => finishHelpOverlay.current?.toggle(event)}
+                                                >
+                                                    <span aria-hidden="true">i</span>
+                                                </button>
+                                                <OverlayPanel
+                                                    ref={finishHelpOverlay}
+                                                    dismissable
+                                                    showCloseIcon
+                                                    className={`app-overlay-panel max-w-xs ${
+                                                        isDark ? 'app-overlay-panel-dark' : 'app-overlay-panel-light'
+                                                    }`}
+                                                >
+                                                    <p
+                                                        className={`mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                                                            isDark ? 'text-slate-400' : 'text-slate-500'
+                                                        }`}
+                                                    >
+                                                        Finish Workout
+                                                    </p>
+                                                    <p className={`!m-0 text-sm leading-relaxed ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>
+                                                        {finishDisabledReason}
+                                                    </p>
+                                                </OverlayPanel>
+                                            </>
                                         )}
                                     </div>
-
-                                    {finishDisabledReason && (
-                                        <p className={`max-w-sm text-xs leading-relaxed ${subtitleClass}`}>
-                                            {finishDisabledReason}
-                                        </p>
-                                    )}
                                 </div>
                             </div>
                         </div>

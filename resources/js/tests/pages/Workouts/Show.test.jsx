@@ -73,6 +73,12 @@ vi.mock('primereact/tooltip', () => ({
     Tooltip: () => null,
 }));
 
+vi.mock('primereact/overlaypanel', () => ({
+    OverlayPanel: React.forwardRef(function OverlayPanelMock(_props, _ref) {
+        return null;
+    }),
+}));
+
 vi.mock('primereact/inputnumber', () => ({
     InputNumber: ({ value, onValueChange, onBlur, placeholder, disabled }) => (
         <input
@@ -105,7 +111,7 @@ describe('Workout session page', () => {
         render(<WorkoutsShow workout={buildWorkout()} />);
 
         expect(screen.getByRole('button', { name: 'Finish Workout' })).toBeDisabled();
-        expect(screen.getByText('Log at least one set result before finishing the workout.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Why Finish Workout is disabled' })).toBeInTheDocument();
     });
 
     it('should_save_set_values_on_blur', async () => {

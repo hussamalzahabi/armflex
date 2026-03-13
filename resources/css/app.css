@@ -360,6 +360,72 @@ html[data-theme='dark'] .p-button .p-button-loading-icon {
     border: 1px solid rgb(203 213 225) !important;
 }
 
+.app-overlay-panel.p-overlaypanel {
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgb(15 23 42 / 0.28);
+}
+
+.app-overlay-panel .p-overlaypanel-content {
+    padding: 1rem 3rem 1rem 1rem;
+}
+
+.app-overlay-panel .p-overlaypanel-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+}
+
+.app-overlay-panel .p-overlaypanel-close-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.app-overlay-panel-dark.p-overlaypanel {
+    background: rgb(15 23 42);
+    border: 1px solid rgb(51 65 85);
+}
+
+.app-overlay-panel-dark.p-overlaypanel .p-overlaypanel-content,
+.app-overlay-panel-dark.p-overlaypanel .p-overlaypanel-close {
+    background: rgb(15 23 42);
+    color: rgb(226 232 240);
+}
+
+.app-overlay-panel-dark.p-overlaypanel:before {
+    border-bottom-color: rgb(51 65 85);
+}
+
+.app-overlay-panel-dark.p-overlaypanel:after {
+    border-bottom-color: rgb(15 23 42);
+}
+
+.app-overlay-panel-light.p-overlaypanel {
+    background: rgb(255 255 255);
+    border: 1px solid rgb(226 232 240);
+}
+
+.app-overlay-panel-light.p-overlaypanel .p-overlaypanel-content,
+.app-overlay-panel-light.p-overlaypanel .p-overlaypanel-close {
+    background: rgb(255 255 255);
+    color: rgb(51 65 85);
+}
+
+.app-overlay-panel-light.p-overlaypanel:before {
+    border-bottom-color: rgb(226 232 240);
+}
+
+.app-overlay-panel-light.p-overlaypanel:after {
+    border-bottom-color: rgb(255 255 255);
+}
+
 html[data-theme='dark'] .programs-table .p-datatable-header,
 html[data-theme='dark'] .programs-table .p-datatable-thead > tr > th,
 html[data-theme='dark'] .programs-table .p-datatable-tbody > tr > td,
