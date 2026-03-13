@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Program;
+use App\Models\Workout;
 use App\Services\ProgramGeneratorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,11 @@ class ProgramController extends Controller
     {
         $user = $request->user();
         $profile = $user->profile()->with('style:id,name,slug')->first();
+        $activeWorkoutsByDay = Workout::query()
+            ->where('user_id', $user->id)
+            ->whereNull('completed_at')
+            ->get(['id', 'program_day_id', 'started_at'])
+            ->keyBy('program_day_id');
         $programs = Program::query()
             ->where('user_id', $user->id)
             ->with([
@@ -35,10 +41,14 @@ class ProgramController extends Controller
                     'training_days' => $program->training_days,
                     'duration_weeks' => $program->duration_weeks,
                     'created_at' => optional($program->created_at)->toIso8601String(),
-                    'days' => $program->days->map(function ($day) {
+                    'days' => $program->days->map(function ($day) use ($activeWorkoutsByDay) {
+                        $activeWorkout = $activeWorkoutsByDay->get($day->id);
+
                         return [
                             'id' => $day->id,
                             'day_number' => $day->day_number,
+                            'active_workout_id' => $activeWorkout?->id,
+                            'active_workout_started_at' => optional($activeWorkout?->started_at)->toIso8601String(),
                             'exercises' => $day->exercises->map(function ($programDayExercise) {
                                 $exercise = $programDayExercise->exercise;
 

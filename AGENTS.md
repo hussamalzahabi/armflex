@@ -132,6 +132,7 @@ Use:
 - **PrimeReact** for complex UI components
 - **TailwindCSS** for layout and spacing
 - Responsive layouts by default (mobile-first), ensuring core screens are usable on mobile, tablet, and desktop
+- Dark and light mode should remain visually consistent across components and interaction states; avoid theme-specific visual regressions or mismatched surfaces
 
 Examples of PrimeReact components:
 

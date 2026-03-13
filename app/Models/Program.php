@@ -28,4 +28,9 @@ class Program extends Model
     {
         return $this->hasMany(ProgramDay::class)->orderBy('day_number');
     }
+
+    public function workouts(): HasMany
+    {
+        return $this->hasMany(Workout::class);
+    }
 }

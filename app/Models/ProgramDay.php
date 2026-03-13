@@ -22,4 +22,9 @@ class ProgramDay extends Model
     {
         return $this->hasMany(ProgramDayExercise::class)->orderBy('order_index');
     }
+
+    public function workouts(): HasMany
+    {
+        return $this->hasMany(Workout::class);
+    }
 }

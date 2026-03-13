@@ -81,6 +81,7 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const { isDark } = useTheme();
     const [isGenerating, setIsGenerating] = useState(false);
     const [selectedProgramId, setSelectedProgramId] = useState(programs[0]?.id ?? null);
+    const [startingWorkoutDayId, setStartingWorkoutDayId] = useState(null);
 
     const selectedProgram = useMemo(
         () => programs.find((program) => program.id === selectedProgramId) ?? programs[0] ?? null,
@@ -139,6 +140,38 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                     });
                 },
                 onFinish: () => setIsGenerating(false),
+            }
+        );
+    };
+
+    const startWorkout = (programId, programDayId) => {
+        setStartingWorkoutDayId(programDayId);
+
+        router.post(
+            '/workouts/start',
+            {
+                program_id: programId,
+                program_day_id: programDayId,
+            },
+            {
+                preserveScroll: true,
+                onError: (errorBag) => {
+                    const firstErrorEntry = Object.entries(errorBag)[0];
+                    if (!firstErrorEntry) {
+                        return;
+                    }
+
+                    const [field, message] = firstErrorEntry;
+                    const detail = Array.isArray(message) ? message[0] : message;
+
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Workout Could Not Start',
+                        detail: `${humanizeSlug(field)}: ${detail}`,
+                        life: 4500,
+                    });
+                },
+                onFinish: () => setStartingWorkoutDayId(null),
             }
         );
     };
@@ -355,6 +388,22 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                     <Accordion multiple activeIndex={selectedProgram.days.map((_, index) => index)} className="programs-days">
                                         {selectedProgram.days.map((day) => (
                                             <AccordionTab key={day.id} header={`Day ${day.day_number}`}>
+                                                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                                                    <div className={`text-sm ${subtitleClass}`}>
+                                                        {day.active_workout_id
+                                                            ? `Workout started ${formatDate(day.active_workout_started_at)}`
+                                                            : 'Use this day as the workout template when you are ready to train.'}
+                                                    </div>
+                                                    <Button
+                                                        label={day.active_workout_id ? 'Continue Workout' : 'Start Workout'}
+                                                        icon={day.active_workout_id ? 'pi pi-play-circle' : 'pi pi-bolt'}
+                                                        size="small"
+                                                        loading={startingWorkoutDayId === day.id}
+                                                        onClick={() => startWorkout(selectedProgram.id, day.id)}
+                                                        className="w-full sm:w-auto"
+                                                    />
+                                                </div>
+
                                                 <div className="hidden md:block">
                                                     <DataTable
                                                         value={day.exercises}
