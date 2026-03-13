@@ -8,6 +8,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
+import { Tooltip } from 'primereact/tooltip';
 import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
@@ -66,6 +67,7 @@ const WorkoutsShow = ({ workout }) => {
             ),
         [exerciseRows]
     );
+    const finishDisabledReason = !isCompleted && !hasLoggedPerformance ? 'Log at least one set result before finishing the workout.' : '';
 
     const updateSetField = (exerciseId, setId, field, value) => {
         setExerciseRows((currentRows) =>
@@ -170,6 +172,7 @@ const WorkoutsShow = ({ workout }) => {
         <>
             <Head title={`Workout Day ${workout.program_day.day_number}`} />
             <Toast ref={toast} />
+            {finishDisabledReason && <Tooltip target=".finish-workout-help" content={finishDisabledReason} position="top" />}
             <AppLayout title={`Workout Day ${workout.program_day.day_number}`}>
                 <div className="w-full lg:max-w-[1100px] lg:mr-auto">
                     <AppBreadcrumb items={breadcrumbItems} />
@@ -219,13 +222,36 @@ const WorkoutsShow = ({ workout }) => {
                                 >
                                     View History
                                 </Link>
-                                <Button
-                                    label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
-                                    icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
-                                    disabled={isCompleted || !hasLoggedPerformance}
-                                    loading={isFinishing}
-                                    onClick={finishWorkout}
-                                />
+                                <div className="flex flex-col items-start gap-1">
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
+                                            icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
+                                            disabled={isCompleted || !hasLoggedPerformance}
+                                            loading={isFinishing}
+                                            onClick={finishWorkout}
+                                        />
+                                        {finishDisabledReason && (
+                                            <button
+                                                type="button"
+                                                className={`finish-workout-help inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm ${
+                                                    isDark
+                                                        ? 'border-slate-600 bg-slate-800 text-slate-200'
+                                                        : 'border-slate-300 bg-slate-100 text-slate-700'
+                                                }`}
+                                                aria-label={finishDisabledReason}
+                                            >
+                                                <i className="pi pi-info-circle" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {finishDisabledReason && (
+                                        <p className={`max-w-sm text-xs leading-relaxed ${subtitleClass}`}>
+                                            {finishDisabledReason}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
