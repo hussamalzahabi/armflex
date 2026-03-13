@@ -1,4 +1,6 @@
+import { router } from '@inertiajs/react';
 import { Card } from 'primereact/card';
+import { Dropdown } from 'primereact/dropdown';
 import { useTheme } from '@/hooks/useTheme';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -71,24 +73,14 @@ const buildWeeks = (days) => {
 };
 
 const buildMonthLabels = (weeks) => {
-    let previousMonth = null;
-
     return weeks.map((week, index) => {
-        const firstVisibleDay = week.find((day) => !day.outsideRange);
+        const monthStartDay = week.find((day) => !day.outsideRange && parseDate(day.date).getDate() === 1);
 
-        if (!firstVisibleDay) {
+        if (!monthStartDay) {
             return '';
         }
 
-        const monthLabel = formatMonth(parseDate(firstVisibleDay.date));
-
-        if (index === 0 || monthLabel !== previousMonth) {
-            previousMonth = monthLabel;
-
-            return monthLabel;
-        }
-
-        return '';
+        return formatMonth(parseDate(monthStartDay.date));
     });
 };
 
@@ -105,6 +97,7 @@ const TrainingStreakCard = ({ streak }) => {
     const accentClass = isDark ? 'text-emerald-200' : 'text-emerald-700';
     const weeks = buildWeeks(streak.activity_days);
     const monthLabels = buildMonthLabels(weeks);
+    const yearOptions = (streak.year_options ?? []).map((year) => ({ label: String(year), value: year }));
 
     const squareClass = (day) => {
         if (day.outsideRange) {
@@ -123,13 +116,37 @@ const TrainingStreakCard = ({ streak }) => {
     const titleForDay = (day) =>
         `${day.date}${day.outsideRange ? ' — outside visible range' : day.active ? ' — workout completed' : ' — no completed workout'}`;
 
+    const handleYearChange = (event) => {
+        router.get(
+            '/',
+            { streak_year: event.value },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            }
+        );
+    };
+
     return (
         <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
             <div className="space-y-4">
-                <div className="space-y-1">
-                    <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${accentClass}`}>Training Streak</p>
-                    <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>Consistency at a glance</h3>
-                    <p className={`max-w-2xl text-sm leading-relaxed ${subtitleClass}`}>{streak.message}</p>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="space-y-1">
+                        <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${accentClass}`}>Training Streak</p>
+                        <h3 className={`text-2xl font-semibold tracking-tight ${titleClass}`}>Consistency at a glance</h3>
+                        <p className={`max-w-2xl text-sm leading-relaxed ${subtitleClass}`}>{streak.message}</p>
+                    </div>
+
+                    <div className="w-full sm:w-40 lg:w-36">
+                        <Dropdown
+                            value={streak.selected_year}
+                            options={yearOptions}
+                            onChange={handleYearChange}
+                            placeholder="Year"
+                            className="w-full"
+                        />
+                    </div>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -145,22 +162,24 @@ const TrainingStreakCard = ({ streak }) => {
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>Last 8 weeks</p>
-                    <div className="overflow-x-auto">
+                <div className="space-y-5 pb-3">
+                    <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>
+                        Activity in {streak.selected_year}
+                    </p>
+                    <div className="overflow-x-auto pt-1 pb-2">
                         <div className="min-w-fit" aria-label="Training activity grid">
-                            <div className="mb-2 ml-10 flex gap-1.5">
+                            <div className="mb-4 ml-10 flex gap-1.5">
                                 {monthLabels.map((label, index) => (
-                                    <div key={`month-${index}`} className={`w-5 text-[11px] font-medium ${labelClass}`}>
+                                    <div key={`month-${index}`} className={`w-5 text-xs font-medium ${labelClass}`}>
                                         {label}
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="flex items-start gap-2">
+                            <div className="flex items-start gap-2.5">
                                 <div className="grid grid-rows-7 gap-1.5 pt-0.5">
                                     {WEEKDAY_LABELS.map((label) => (
-                                        <div key={label} className={`flex h-5 items-center text-[11px] font-medium ${labelClass}`}>
+                                        <div key={label} className={`flex h-5 items-center text-xs font-medium ${labelClass}`}>
                                             {label}
                                         </div>
                                     ))}

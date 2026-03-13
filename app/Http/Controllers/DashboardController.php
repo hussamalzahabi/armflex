@@ -15,7 +15,10 @@ class DashboardController extends Controller
         return Inertia::render('Home', [
             'title' => 'Dashboard',
             'onboardingChecklist' => $onboardingChecklistService->getChecklistForUser($request->user()->id),
-            'trainingStreak' => $trainingStreakService->getSummaryForUser($request->user()->id),
+            'trainingStreak' => $trainingStreakService->getSummaryForUser(
+                $request->user()->id,
+                $request->integer('streak_year') ?: null
+            ),
         ]);
     }
 }

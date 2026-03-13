@@ -64,9 +64,9 @@ const completedChecklist = {
 };
 
 const buildActivityDays = () => {
-    const startDate = new Date(2026, 0, 17);
+    const startDate = new Date(2026, 0, 1);
 
-    return Array.from({ length: 56 }, (_, index) => {
+    return Array.from({ length: 365 }, (_, index) => {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + index);
 
@@ -85,11 +85,14 @@ const trainingStreak = {
     current_streak: 2,
     longest_streak: 6,
     message: 'Nice momentum. Keep showing up.',
+    selected_year: 2026,
+    year_options: [2026, 2025],
     activity_days: buildActivityDays(),
 };
 
-const { logoutPostMock } = vi.hoisted(() => ({
+const { logoutPostMock, routerGetMock } = vi.hoisted(() => ({
     logoutPostMock: vi.fn(),
+    routerGetMock: vi.fn(),
 }));
 
 vi.mock('@inertiajs/react', () => ({
@@ -115,6 +118,7 @@ vi.mock('@inertiajs/react', () => ({
         },
     }),
     router: {
+        get: routerGetMock,
         post: logoutPostMock,
     },
 }));
@@ -133,6 +137,18 @@ vi.mock('primereact/button', () => ({
         <button type={type} onClick={onClick}>
             {label}
         </button>
+    ),
+}));
+
+vi.mock('primereact/dropdown', () => ({
+    Dropdown: ({ value, options, onChange, placeholder }) => (
+        <select aria-label={placeholder} value={value} onChange={(event) => onChange?.({ value: Number(event.target.value) })}>
+            {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                    {option.label}
+                </option>
+            ))}
+        </select>
     ),
 }));
 
@@ -162,6 +178,9 @@ describe('Home page', () => {
         expect(screen.getByText('Training Streak')).toBeInTheDocument();
         expect(screen.getByText('Current streak')).toBeInTheDocument();
         expect(screen.getByText('Fri')).toBeInTheDocument();
+        expect(screen.getByText('Jan')).toBeInTheDocument();
+        expect(screen.getByText('Dec')).toBeInTheDocument();
+        expect(screen.getByLabelText('Year')).toBeInTheDocument();
         expect(screen.getByLabelText('Training activity grid')).toBeInTheDocument();
     });
 
@@ -171,6 +190,22 @@ describe('Home page', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Logout' }));
 
         expect(logoutPostMock).toHaveBeenCalledWith('/logout');
+    });
+
+    it('should_change_streak_year_when_year_selector_changes', () => {
+        render(<Home title="Dashboard" onboardingChecklist={onboardingChecklist} trainingStreak={trainingStreak} />);
+
+        fireEvent.change(screen.getByLabelText('Year'), { target: { value: '2025' } });
+
+        expect(routerGetMock).toHaveBeenCalledWith(
+            '/',
+            { streak_year: 2025 },
+            expect.objectContaining({
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            })
+        );
     });
 
     it('should_render_onboarding_success_state_when_all_steps_are_complete', () => {

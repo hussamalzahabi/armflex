@@ -8,18 +8,27 @@ use Illuminate\Support\Collection;
 
 class TrainingStreakService
 {
-    private const ACTIVITY_DAYS_COUNT = 56;
+    private const RECENT_ACTIVITY_DAYS_COUNT = 56;
 
-    public function getSummaryForUser(int $userId): array
+    public function getSummaryForUser(int $userId, ?int $year = null): array
     {
         $today = CarbonImmutable::today();
+        $selectedYear = $year ?: $today->year;
         $activeDateStrings = $this->getActiveDatesForUser($userId)->all();
         $currentStreak = $this->calculateCurrentStreak($activeDateStrings, $today);
+        $yearOptions = $this->yearOptionsForActivityDates($activeDateStrings, $selectedYear);
+        $clampedYear = in_array($selectedYear, $yearOptions, true) ? $selectedYear : $yearOptions[0];
+        $activityDatesForYear = array_values(array_filter(
+            $activeDateStrings,
+            fn (string $dateString) => CarbonImmutable::parse($dateString)->year === $clampedYear
+        ));
 
         return [
             'current_streak' => $currentStreak,
             'longest_streak' => $this->calculateLongestStreak($activeDateStrings),
-            'activity_days' => $this->buildActivityDays($activeDateStrings, $today),
+            'activity_days' => $this->buildActivityDaysForYear($activityDatesForYear, $clampedYear),
+            'selected_year' => $clampedYear,
+            'year_options' => $yearOptions,
             'message' => $this->messageForStreak($currentStreak),
         ];
     }
@@ -32,15 +41,40 @@ class TrainingStreakService
     {
         $today ??= CarbonImmutable::today();
         $activeLookup = array_fill_keys($activeDateStrings, true);
-        $startDate = $today->subDays(self::ACTIVITY_DAYS_COUNT - 1);
+        $startDate = $today->subDays(self::RECENT_ACTIVITY_DAYS_COUNT - 1);
         $days = [];
 
-        for ($offset = 0; $offset < self::ACTIVITY_DAYS_COUNT; $offset++) {
+        for ($offset = 0; $offset < self::RECENT_ACTIVITY_DAYS_COUNT; $offset++) {
             $date = $startDate->addDays($offset)->toDateString();
             $days[] = [
                 'date' => $date,
                 'active' => isset($activeLookup[$date]),
             ];
+        }
+
+        return $days;
+    }
+
+    /**
+     * @param  array<int, string>  $activeDateStrings
+     * @return array<int, array{date: string, active: bool}>
+     */
+    public function buildActivityDaysForYear(array $activeDateStrings, int $year): array
+    {
+        $activeLookup = array_fill_keys($activeDateStrings, true);
+        $startDate = CarbonImmutable::create($year, 1, 1)->startOfDay();
+        $endDate = $startDate->endOfYear();
+        $days = [];
+        $currentDate = $startDate;
+
+        while ($currentDate->lte($endDate)) {
+            $date = $currentDate->toDateString();
+            $days[] = [
+                'date' => $date,
+                'active' => isset($activeLookup[$date]),
+            ];
+
+            $currentDate = $currentDate->addDay();
         }
 
         return $days;
@@ -131,5 +165,23 @@ class TrainingStreakService
             ->map(fn ($workout) => $workout->completed_at->toDateString())
             ->unique()
             ->values();
+    }
+
+    /**
+     * @param  array<int, string>  $activeDateStrings
+     * @return array<int, int>
+     */
+    private function yearOptionsForActivityDates(array $activeDateStrings, int $selectedYear): array
+    {
+        $years = collect($activeDateStrings)
+            ->map(fn (string $dateString) => CarbonImmutable::parse($dateString)->year)
+            ->push(CarbonImmutable::today()->year)
+            ->push($selectedYear)
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
+
+        return $years;
     }
 }
