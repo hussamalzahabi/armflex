@@ -827,10 +827,11 @@ html[data-theme='light'] .programs-days .programs-table .p-datatable-tbody > tr:
     }
 
     .workout-log-card .p-card-body {
-        padding: 1rem !important;
+        padding: 1rem 1rem 0.7rem !important;
     }
 
     .workout-log-card .p-card-content {
         padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
 }
