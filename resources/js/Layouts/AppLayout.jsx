@@ -208,7 +208,7 @@ const AppLayout = ({ title: _title, breadcrumb = [], actions = null, children })
                         </div>
                     </header>
 
-                    <main className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-tl-[2rem] ${contentShellClass} px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3`}>
+                    <main className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-none lg:rounded-tl-[2rem] ${contentShellClass} px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3`}>
                         <div className="min-h-0 flex-1 overflow-y-auto">
                             <div className="space-y-3 pb-3">
                                 {actions && <div>{actions}</div>}
