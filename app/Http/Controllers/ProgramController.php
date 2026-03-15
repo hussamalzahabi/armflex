@@ -71,6 +71,7 @@ class ProgramController extends Controller
                                     'exercise' => [
                                         'id' => $exercise->id,
                                         'name' => $exercise->name,
+                                        'slug' => $exercise->slug,
                                         'difficulty_level' => $exercise->difficulty_level,
                                         'category' => $exercise->category ? [
                                             'name' => $exercise->category->name,

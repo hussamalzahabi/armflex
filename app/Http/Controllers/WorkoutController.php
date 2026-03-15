@@ -126,6 +126,7 @@ class WorkoutController extends Controller
                     'exercise' => [
                         'id' => $workoutExercise->exercise->id,
                         'name' => $workoutExercise->exercise->name,
+                        'slug' => $workoutExercise->exercise->slug,
                         'difficulty_level' => $workoutExercise->exercise->difficulty_level,
                         'category' => $workoutExercise->exercise->category ? [
                             'name' => $workoutExercise->exercise->category->name,

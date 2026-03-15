@@ -552,7 +552,14 @@ const WorkoutsShow = ({ workout }) => {
                                             </div>
 
                                             <div>
-                                                <h4 className={`!m-0 text-xl font-semibold ${headlineClass}`}>{exerciseRow.exercise.name}</h4>
+                                                <h4 className="!m-0">
+                                                    <Link
+                                                        href={`/exercises/${exerciseRow.exercise.slug}`}
+                                                        className={`text-xl font-semibold no-underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+                                                    >
+                                                        {exerciseRow.exercise.name}
+                                                    </Link>
+                                                </h4>
                                                 <p className={`mt-1 text-sm ${subtitleClass}`}>
                                                     {humanizeSlug(exerciseRow.exercise.difficulty_level)} • Target {exerciseRow.prescription.sets} x{' '}
                                                     {exerciseRow.prescription.reps}

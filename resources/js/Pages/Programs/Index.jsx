@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
@@ -236,7 +236,12 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
 
     const exerciseNameBody = (rowData) => (
         <div className="flex flex-col gap-0.5">
-            <span className="font-medium">{rowData.exercise.name}</span>
+            <Link
+                href={`/exercises/${rowData.exercise.slug}`}
+                className={`font-medium no-underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+            >
+                {rowData.exercise.name}
+            </Link>
             <span className="text-xs text-slate-400">{humanizeSlug(rowData.exercise.difficulty_level)}</span>
         </div>
     );
@@ -462,7 +467,14 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                                                             Exercise #{exerciseRow.order_index}
                                                                         </p>
                                                                         <div className="mt-0.5 space-y-0.5">
-                                                                            <p className="text-base font-semibold leading-tight">{exerciseRow.exercise.name}</p>
+                                                                            <Link
+                                                                                href={`/exercises/${exerciseRow.exercise.slug}`}
+                                                                                className={`text-base font-semibold leading-tight no-underline ${
+                                                                                    isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'
+                                                                                }`}
+                                                                            >
+                                                                                {exerciseRow.exercise.name}
+                                                                            </Link>
                                                                             <p className={`text-[11px] leading-none ${mobileLabelClass}`}>
                                                                                 {humanizeSlug(exerciseRow.exercise.difficulty_level)}
                                                                             </p>

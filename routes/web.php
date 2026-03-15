@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\WorkoutController;
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', DashboardController::class)->name('home');
 
     Route::get('/programs', [ProgramController::class, 'index'])->name('programs.index');
+    Route::get('/exercises/{exercise:slug}', [ExerciseController::class, 'show'])->name('exercises.show');
     Route::get('/workouts', [WorkoutController::class, 'index'])->name('workouts.index');
     Route::get('/workouts/{workout}', [WorkoutController::class, 'show'])->name('workouts.show');
     Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit');

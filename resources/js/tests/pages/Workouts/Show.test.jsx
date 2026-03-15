@@ -268,6 +268,7 @@ const buildWorkout = ({ reps = null, completedAt = null } = {}) => ({
             exercise: {
                 id: 5,
                 name: 'Band Pronation Pulses',
+                slug: 'band-pronation-pulses',
                 difficulty_level: 'beginner',
                 category: { name: 'Pronation', slug: 'pronation' },
                 equipments: [{ id: 1, name: 'Resistance Bands' }],

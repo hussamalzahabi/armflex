@@ -33,7 +33,13 @@ class ExerciseSeederTest extends TestCase
             'slug' => 'low-pulley-rising',
             'category_id' => $rising->id,
             'difficulty_level' => 'beginner',
+            'is_beginner_friendly' => true,
             'is_active' => true,
+        ]);
+
+        $this->assertDatabaseHas('exercises', [
+            'slug' => 'band-rising-holds',
+            'is_isometric' => true,
         ]);
 
         $exercise = Exercise::query()->where('slug', 'wrist-wrench-pronation-curl')->firstOrFail();
@@ -66,5 +72,13 @@ class ExerciseSeederTest extends TestCase
             0,
             Exercise::query()->doesntHave('styles')->count()
         );
+
+        $instructionExercise = Exercise::query()->where('slug', 'band-pronation-pulses')->firstOrFail();
+
+        $this->assertNotNull($instructionExercise->short_description);
+        $this->assertNotNull($instructionExercise->purpose);
+        $this->assertDatabaseHas('exercise_instructions', [
+            'exercise_id' => $instructionExercise->id,
+        ]);
     }
 }
