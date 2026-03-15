@@ -38,6 +38,26 @@ const Home = ({ title, onboardingChecklist, trainingStreak, personalRecordsSumma
         router.visit(target.url);
     };
     const dashboardBreadcrumb = [{ label: 'Dashboard' }];
+    const dashboardCards = [
+        onboardingChecklist
+            ? {
+                  key: 'onboarding',
+                  render: (className) => <OnboardingChecklistCard checklist={onboardingChecklist} className={className} />,
+              }
+            : null,
+        trainingStreak
+            ? {
+                  key: 'streak',
+                  render: (className) => <TrainingStreakCard streak={trainingStreak} className={className} />,
+              }
+            : null,
+        personalRecordsSummary
+            ? {
+                  key: 'records',
+                  render: (className) => <PersonalRecordsCard summary={personalRecordsSummary} className={className} />,
+              }
+            : null,
+    ].filter(Boolean);
 
     return (
         <>
@@ -46,7 +66,7 @@ const Home = ({ title, onboardingChecklist, trainingStreak, personalRecordsSumma
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
                     <AppBreadcrumb items={dashboardBreadcrumb} />
                     <Card
-                        className={`w-full rounded-b-3xl !rounded-t-none !border-0 shadow-xl ${
+                        className={`w-full !rounded-b-none !rounded-t-none !border-0 shadow-xl ${
                             isDark
                                 ? 'bg-slate-800 shadow-black/20'
                                 : 'bg-white shadow-slate-200/70'
@@ -77,17 +97,11 @@ const Home = ({ title, onboardingChecklist, trainingStreak, personalRecordsSumma
                         </div>
                     </Card>
 
-                    <div className="mt-3">
-                        <OnboardingChecklistCard checklist={onboardingChecklist} />
-                    </div>
-
-                    <div className="mt-3">
-                        <TrainingStreakCard streak={trainingStreak} />
-                    </div>
-
-                    <div className="mt-3">
-                        <PersonalRecordsCard summary={personalRecordsSummary} />
-                    </div>
+                    {dashboardCards.map((card) => (
+                        <div key={card.key} className="mt-3">
+                            {card.render('')}
+                        </div>
+                    ))}
                 </div>
             </AppLayout>
         </>

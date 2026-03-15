@@ -12,7 +12,7 @@ const formatDate = (isoValue) => {
     }).format(new Date(isoValue));
 };
 
-const PersonalRecordsCard = ({ summary }) => {
+const PersonalRecordsCard = ({ summary, className = '' }) => {
     const { isDark } = useTheme();
 
     if (!summary) {
@@ -26,7 +26,7 @@ const PersonalRecordsCard = ({ summary }) => {
     const detailLabel = (record) => (record.record_type === 'duration' ? 'Best hold' : 'Best lift');
 
     return (
-        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
+        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass} ${className}`}>
             <div className="space-y-4">
                 <div className="space-y-1">
                     <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${accentClass}`}>Personal Records</p>

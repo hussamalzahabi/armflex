@@ -85,7 +85,7 @@ const buildMonthLabels = (weeks) => {
     });
 };
 
-const TrainingStreakCard = ({ streak }) => {
+const TrainingStreakCard = ({ streak, className = '' }) => {
     const { isDark } = useTheme();
 
     if (!streak) {
@@ -152,7 +152,7 @@ const TrainingStreakCard = ({ streak }) => {
     };
 
     return (
-        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
+        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass} ${className}`}>
             <div className="space-y-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="space-y-1">

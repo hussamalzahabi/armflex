@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 import { Card } from 'primereact/card';
 import { useTheme } from '@/hooks/useTheme';
 
-const OnboardingChecklistCard = ({ checklist }) => {
+const OnboardingChecklistCard = ({ checklist, className = '' }) => {
     const { isDark } = useTheme();
 
     if (!checklist) {
@@ -16,7 +16,7 @@ const OnboardingChecklistCard = ({ checklist }) => {
 
     if (checklist.all_completed) {
         return (
-            <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
+            <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass} ${className}`}>
                 <div className="space-y-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="space-y-1">
@@ -55,7 +55,7 @@ const OnboardingChecklistCard = ({ checklist }) => {
     }
 
     return (
-        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
+        <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass} ${className}`}>
             <div className="space-y-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">

@@ -135,6 +135,7 @@ Use:
 - **TailwindCSS** for layout and spacing
 - Responsive layouts by default (mobile-first), ensuring core screens are usable on mobile, tablet, and desktop
 - Dark and light mode should remain visually consistent across components and interaction states; avoid theme-specific visual regressions or mismatched surfaces
+- For vertically stacked cards that belong to the same visual group, only the first/top card should keep top rounding and only the last/bottom card should keep bottom rounding; middle cards should visually connect without extra corner rounding
 
 Examples of PrimeReact components:
 
