@@ -76,8 +76,7 @@ const AppLayout = ({ title: _title, breadcrumb = [], actions = null, children })
                 </button>
                 <p className="text-sm font-semibold tracking-wide">ArmFlex</p>
                 <div className="flex items-center gap-2">
-                    <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-                    <UserActionMenu user={auth?.user} compact />
+                    <UserActionMenu user={auth?.user} compact showThemeToggle />
                 </div>
             </div>
 

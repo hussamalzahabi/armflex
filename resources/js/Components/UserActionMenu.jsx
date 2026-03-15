@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { useRef } from 'react';
 import { OverlayPanel } from 'primereact/overlaypanel';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { useTheme } from '@/hooks/useTheme';
 
 const menuItems = [
@@ -9,9 +10,9 @@ const menuItems = [
     { label: 'Workouts', href: '/workouts', icon: 'pi pi-play-circle' },
 ];
 
-const UserActionMenu = ({ user, compact = false }) => {
+const UserActionMenu = ({ user, compact = false, showThemeToggle = false }) => {
     const overlayRef = useRef(null);
-    const { isDark } = useTheme();
+    const { isDark, toggleTheme } = useTheme();
     const displayName = user?.name?.trim() || null;
     const displayEmail = user?.email ?? '';
     const avatarLabel = (displayName?.[0] ?? displayEmail?.[0] ?? 'U').toUpperCase();
@@ -77,6 +78,20 @@ const UserActionMenu = ({ user, compact = false }) => {
                             </Link>
                         ))}
                     </nav>
+
+                    {showThemeToggle && (
+                        <>
+                            <div className={`border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`} />
+
+                            <div className="flex items-center justify-between gap-4 px-3 py-1">
+                                <div className="flex items-center gap-2">
+                                    <i className={`pi pi-palette text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`} aria-hidden="true" />
+                                    <span className="text-sm font-medium">Theme</span>
+                                </div>
+                                <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+                            </div>
+                        </>
+                    )}
 
                     <div className={`border-t ${isDark ? 'border-slate-700' : 'border-slate-200'}`} />
 
