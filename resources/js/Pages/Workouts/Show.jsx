@@ -56,6 +56,7 @@ const WorkoutsShow = ({ workout }) => {
     const [isReopening, setIsReopening] = useState(false);
     const [showFinishDialog, setShowFinishDialog] = useState(false);
     const [showReopenDialog, setShowReopenDialog] = useState(false);
+    const [isMobileLayout, setIsMobileLayout] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 768 : false));
     const isCompleted = Boolean(workout.completed_at);
     const breadcrumbItems = [
         { label: 'Dashboard', href: '/' },
@@ -105,6 +106,19 @@ const WorkoutsShow = ({ workout }) => {
         savingSetIdsRef.current = [];
         setSaveErrorsBySetId({});
     }, [workout.exercises]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return undefined;
+        }
+
+        const updateViewport = () => setIsMobileLayout(window.innerWidth < 768);
+
+        updateViewport();
+        window.addEventListener('resize', updateViewport);
+
+        return () => window.removeEventListener('resize', updateViewport);
+    }, []);
 
     const syncSavingSetIds = (updater) => {
         const nextIds = typeof updater === 'function' ? updater(savingSetIdsRef.current) : updater;
@@ -387,6 +401,139 @@ const WorkoutsShow = ({ workout }) => {
         </div>
     );
 
+    const renderExerciseRows = () => (
+        <>
+            {exerciseRows.map((exerciseRow) => (
+                <article key={exerciseRow.id} className={`rounded-3xl p-3 md:p-4 shadow-sm ${exerciseCardClass}`}>
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="space-y-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>
+                                    Exercise #{exerciseRow.order_index}
+                                </p>
+                                <Tag
+                                    value={exerciseRow.exercise.category?.name ?? 'Uncategorized'}
+                                    className={`!border-0 !text-xs !font-semibold ${
+                                        isDark ? '!bg-blue-500/25 !text-blue-100' : '!bg-blue-100 !text-blue-700'
+                                    }`}
+                                    rounded
+                                />
+                            </div>
+
+                            <div>
+                                <h4 className="!m-0">
+                                    <Link
+                                        href={`/exercises/${exerciseRow.exercise.slug}`}
+                                        className={`text-xl font-semibold no-underline transition hover:underline ${
+                                            isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'
+                                        }`}
+                                    >
+                                        {exerciseRow.exercise.name}
+                                    </Link>
+                                </h4>
+                                <div className={`mt-1 flex flex-wrap items-center gap-1 text-sm ${subtitleClass}`}>
+                                    <span>{humanizeSlug(exerciseRow.exercise.difficulty_level)}</span>
+                                    <span>•</span>
+                                    <span>
+                                        Target {exerciseRow.prescription.sets} x {exerciseRow.prescription.reps}
+                                    </span>
+                                    <span>•</span>
+                                    <Link
+                                        href={`/exercises/${exerciseRow.exercise.slug}`}
+                                        className={`font-medium no-underline transition hover:underline ${
+                                            isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-700'
+                                        }`}
+                                    >
+                                        View details
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-1.5">
+                                {exerciseRow.exercise.equipments.map((equipment) => (
+                                    <Chip
+                                        key={equipment.id}
+                                        label={equipment.name}
+                                        className={`programs-equipment-chip !text-xs ${isDark ? 'programs-equipment-chip-dark' : 'programs-equipment-chip-light'}`}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-3 grid gap-2.5 md:mt-4 md:gap-3">
+                        {exerciseRow.sets.map((set) => {
+                            const isSaving = savingSetIds.includes(set.id);
+                            const saveError = saveErrorsBySetId[set.id];
+
+                            return (
+                                <div key={set.id} className={`rounded-2xl border p-2.5 md:p-3 ${inputPanelClass}`}>
+                                    <div className="mb-2.5 flex items-center justify-between gap-3 md:mb-3">
+                                        <p className="!m-0 text-sm font-semibold">Set {set.set_number}</p>
+                                        <span className={`text-xs ${saveError ? 'text-amber-400' : subtitleClass}`}>
+                                            {isSaving ? 'Saving...' : saveError ? 'Save failed' : dirtySetIds.includes(set.id) ? 'Unsaved changes' : 'Saved when edited'}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid gap-2.5 md:grid-cols-3 md:gap-3">
+                                        {exerciseRow.prescription.is_duration_based ? (
+                                            <InputNumber
+                                                inputId={`duration-${set.id}`}
+                                                className="w-full"
+                                                value={set.duration_seconds}
+                                                onValueChange={(event) =>
+                                                    updateSetField(exerciseRow.id, set.id, 'duration_seconds', event.value ?? null)
+                                                }
+                                                onBlur={() => persistSet(set.id)}
+                                                useGrouping={false}
+                                                min={0}
+                                                disabled={isCompleted}
+                                                placeholder="Duration (sec)"
+                                                suffix=" sec"
+                                            />
+                                        ) : (
+                                            <InputNumber
+                                                inputId={`reps-${set.id}`}
+                                                className="w-full"
+                                                value={set.reps}
+                                                onValueChange={(event) => updateSetField(exerciseRow.id, set.id, 'reps', event.value ?? null)}
+                                                onBlur={() => persistSet(set.id)}
+                                                useGrouping={false}
+                                                min={0}
+                                                disabled={isCompleted}
+                                                placeholder="Reps"
+                                            />
+                                        )}
+
+                                        <InputNumber
+                                            inputId={`weight-${set.id}`}
+                                            className="w-full"
+                                            value={set.weight}
+                                            onValueChange={(event) => updateSetField(exerciseRow.id, set.id, 'weight', event.value ?? null)}
+                                            onBlur={() => persistSet(set.id)}
+                                            useGrouping={false}
+                                            min={0}
+                                            minFractionDigits={0}
+                                            maxFractionDigits={2}
+                                            disabled={isCompleted}
+                                            placeholder="Weight"
+                                        />
+
+                                        <div className={`flex min-h-12 items-center rounded-xl border px-3 py-3 text-sm ${inputPanelClass}`}>
+                                            Target {exerciseRow.prescription.reps}
+                                        </div>
+                                    </div>
+
+                                    {saveError && <p className="mt-2 !mb-0 text-xs text-amber-400">{saveError}</p>}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </article>
+            ))}
+        </>
+    );
+
     return (
         <>
             <Head title={`Workout Day ${workout.program_day.day_number}`} />
@@ -445,7 +592,7 @@ const WorkoutsShow = ({ workout }) => {
                         </div>
                     </Card>
 
-                    <Card className={`mt-2 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
+                    <Card className={`workout-log-card mt-2 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
                         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 md:mb-5">
                             <div className="max-w-2xl space-y-1.5">
                                 <p className={`!m-0 text-sm font-semibold ${headlineClass}`}>
@@ -529,148 +676,10 @@ const WorkoutsShow = ({ workout }) => {
                                 )}
                             </div>
                         </div>
-
-                        <div className="space-y-4">
-                            {exerciseRows.map((exerciseRow) => (
-                                <article key={exerciseRow.id} className={`rounded-3xl p-4 shadow-sm ${exerciseCardClass}`}>
-                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                                        <div className="space-y-2">
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>
-                                                    Exercise #{exerciseRow.order_index}
-                                                </p>
-                                                <Tag
-                                                    value={exerciseRow.exercise.category?.name ?? 'Uncategorized'}
-                                                    className={`!border-0 !text-xs !font-semibold ${
-                                                        isDark ? '!bg-blue-500/25 !text-blue-100' : '!bg-blue-100 !text-blue-700'
-                                                    }`}
-                                                    rounded
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <h4 className="!m-0">
-                                                    <Link
-                                                        href={`/exercises/${exerciseRow.exercise.slug}`}
-                                                        className={`text-xl font-semibold no-underline transition hover:underline ${
-                                                            isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'
-                                                        }`}
-                                                    >
-                                                        {exerciseRow.exercise.name}
-                                                    </Link>
-                                                </h4>
-                                                <div className={`mt-1 flex flex-wrap items-center gap-1 text-sm ${subtitleClass}`}>
-                                                    <span>{humanizeSlug(exerciseRow.exercise.difficulty_level)}</span>
-                                                    <span>•</span>
-                                                    <span>
-                                                        Target {exerciseRow.prescription.sets} x {exerciseRow.prescription.reps}
-                                                    </span>
-                                                    <span>•</span>
-                                                    <Link
-                                                        href={`/exercises/${exerciseRow.exercise.slug}`}
-                                                        className={`font-medium no-underline transition hover:underline ${
-                                                            isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-700'
-                                                        }`}
-                                                    >
-                                                        View details
-                                                    </Link>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-wrap gap-1.5">
-                                                {exerciseRow.exercise.equipments.map((equipment) => (
-                                                    <Chip
-                                                        key={equipment.id}
-                                                        label={equipment.name}
-                                                        className={`programs-equipment-chip !text-xs ${isDark ? 'programs-equipment-chip-dark' : 'programs-equipment-chip-light'}`}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-4 grid gap-3">
-                                        {exerciseRow.sets.map((set) => {
-                                            const isSaving = savingSetIds.includes(set.id);
-                                            const saveError = saveErrorsBySetId[set.id];
-
-                                            return (
-                                                <div key={set.id} className={`rounded-2xl border p-3 ${inputPanelClass}`}>
-                                                    <div className="mb-3 flex items-center justify-between gap-3">
-                                                        <p className="!m-0 text-sm font-semibold">Set {set.set_number}</p>
-                                                        <span className={`text-xs ${saveError ? 'text-amber-400' : subtitleClass}`}>
-                                                            {isSaving ? 'Saving...' : saveError ? 'Save failed' : dirtySetIds.includes(set.id) ? 'Unsaved changes' : 'Saved when edited'}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="grid gap-3 md:grid-cols-3">
-                                                        {exerciseRow.prescription.is_duration_based ? (
-                                                            <InputNumber
-                                                                inputId={`duration-${set.id}`}
-                                                                className="w-full"
-                                                                value={set.duration_seconds}
-                                                                onValueChange={(event) =>
-                                                                    updateSetField(exerciseRow.id, set.id, 'duration_seconds', event.value ?? null)
-                                                                }
-                                                                onBlur={() => persistSet(set.id)}
-                                                                useGrouping={false}
-                                                                min={0}
-                                                                disabled={isCompleted}
-                                                                placeholder="Duration (sec)"
-                                                                suffix=" sec"
-                                                            />
-                                                        ) : (
-                                                            <InputNumber
-                                                                inputId={`reps-${set.id}`}
-                                                                className="w-full"
-                                                                value={set.reps}
-                                                                onValueChange={(event) => updateSetField(exerciseRow.id, set.id, 'reps', event.value ?? null)}
-                                                                onBlur={() => persistSet(set.id)}
-                                                                useGrouping={false}
-                                                                min={0}
-                                                                disabled={isCompleted}
-                                                                placeholder="Reps"
-                                                            />
-                                                        )}
-
-                                                        <InputNumber
-                                                            inputId={`weight-${set.id}`}
-                                                            className="w-full"
-                                                            value={set.weight}
-                                                            onValueChange={(event) => updateSetField(exerciseRow.id, set.id, 'weight', event.value ?? null)}
-                                                            onBlur={() => persistSet(set.id)}
-                                                            useGrouping={false}
-                                                            min={0}
-                                                            minFractionDigits={0}
-                                                            maxFractionDigits={2}
-                                                            disabled={isCompleted}
-                                                            placeholder="Weight"
-                                                        />
-
-                                                        {exerciseRow.prescription.is_duration_based ? (
-                                                            <div className={`flex min-h-12 items-center rounded-xl border px-3 py-3 text-sm ${inputPanelClass}`}>
-                                                                Target {exerciseRow.prescription.reps}
-                                                            </div>
-                                                        ) : (
-                                                            <div className={`flex min-h-12 items-center rounded-xl border px-3 py-3 text-sm ${inputPanelClass}`}>
-                                                                Target {exerciseRow.prescription.reps}
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {saveError && (
-                                                        <p className="mt-2 !mb-0 text-xs text-amber-400">
-                                                            {saveError}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
+                        {!isMobileLayout && <div className="mt-4 space-y-4">{renderExerciseRows()}</div>}
                     </Card>
+
+                    {isMobileLayout && <div className="mt-4 space-y-3">{renderExerciseRows()}</div>}
                 </div>
             </AppLayout>
         </>

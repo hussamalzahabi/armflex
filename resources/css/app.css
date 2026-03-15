@@ -825,4 +825,12 @@ html[data-theme='light'] .programs-days .programs-table .p-datatable-tbody > tr:
         border-top-left-radius: 0 !important;
         border-top-right-radius: 0 !important;
     }
+
+    .workout-log-card .p-card-body {
+        padding: 1rem !important;
+    }
+
+    .workout-log-card .p-card-content {
+        padding-top: 0 !important;
+    }
 }
