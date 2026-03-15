@@ -105,6 +105,30 @@ const personalRecordsSummary = {
     ],
 };
 
+const dashboardAnalytics = {
+    totals: {
+        workouts_completed: 4,
+        sets_logged: 18,
+        exercises_logged: 9,
+        personal_records: 2,
+    },
+    this_week: {
+        workouts_completed: 2,
+        sets_logged: 8,
+        week_label: 'Mar 9 - Mar 15',
+    },
+    category_distribution: [
+        { name: 'Pronation', count: 5, percentage: 100 },
+        { name: 'Rising', count: 3, percentage: 60 },
+    ],
+    recent_workout: {
+        id: 8,
+        completed_at: '2026-03-13T10:00:00Z',
+        title: 'Toproll Program',
+        subtitle: 'Day 2 - Toproll Program',
+    },
+};
+
 const dashboardHero = {
     title: 'Welcome back, Test',
     subtitle: 'Ready for today’s training?',
@@ -225,6 +249,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                dashboardAnalytics={dashboardAnalytics}
                 personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
@@ -240,7 +265,16 @@ describe('Home page', () => {
         expect(screen.getByText('✓ Training profile completed')).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Generate program' })).toBeInTheDocument();
         expect(screen.getByText('Training Streak')).toBeInTheDocument();
-        expect(screen.getByText('Personal Records')).toBeInTheDocument();
+        expect(screen.getByText('Training Analytics')).toBeInTheDocument();
+        expect(screen.getByText('Your training activity at a glance')).toBeInTheDocument();
+        expect(screen.getByText('Workouts Completed')).toBeInTheDocument();
+        expect(screen.getByText('18')).toBeInTheDocument();
+        expect(screen.getByText('Category Distribution')).toBeInTheDocument();
+        expect(screen.getByText('Pronation')).toBeInTheDocument();
+        expect(screen.getByText('This Week')).toBeInTheDocument();
+        expect(screen.getByText('Mar 13, 2026')).toBeInTheDocument();
+        expect(screen.getByText('Day 2 - Toproll Program')).toBeInTheDocument();
+        expect(screen.getAllByText('Personal Records').length).toBeGreaterThan(0);
         expect(screen.getByText('Your best lifts so far')).toBeInTheDocument();
         expect(screen.getByText('Dumbbell Wrist Curls')).toBeInTheDocument();
         expect(screen.getByText('Best lift')).toBeInTheDocument();
@@ -259,6 +293,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                dashboardAnalytics={dashboardAnalytics}
                 personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
@@ -269,7 +304,7 @@ describe('Home page', () => {
 
         expect(screen.getByText('Training Profile')).toBeInTheDocument();
         expect(screen.getByText('Programs')).toBeInTheDocument();
-        expect(screen.getByText('Workouts')).toBeInTheDocument();
+        expect(screen.getAllByText('Workouts').length).toBeGreaterThan(0);
         expect(logoutPostMock).toHaveBeenCalledWith('/logout');
     });
 
@@ -279,6 +314,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                dashboardAnalytics={dashboardAnalytics}
                 personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
@@ -303,6 +339,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                dashboardAnalytics={dashboardAnalytics}
                 dashboardHero={dashboardHero}
             />
         );
@@ -327,6 +364,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={completedChecklist}
                 trainingStreak={trainingStreak}
+                dashboardAnalytics={dashboardAnalytics}
                 personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />

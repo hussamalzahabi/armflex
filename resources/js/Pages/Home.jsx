@@ -4,11 +4,12 @@ import { Card } from 'primereact/card';
 import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import OnboardingChecklistCard from '@/Components/OnboardingChecklistCard';
 import PersonalRecordsCard from '@/Components/PersonalRecordsCard';
+import TrainingAnalyticsCard from '@/Components/TrainingAnalyticsCard';
 import TrainingStreakCard from '@/Components/TrainingStreakCard';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
-const Home = ({ title, onboardingChecklist, trainingStreak, personalRecordsSummary, dashboardHero }) => {
+const Home = ({ title, onboardingChecklist, trainingStreak, dashboardAnalytics, personalRecordsSummary, dashboardHero }) => {
     const { isDark } = useTheme();
 
     const startWorkout = () => {
@@ -49,6 +50,12 @@ const Home = ({ title, onboardingChecklist, trainingStreak, personalRecordsSumma
             ? {
                   key: 'streak',
                   render: (className) => <TrainingStreakCard streak={trainingStreak} className={className} />,
+              }
+            : null,
+        dashboardAnalytics
+            ? {
+                  key: 'analytics',
+                  render: (className) => <TrainingAnalyticsCard analytics={dashboardAnalytics} className={className} />,
               }
             : null,
         personalRecordsSummary

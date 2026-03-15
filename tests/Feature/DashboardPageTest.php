@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Equipment;
 use App\Models\Exercise;
 use App\Models\PersonalRecord;
@@ -37,6 +38,14 @@ class DashboardPageTest extends TestCase
                 ->where('trainingStreak.longest_streak', 0)
                 ->has('trainingStreak.activity_days', 365)
                 ->where('trainingStreak.selected_year', 2026)
+                ->where('dashboardAnalytics.totals.workouts_completed', 0)
+                ->where('dashboardAnalytics.totals.sets_logged', 0)
+                ->where('dashboardAnalytics.totals.exercises_logged', 0)
+                ->where('dashboardAnalytics.totals.personal_records', 0)
+                ->where('dashboardAnalytics.this_week.workouts_completed', 0)
+                ->where('dashboardAnalytics.this_week.sets_logged', 0)
+                ->where('dashboardAnalytics.category_distribution', [])
+                ->where('dashboardAnalytics.recent_workout', null)
                 ->where('personalRecordsSummary.total_count', 0)
                 ->where('personalRecordsSummary.latest_records', [])
                 ->where('dashboardHero.title', 'Welcome back')
@@ -182,5 +191,146 @@ class DashboardPageTest extends TestCase
                 ->where('dashboardHero.start_workout_target.kind', 'start_program_day')
                 ->where('dashboardHero.start_workout_target.program_id', $program->id)
                 ->where('dashboardHero.start_workout_target.program_day_id', $dayTwo->id));
+    }
+
+    public function test_dashboard_should_show_training_analytics_from_completed_workouts(): void
+    {
+        CarbonImmutable::setTestNow('2026-03-13 10:00:00');
+
+        $user = User::factory()->create();
+
+        $program = $user->programs()->create([
+            'name' => 'Toproll Program',
+            'style' => 'toproll',
+            'experience_level' => 'beginner',
+            'training_days' => 2,
+            'duration_weeks' => 4,
+            'profile_signature' => 'analytics-profile-signature',
+            'program_signature' => 'analytics-program-signature',
+        ]);
+
+        $dayOne = $program->days()->create(['day_number' => 1]);
+        $dayTwo = $program->days()->create(['day_number' => 2]);
+
+        $pronationCategory = Category::query()->firstOrCreate([
+            'slug' => 'pronation',
+        ], [
+            'name' => 'Pronation',
+        ]);
+
+        $risingCategory = Category::query()->firstOrCreate([
+            'slug' => 'rising',
+        ], [
+            'name' => 'Rising',
+        ]);
+
+        $pronationExercise = Exercise::query()->create([
+            'name' => 'Band Pronation Pulses',
+            'slug' => 'analytics-band-pronation-pulses',
+            'short_description' => 'Fixture exercise',
+            'difficulty_level' => 'beginner',
+            'category_id' => $pronationCategory->id,
+            'is_active' => true,
+        ]);
+
+        $risingExercise = Exercise::query()->create([
+            'name' => 'Band Rising Holds',
+            'slug' => 'analytics-band-rising-holds',
+            'short_description' => 'Fixture exercise',
+            'difficulty_level' => 'beginner',
+            'category_id' => $risingCategory->id,
+            'is_active' => true,
+        ]);
+
+        $olderWorkout = $user->workouts()->create([
+            'program_id' => $program->id,
+            'program_day_id' => $dayOne->id,
+            'started_at' => now()->subDays(12),
+            'completed_at' => now()->subDays(12),
+        ]);
+
+        $olderPronatioExercise = $olderWorkout->exercises()->create([
+            'exercise_id' => $pronationExercise->id,
+            'order_index' => 1,
+        ]);
+
+        $olderPronatioExercise->sets()->create([
+            'set_number' => 1,
+            'reps' => 10,
+            'weight' => 12.5,
+        ]);
+
+        $weekWorkout = $user->workouts()->create([
+            'program_id' => $program->id,
+            'program_day_id' => $dayOne->id,
+            'started_at' => now()->subDays(3),
+            'completed_at' => now()->subDays(3),
+        ]);
+
+        $weekPronationExercise = $weekWorkout->exercises()->create([
+            'exercise_id' => $pronationExercise->id,
+            'order_index' => 1,
+        ]);
+
+        $weekPronationExercise->sets()->createMany([
+            ['set_number' => 1, 'reps' => 8, 'weight' => 15],
+            ['set_number' => 2, 'reps' => 7, 'weight' => 15],
+        ]);
+
+        $weekRisingExercise = $weekWorkout->exercises()->create([
+            'exercise_id' => $risingExercise->id,
+            'order_index' => 2,
+        ]);
+
+        $weekRisingExercise->sets()->create([
+            'set_number' => 1,
+            'duration_seconds' => 20,
+        ]);
+
+        $recentWorkout = $user->workouts()->create([
+            'program_id' => $program->id,
+            'program_day_id' => $dayTwo->id,
+            'started_at' => now()->subDay(),
+            'completed_at' => now()->subDay(),
+        ]);
+
+        $recentPronationExercise = $recentWorkout->exercises()->create([
+            'exercise_id' => $pronationExercise->id,
+            'order_index' => 1,
+        ]);
+
+        $recentPronationExercise->sets()->create([
+            'set_number' => 1,
+            'reps' => 6,
+            'weight' => 17.5,
+        ]);
+
+        PersonalRecord::query()->create([
+            'user_id' => $user->id,
+            'exercise_id' => $pronationExercise->id,
+            'record_type' => PersonalRecord::TYPE_WEIGHT_REPS,
+            'best_weight' => 17.5,
+            'best_reps' => 6,
+            'workout_set_id' => null,
+            'achieved_at' => now()->subDay(),
+        ]);
+
+        $this->actingAs($user)
+            ->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Home')
+                ->where('dashboardAnalytics.totals.workouts_completed', 3)
+                ->where('dashboardAnalytics.totals.sets_logged', 5)
+                ->where('dashboardAnalytics.totals.exercises_logged', 4)
+                ->where('dashboardAnalytics.totals.personal_records', 1)
+                ->where('dashboardAnalytics.this_week.workouts_completed', 2)
+                ->where('dashboardAnalytics.this_week.sets_logged', 4)
+                ->where('dashboardAnalytics.category_distribution.0.name', 'Pronation')
+                ->where('dashboardAnalytics.category_distribution.0.count', 3)
+                ->where('dashboardAnalytics.category_distribution.1.name', 'Rising')
+                ->where('dashboardAnalytics.category_distribution.1.count', 1)
+                ->where('dashboardAnalytics.recent_workout.title', 'Toproll Program')
+                ->where('dashboardAnalytics.recent_workout.subtitle', 'Day 2 - Toproll Program'));
     }
 }

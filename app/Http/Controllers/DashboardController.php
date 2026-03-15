@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\DashboardActionService;
+use App\Services\DashboardAnalyticsService;
 use App\Services\OnboardingChecklistService;
 use App\Services\PersonalRecordService;
 use App\Services\TrainingStreakService;
@@ -17,7 +18,8 @@ class DashboardController extends Controller
         OnboardingChecklistService $onboardingChecklistService,
         TrainingStreakService $trainingStreakService,
         DashboardActionService $dashboardActionService,
-        PersonalRecordService $personalRecordService
+        PersonalRecordService $personalRecordService,
+        DashboardAnalyticsService $dashboardAnalyticsService
     ): Response {
         $user = $request->user();
 
@@ -29,6 +31,7 @@ class DashboardController extends Controller
                 $request->integer('streak_year') ?: null
             ),
             'personalRecordsSummary' => $personalRecordService->getDashboardSummaryForUser($user->id),
+            'dashboardAnalytics' => $dashboardAnalyticsService->getSummaryForUser($user->id),
             'dashboardHero' => [
                 'title' => $this->welcomeTitle($user->name, $user->email),
                 'subtitle' => 'Ready for today’s training?',
