@@ -72,12 +72,14 @@ class WorkoutController extends Controller
     public function finish(Request $request, Workout $workout, WorkoutSessionService $workoutSessionService): RedirectResponse
     {
         try {
-            $finishedWorkout = $workoutSessionService->finishForUser($workout, (int) $request->user()->id);
+            $result = $workoutSessionService->finishForUser($workout, (int) $request->user()->id);
         } catch (ValidationException $exception) {
             return back()->withErrors($exception->errors());
         }
 
-        return redirect()->route('workouts.show', $finishedWorkout);
+        return redirect()
+            ->route('workouts.show', $result['workout'])
+            ->with('personal_records', $result['new_personal_records']);
     }
 
     private function toWorkoutPayload(Workout $workout): array

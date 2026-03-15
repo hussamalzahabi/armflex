@@ -583,7 +583,9 @@ class ProgramGeneratorService
 
     private function userTieBreaker(int $userId, int $exerciseId): int
     {
-        return (int) sprintf('%u', crc32($userId.':'.$exerciseId));
+        $userSalt = $userId * 2654435761;
+
+        return (int) sprintf('%u', crc32($exerciseId.':'.$userSalt));
     }
 
     private function findExistingProgram(

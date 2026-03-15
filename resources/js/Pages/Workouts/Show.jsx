@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Head, Link, router } from '@inertiajs/react';
-import { useMemo, useRef, useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Chip } from 'primereact/chip';
@@ -41,6 +41,7 @@ const formatDate = (isoValue) => {
 
 const WorkoutsShow = ({ workout }) => {
     const { isDark } = useTheme();
+    const { flash = {} } = usePage().props;
     const toast = useRef(null);
     const finishHelpOverlay = useRef(null);
     const [exerciseRows, setExerciseRows] = useState(workout.exercises);
@@ -70,6 +71,21 @@ const WorkoutsShow = ({ workout }) => {
         [exerciseRows]
     );
     const finishDisabledReason = !isCompleted && !hasLoggedPerformance ? 'Log at least one set result before finishing the workout.' : '';
+
+    useEffect(() => {
+        if (!flash.personal_records || flash.personal_records.length === 0) {
+            return;
+        }
+
+        const detail = flash.personal_records.map((record) => record.summary).join(' • ');
+
+        toast.current?.show({
+            severity: 'success',
+            summary: flash.personal_records.length === 1 ? 'New personal record' : 'New personal records',
+            detail,
+            life: 5000,
+        });
+    }, [flash.personal_records]);
 
     const updateSetField = (exerciseId, setId, field, value) => {
         setExerciseRows((currentRows) =>

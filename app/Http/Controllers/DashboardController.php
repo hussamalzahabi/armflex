@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\DashboardActionService;
 use App\Services\OnboardingChecklistService;
+use App\Services\PersonalRecordService;
 use App\Services\TrainingStreakService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +16,8 @@ class DashboardController extends Controller
         Request $request,
         OnboardingChecklistService $onboardingChecklistService,
         TrainingStreakService $trainingStreakService,
-        DashboardActionService $dashboardActionService
+        DashboardActionService $dashboardActionService,
+        PersonalRecordService $personalRecordService
     ): Response {
         $user = $request->user();
 
@@ -26,6 +28,7 @@ class DashboardController extends Controller
                 $user->id,
                 $request->integer('streak_year') ?: null
             ),
+            'personalRecordsSummary' => $personalRecordService->getDashboardSummaryForUser($user->id),
             'dashboardHero' => [
                 'title' => $this->welcomeTitle($user->name, $user->email),
                 'subtitle' => 'Ready for today’s training?',

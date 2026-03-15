@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Exercise;
+use App\Models\PersonalRecord;
 use App\Models\Program;
 use App\Models\ProgramDay;
 use App\Models\User;
@@ -103,7 +104,72 @@ class WorkoutLoggingTest extends TestCase
         $response = $this->actingAs($user)->post("/workouts/{$workout->id}/finish");
 
         $response->assertRedirect("/workouts/{$workout->id}");
+        $response->assertSessionHas('personal_records');
         $this->assertNotNull($workout->fresh()->completed_at);
+    }
+
+    public function test_user_should_create_weight_personal_record_when_finishing_a_workout(): void
+    {
+        [$user, $program, $programDay] = $this->createProgramDayTemplate();
+
+        $this->actingAs($user)->post('/workouts/start', [
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+        ]);
+
+        $workout = Workout::query()->with('exercises.sets')->firstOrFail();
+        $weightSet = $workout->exercises->firstWhere('order_index', 2)->sets->first();
+        $weightSet->update([
+            'reps' => 8,
+            'weight' => 20,
+        ]);
+
+        $response = $this->actingAs($user)->post("/workouts/{$workout->id}/finish");
+
+        $response->assertSessionHas('personal_records', function (array $records): bool {
+            return count($records) === 1
+                && $records[0]['record_type'] === 'weight_reps'
+                && $records[0]['new_weight'] === 20.0
+                && $records[0]['new_reps'] === 8;
+        });
+
+        $this->assertDatabaseHas('personal_records', [
+            'user_id' => $user->id,
+            'exercise_id' => $weightSet->workoutExercise->exercise_id,
+            'record_type' => PersonalRecord::TYPE_WEIGHT_REPS,
+            'best_reps' => 8,
+        ]);
+    }
+
+    public function test_user_should_create_duration_personal_record_when_finishing_a_workout(): void
+    {
+        [$user, $program, $programDay] = $this->createProgramDayTemplate();
+
+        $this->actingAs($user)->post('/workouts/start', [
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+        ]);
+
+        $workout = Workout::query()->with('exercises.sets')->firstOrFail();
+        $durationSet = $workout->exercises->firstWhere('order_index', 1)->sets->first();
+        $durationSet->update([
+            'duration_seconds' => 18,
+        ]);
+
+        $response = $this->actingAs($user)->post("/workouts/{$workout->id}/finish");
+
+        $response->assertSessionHas('personal_records', function (array $records): bool {
+            return count($records) === 1
+                && $records[0]['record_type'] === 'duration'
+                && $records[0]['new_duration_seconds'] === 18;
+        });
+
+        $this->assertDatabaseHas('personal_records', [
+            'user_id' => $user->id,
+            'exercise_id' => $durationSet->workoutExercise->exercise_id,
+            'record_type' => PersonalRecord::TYPE_DURATION,
+            'best_duration_seconds' => 18,
+        ]);
     }
 
     public function test_user_should_not_finish_an_empty_workout(): void

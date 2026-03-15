@@ -97,6 +97,8 @@ All database interactions should be implemented using:
 
 Avoid raw SQL unless absolutely required.
 
+When adding a new persisted Eloquent model, also add the corresponding Laravel migration and run `php artisan migrate` so the schema stays in sync during development.
+
 Although the database is PostgreSQL, Eloquent should remain the **primary interface** for database operations.
 
 Migrations must remain compatible with PostgreSQL.

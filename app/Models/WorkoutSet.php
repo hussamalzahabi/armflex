@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WorkoutSet extends Model
 {
@@ -26,5 +27,10 @@ class WorkoutSet extends Model
     public function workoutExercise(): BelongsTo
     {
         return $this->belongsTo(WorkoutExercise::class);
+    }
+
+    public function personalRecords(): HasMany
+    {
+        return $this->hasMany(PersonalRecord::class);
     }
 }

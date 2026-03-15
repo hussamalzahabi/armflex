@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Equipment;
+use App\Models\Exercise;
+use App\Models\PersonalRecord;
 use App\Models\User;
 use App\Models\UserProfile;
 use Carbon\CarbonImmutable;
@@ -35,6 +37,8 @@ class DashboardPageTest extends TestCase
                 ->where('trainingStreak.longest_streak', 0)
                 ->has('trainingStreak.activity_days', 365)
                 ->where('trainingStreak.selected_year', 2026)
+                ->where('personalRecordsSummary.total_count', 0)
+                ->where('personalRecordsSummary.latest_records', [])
                 ->where('dashboardHero.title', 'Welcome back')
                 ->where('dashboardHero.subtitle', 'Ready for today’s training?')
                 ->where('dashboardHero.start_workout_target.kind', 'open_programs')
@@ -82,6 +86,13 @@ class DashboardPageTest extends TestCase
         ]);
 
         $programDay = $program->days()->create(['day_number' => 1]);
+        $exercise = Exercise::query()->create([
+            'name' => 'Dumbbell Wrist Curls',
+            'slug' => 'dashboard-dumbbell-wrist-curls',
+            'description' => 'Fixture exercise',
+            'difficulty_level' => 'beginner',
+            'is_active' => true,
+        ]);
 
         $user->workouts()->create([
             'program_id' => $program->id,
@@ -99,6 +110,16 @@ class DashboardPageTest extends TestCase
             'notes' => null,
         ]);
 
+        PersonalRecord::query()->create([
+            'user_id' => $user->id,
+            'exercise_id' => $exercise->id,
+            'record_type' => PersonalRecord::TYPE_WEIGHT_REPS,
+            'best_weight' => 20,
+            'best_reps' => 8,
+            'workout_set_id' => null,
+            'achieved_at' => now(),
+        ]);
+
         $this->actingAs($user)
             ->get('/')
             ->assertOk()
@@ -108,6 +129,9 @@ class DashboardPageTest extends TestCase
                 ->where('trainingStreak.longest_streak', 2)
                 ->has('trainingStreak.activity_days', 365)
                 ->where('trainingStreak.selected_year', 2026)
+                ->where('personalRecordsSummary.total_count', 1)
+                ->where('personalRecordsSummary.latest_records.0.exercise_name', 'Dumbbell Wrist Curls')
+                ->where('personalRecordsSummary.latest_records.0.value_label', '20 x 8')
                 ->where('dashboardHero.title', 'Welcome back')
                 ->where('dashboardHero.start_workout_target.kind', 'start_program_day')
                 ->where('dashboardHero.start_workout_target.program_id', $program->id)

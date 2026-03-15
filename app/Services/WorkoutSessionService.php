@@ -11,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class WorkoutSessionService
 {
+    public function __construct(
+        private readonly PersonalRecordService $personalRecordService
+    ) {}
+
     public function startForUser(int $userId, int $programId, int $programDayId): Workout
     {
         $program = Program::query()
@@ -63,7 +67,7 @@ class WorkoutSessionService
         return $this->loadWorkoutGraph($workout);
     }
 
-    public function finishForUser(Workout $workout, int $userId): Workout
+    public function finishForUser(Workout $workout, int $userId): array
     {
         abort_unless($workout->user_id === $userId, 404);
 
@@ -83,13 +87,21 @@ class WorkoutSessionService
             ]);
         }
 
-        if ($workout->completed_at === null) {
-            $workout->forceFill([
-                'completed_at' => CarbonImmutable::now(),
-            ])->save();
-        }
+        return DB::transaction(function () use ($workout): array {
+            if ($workout->completed_at === null) {
+                $workout->forceFill([
+                    'completed_at' => CarbonImmutable::now(),
+                ])->save();
+            }
 
-        return $this->loadWorkoutGraph($workout->fresh());
+            $finishedWorkout = $this->loadWorkoutGraph($workout->fresh());
+            $newPersonalRecords = $this->personalRecordService->evaluateWorkoutRecords($finishedWorkout);
+
+            return [
+                'workout' => $finishedWorkout,
+                'new_personal_records' => $newPersonalRecords,
+            ];
+        });
     }
 
     public function loadWorkoutGraph(Workout $workout): Workout

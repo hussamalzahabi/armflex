@@ -91,6 +91,20 @@ const trainingStreak = {
     activity_days: buildActivityDays(),
 };
 
+const personalRecordsSummary = {
+    total_count: 2,
+    message: 'Your latest best performances are ready to review.',
+    latest_records: [
+        {
+            id: 1,
+            exercise_name: 'Dumbbell Wrist Curls',
+            record_type: 'weight_reps',
+            value_label: '20 x 8',
+            achieved_at: '2026-03-13T10:00:00Z',
+        },
+    ],
+};
+
 const dashboardHero = {
     title: 'Welcome back, Test',
     subtitle: 'Ready for today’s training?',
@@ -211,6 +225,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
         );
@@ -225,6 +240,9 @@ describe('Home page', () => {
         expect(screen.getByText('✓ Training profile completed')).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Generate program' })).toBeInTheDocument();
         expect(screen.getByText('Training Streak')).toBeInTheDocument();
+        expect(screen.getByText('Personal Records')).toBeInTheDocument();
+        expect(screen.getByText('Your best lifts so far')).toBeInTheDocument();
+        expect(screen.getByText('Dumbbell Wrist Curls')).toBeInTheDocument();
         expect(screen.getByText('Current streak')).toBeInTheDocument();
         expect(screen.getByText('Fri')).toBeInTheDocument();
         expect(screen.getByText('Jan')).toBeInTheDocument();
@@ -239,6 +257,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
         );
@@ -258,6 +277,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={onboardingChecklist}
                 trainingStreak={trainingStreak}
+                personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
         );
@@ -305,6 +325,7 @@ describe('Home page', () => {
                 title="Dashboard"
                 onboardingChecklist={completedChecklist}
                 trainingStreak={trainingStreak}
+                personalRecordsSummary={personalRecordsSummary}
                 dashboardHero={dashboardHero}
             />
         );
