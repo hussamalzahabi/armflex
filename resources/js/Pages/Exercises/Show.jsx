@@ -2,7 +2,6 @@ import { Head, Link } from '@inertiajs/react';
 import { Card } from 'primereact/card';
 import { Chip } from 'primereact/chip';
 import { Tag } from 'primereact/tag';
-import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -101,11 +100,9 @@ const ExercisesShow = ({ exercise, relatedExercises = [] }) => {
         <>
             <Head title={exercise.name} />
 
-            <AppLayout title={exercise.name}>
+            <AppLayout title={exercise.name} breadcrumb={breadcrumbItems}>
                 <div className="w-full lg:max-w-[1180px] lg:mr-auto">
-                    <AppBreadcrumb items={breadcrumbItems} />
-
-                    <Card className={`mt-2 !rounded-t-none !border-0 ${isDark ? 'programs-surface-dark' : 'programs-surface-light'}`}>
+                    <Card className={`mt-2 !rounded-3xl !border-0 ${isDark ? 'programs-surface-dark' : 'programs-surface-light'}`}>
                         <div className="space-y-6 md:space-y-8">
                             <section className="space-y-4">
                                 <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${isDark ? 'bg-slate-800 text-emerald-200' : 'bg-emerald-100 text-emerald-700'}`}>

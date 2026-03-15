@@ -1,7 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
-import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import OnboardingChecklistCard from '@/Components/OnboardingChecklistCard';
 import PersonalRecordsCard from '@/Components/PersonalRecordsCard';
 import TrainingAnalyticsCard from '@/Components/TrainingAnalyticsCard';
@@ -69,11 +68,10 @@ const Home = ({ title, onboardingChecklist, trainingStreak, dashboardAnalytics, 
     return (
         <>
             <Head title={title} />
-            <AppLayout title="Dashboard">
+            <AppLayout title="Dashboard" breadcrumb={dashboardBreadcrumb}>
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <AppBreadcrumb items={dashboardBreadcrumb} />
                     <Card
-                        className={`w-full !rounded-b-none !rounded-t-none !border-0 shadow-xl ${
+                        className={`w-full !rounded-3xl !border-0 shadow-xl ${
                             isDark
                                 ? 'bg-slate-800 shadow-black/20'
                                 : 'bg-white shadow-slate-200/70'

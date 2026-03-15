@@ -8,7 +8,6 @@ import { InputNumber } from 'primereact/inputnumber';
 import { RadioButton } from 'primereact/radiobutton';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
-import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -74,11 +73,10 @@ const Edit = ({ profile, styleOptions, equipmentCategories, selectedEquipmentIds
         <>
             <Head title="Training Profile" />
             <Toast ref={toast} />
-            <AppLayout title="Training Profile">
+            <AppLayout title="Training Profile" breadcrumb={profileBreadcrumb}>
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <AppBreadcrumb items={profileBreadcrumb} />
                     <Card
-                        className={`w-full rounded-b-3xl !rounded-t-none !border-0 ${isDark ? 'bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
+                        className={`w-full !rounded-3xl !border-0 ${isDark ? 'bg-slate-800 text-slate-100 shadow-xl shadow-black/20' : 'bg-white text-slate-900 shadow-xl shadow-slate-200/70'}`}
                     >
                         <form onSubmit={submit} className="p-fluid space-y-5">
                         <div className="space-y-2">

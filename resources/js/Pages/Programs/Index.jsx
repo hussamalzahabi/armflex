@@ -9,7 +9,6 @@ import { DataTable } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
-import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -297,11 +296,9 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
         <>
             <Head title="Programs" />
             <Toast ref={toast} />
-            <AppLayout title="Programs">
+            <AppLayout title="Programs" breadcrumb={programBreadcrumb}>
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <AppBreadcrumb items={programBreadcrumb} />
-
-                    <Card className={`programs-hero !rounded-t-none !rounded-b-none !border-0 ${pageSurfaceClass}`}>
+                    <Card className={`programs-hero !rounded-3xl !border-0 ${pageSurfaceClass}`}>
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div className="space-y-2">
                                 <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>
@@ -346,7 +343,7 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                     </Card>
 
                     <div className="mt-2 grid gap-3 xl:grid-cols-12">
-                        <Card className={`program-history-card programs-content-card xl:col-span-5 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
+                        <Card className={`program-history-card programs-content-card xl:col-span-5 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
                             <div className="mb-3 flex items-center justify-between gap-3">
                                 <h4 className={`!m-0 !mb-2 text-lg font-semibold ${headlineClass}`}>Program History</h4>
                                 <Tag
@@ -388,7 +385,7 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                             )}
                         </Card>
 
-                        <Card className={`programs-content-card xl:col-span-7 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
+                        <Card className={`programs-content-card xl:col-span-7 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
                             {!selectedProgram ? (
                                 <Message severity="info" text="Generate your first program to preview the weekly template." />
                             ) : (

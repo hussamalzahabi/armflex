@@ -20,7 +20,7 @@ const AppBreadcrumb = ({ items = [], containerClassName = '', breadcrumbClassNam
     }
 
     return (
-        <section className={`mb-2 rounded-t-3xl px-6 py-4 ${isDark ? 'bg-slate-800/90 text-slate-100' : 'bg-white text-slate-900'} ${containerClassName}`}>
+        <section className={`mb-2 rounded-t-3xl px-6 py-4 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-white text-slate-900'} ${containerClassName}`}>
             <BreadCrumb
                 model={model}
                 className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'} ${breadcrumbClassName}`}

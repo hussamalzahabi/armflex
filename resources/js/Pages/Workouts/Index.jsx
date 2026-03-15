@@ -5,7 +5,6 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
-import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -74,11 +73,9 @@ const WorkoutsIndex = ({ workouts = [] }) => {
     return (
         <>
             <Head title="Workouts" />
-            <AppLayout title="Workouts">
+            <AppLayout title="Workouts" breadcrumb={breadcrumbItems}>
                 <div className="w-full lg:max-w-[1240px] lg:mr-auto">
-                    <AppBreadcrumb items={breadcrumbItems} />
-
-                    <Card className={`!rounded-t-none !rounded-b-none !border-0 ${pageSurfaceClass}`}>
+                    <Card className={`!rounded-3xl !border-0 ${pageSurfaceClass}`}>
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div className="space-y-2">
                                 <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>
@@ -98,7 +95,7 @@ const WorkoutsIndex = ({ workouts = [] }) => {
                         </div>
                     </Card>
 
-                    <Card className={`program-history-card mt-2 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
+                    <Card className={`program-history-card mt-2 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
                         {workouts.length === 0 ? (
                             <Message severity="info" text="No workouts yet. Start one from your Programs page." className="w-full" />
                         ) : (

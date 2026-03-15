@@ -11,7 +11,6 @@ import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Tooltip } from 'primereact/tooltip';
 import AppDialog from '@/Components/AppDialog';
-import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -419,11 +418,9 @@ const WorkoutsShow = ({ workout }) => {
                 </p>
             </AppDialog>
             {finishDisabledReason && <Tooltip target=".finish-workout-trigger" content={finishDisabledReason} position="top" />}
-            <AppLayout title={`Workout Day ${workout.program_day.day_number}`}>
+            <AppLayout title={`Workout Day ${workout.program_day.day_number}`} breadcrumb={breadcrumbItems}>
                 <div className="w-full lg:max-w-[1100px] lg:mr-auto">
-                    <AppBreadcrumb items={breadcrumbItems} />
-
-                    <Card className={`!rounded-t-none !rounded-b-none !border-0 ${pageSurfaceClass}`}>
+                    <Card className={`!rounded-3xl !border-0 ${pageSurfaceClass}`}>
                         <div className="space-y-3">
                             <div className="space-y-2">
                                 <p className={`text-xs font-semibold uppercase tracking-[0.18em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>
@@ -448,7 +445,7 @@ const WorkoutsShow = ({ workout }) => {
                         </div>
                     </Card>
 
-                    <Card className={`mt-2 !rounded-t-none !border-0 ${pageSurfaceClass}`}>
+                    <Card className={`mt-2 !rounded-3xl !border-0 ${pageSurfaceClass}`}>
                         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                             <div className="max-w-2xl space-y-1.5">
                                 <p className={`!m-0 text-sm font-semibold ${headlineClass}`}>

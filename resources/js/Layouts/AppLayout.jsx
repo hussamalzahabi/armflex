@@ -55,28 +55,18 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
         return window.location.pathname;
     }, []);
 
-    const effectiveBreadcrumb = useMemo(() => {
-        if (!Array.isArray(breadcrumb) || breadcrumb.length === 0) {
-            return [];
-        }
-
-        const last = breadcrumb[breadcrumb.length - 1];
-        if (last?.label?.toLowerCase() === title.toLowerCase()) {
-            return breadcrumb.slice(0, -1);
-        }
-
-        return breadcrumb;
-    }, [breadcrumb, title]);
-    const { model: breadcrumbModel, home: breadcrumbHome } = useMemo(() => toBreadcrumbItems(effectiveBreadcrumb), [effectiveBreadcrumb]);
+    const { model: breadcrumbModel, home: breadcrumbHome } = useMemo(() => toBreadcrumbItems(breadcrumb), [breadcrumb]);
 
     const shellClass = isDark
         ? 'bg-[radial-gradient(circle_at_top_left,_#101827,_#060b18_55%)] text-slate-100'
         : 'bg-[radial-gradient(circle_at_top_left,_#f8fafc,_#e2e8f0_55%)] text-slate-900';
     const panelClass = isDark ? 'bg-slate-900/92' : 'bg-white/95';
+    const bodyPanelClass = isDark ? 'bg-slate-950/35' : 'bg-slate-50/70';
+    const contentPanelClass = isDark ? 'bg-slate-950/35' : 'bg-slate-50/70';
     const mutedClass = isDark ? 'text-slate-300' : 'text-slate-500';
 
     return (
-        <div className={`min-h-screen ${shellClass}`}>
+        <div className={`flex h-screen flex-col overflow-hidden ${shellClass}`}>
             <div className={`sticky top-0 z-30 flex items-center justify-between px-4 py-3 lg:hidden ${panelClass}`}>
                 <button
                     type="button"
@@ -153,8 +143,8 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                 </div>
             )}
 
-            <div className="flex min-h-screen">
-                <aside className={`hidden w-64 shrink-0 lg:flex lg:min-h-screen lg:flex-col ${panelClass}`}>
+            <div className="flex min-h-0 flex-1">
+                <aside className={`hidden w-64 shrink-0 lg:flex lg:h-full lg:flex-col ${panelClass}`}>
                     <div className="p-6">
                         <Link href="/" className="app-brand-link text-xs uppercase tracking-[0.2em] text-slate-500">
                             ArmFlex
@@ -199,16 +189,15 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                     </nav>
                 </aside>
 
-                <div className="flex min-w-0 flex-1 flex-col">
+                <div className={`flex min-w-0 flex-1 flex-col overflow-hidden ${bodyPanelClass}`}>
                     <header className={`hidden px-6 py-3 lg:block ${panelClass}`}>
                         <div className="flex items-center justify-between gap-6">
                             <div className="min-w-0">
-                                <p className={`mb-0.5 text-[11px] uppercase tracking-[0.18em] ${mutedClass}`}>Workspace</p>
-                                {breadcrumbModel.length > 0 && (
+                                {(breadcrumbHome || breadcrumbModel.length > 0) && (
                                     <BreadCrumb
                                         model={breadcrumbModel}
                                         home={breadcrumbHome}
-                                        className={`app-breadcrumb app-breadcrumb-pill mt-1.5 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
+                                        className={`app-breadcrumb app-breadcrumb-pill border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
                                     />
                                 )}
                             </div>
@@ -220,7 +209,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         </div>
                     </header>
 
-                    <main className="flex-1 px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3">
+                    <main className={`flex min-h-0 flex-1 flex-col rounded-tl-[2rem] ${contentPanelClass} px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3`}>
                         <div className="mb-5 lg:hidden">
                             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
                             {breadcrumbModel.length > 0 && (
@@ -232,9 +221,11 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                             )}
                         </div>
 
-                        <div className="space-y-3">
-                            {actions && <div>{actions}</div>}
-                            {children}
+                        <div className="min-h-0 flex-1 overflow-y-auto">
+                            <div className="space-y-3 pb-3">
+                                {actions && <div>{actions}</div>}
+                                {children}
+                            </div>
                         </div>
                     </main>
                 </div>
