@@ -138,7 +138,6 @@ describe('Profile edit page', () => {
             />
         );
 
-        expect(screen.getAllByRole('heading', { name: 'Training Profile' }).length).toBeGreaterThan(0);
         expect(screen.getByText('Style')).toBeInTheDocument();
         expect(screen.getByText('Toproll')).toBeInTheDocument();
         expect(screen.getByText('Equipment available')).toBeInTheDocument();

@@ -42,7 +42,7 @@ const toBreadcrumbItems = (breadcrumb) => {
     return { model, home };
 };
 
-const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
+const AppLayout = ({ title: _title, breadcrumb = [], actions = null, children }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { auth, onboardingStatus } = usePage().props;
     const { isDark, toggleTheme } = useTheme();
@@ -209,17 +209,6 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                     </header>
 
                     <main className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-tl-[2rem] ${contentShellClass} px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3`}>
-                        <div className="mb-5 lg:hidden">
-                            <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
-                            {breadcrumbModel.length > 0 && (
-                                <BreadCrumb
-                                    model={breadcrumbModel}
-                                    home={breadcrumbHome}
-                                    className={`app-breadcrumb app-breadcrumb-pill mt-2 border-0 px-0 py-0 ${isDark ? 'app-breadcrumb-dark' : 'app-breadcrumb-light'}`}
-                                />
-                            )}
-                        </div>
-
                         <div className="min-h-0 flex-1 overflow-y-auto">
                             <div className="space-y-3 pb-3">
                                 {actions && <div>{actions}</div>}

@@ -255,7 +255,7 @@ describe('Home page', () => {
             />
         );
 
-        expect(screen.getAllByRole('heading', { name: 'Dashboard' }).length).toBeGreaterThan(0);
+        expect(screen.getByRole('heading', { name: 'Welcome back, Test' })).toBeInTheDocument();
         expect(screen.getByText('Welcome back, Test')).toBeInTheDocument();
         expect(screen.getByText('Ready for today’s training?')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Start Workout' })).toBeInTheDocument();
