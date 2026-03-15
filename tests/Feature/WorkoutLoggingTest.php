@@ -87,6 +87,29 @@ class WorkoutLoggingTest extends TestCase
         ]);
     }
 
+    public function test_user_should_receive_safe_validation_message_when_set_values_are_too_large(): void
+    {
+        [$user, $program, $programDay] = $this->createProgramDayTemplate();
+
+        $this->actingAs($user)->post('/workouts/start', [
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+        ]);
+
+        $set = WorkoutSet::query()->firstOrFail();
+
+        $response = $this->actingAs($user)->patchJson("/workout-sets/{$set->id}", [
+            'reps' => 999999999,
+            'weight' => 34.5,
+            'duration_seconds' => null,
+        ]);
+
+        $response
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['reps'])
+            ->assertJsonPath('errors.reps.0', 'Enter a smaller reps value.');
+    }
+
     public function test_user_should_finish_workout_and_lock_completion_time(): void
     {
         [$user, $program, $programDay] = $this->createProgramDayTemplate();
