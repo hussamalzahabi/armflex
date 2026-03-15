@@ -243,6 +243,8 @@ describe('Home page', () => {
         expect(screen.getByText('Personal Records')).toBeInTheDocument();
         expect(screen.getByText('Your best lifts so far')).toBeInTheDocument();
         expect(screen.getByText('Dumbbell Wrist Curls')).toBeInTheDocument();
+        expect(screen.getByText('Best lift')).toBeInTheDocument();
+        expect(screen.getByText('Set on Mar 13')).toBeInTheDocument();
         expect(screen.getByText('Current streak')).toBeInTheDocument();
         expect(screen.getByText('Fri')).toBeInTheDocument();
         expect(screen.getByText('Jan')).toBeInTheDocument();

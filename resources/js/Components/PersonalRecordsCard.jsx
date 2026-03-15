@@ -23,6 +23,7 @@ const PersonalRecordsCard = ({ summary }) => {
     const titleClass = isDark ? 'text-slate-50' : 'text-slate-900';
     const subtitleClass = isDark ? 'text-slate-300' : 'text-slate-600';
     const accentClass = isDark ? 'text-amber-200' : 'text-amber-700';
+    const detailLabel = (record) => (record.record_type === 'duration' ? 'Best hold' : 'Best lift');
 
     return (
         <Card className={`w-full rounded-3xl !border-0 shadow-xl ${surfaceClass}`}>
@@ -48,19 +49,24 @@ const PersonalRecordsCard = ({ summary }) => {
                         ) : (
                             <div className="space-y-3">
                                 <p className={`!m-0 text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>Latest records</p>
-                                <div className="space-y-2">
+                                <div className="mt-3 space-y-2">
                                     {summary.latest_records.map((record) => (
                                         <div
                                             key={record.id}
-                                            className={`flex flex-col gap-1 rounded-xl px-3 py-2 sm:flex-row sm:items-center sm:justify-between ${
+                                            className={`flex flex-col gap-3 rounded-xl px-4 py-3 sm:flex-row sm:items-start sm:justify-between ${
                                                 isDark ? 'bg-slate-900/70' : 'bg-white'
                                             }`}
                                         >
-                                            <div>
+                                            <div className="space-y-1.5">
                                                 <p className={`!m-0 text-sm font-semibold ${titleClass}`}>{record.exercise_name}</p>
-                                                <p className={`!m-0 text-xs ${subtitleClass}`}>{record.value_label}</p>
+                                                <div className="space-y-0.5">
+                                                    <p className={`!m-0 text-xs font-medium uppercase tracking-[0.12em] ${subtitleClass}`}>
+                                                        {detailLabel(record)}
+                                                    </p>
+                                                    <p className={`!m-0 text-sm ${subtitleClass}`}>{record.value_label}</p>
+                                                </div>
                                             </div>
-                                            <p className={`!m-0 text-xs font-medium ${subtitleClass}`}>{formatDate(record.achieved_at)}</p>
+                                            <p className={`!m-0 text-xs font-medium ${subtitleClass}`}>Set on {formatDate(record.achieved_at)}</p>
                                         </div>
                                     ))}
                                 </div>
