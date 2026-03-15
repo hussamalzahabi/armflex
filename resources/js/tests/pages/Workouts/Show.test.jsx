@@ -136,7 +136,12 @@ describe('Workout session page', () => {
         render(<WorkoutsShow workout={buildWorkout()} />);
 
         expect(screen.getByText('Workout Session')).toBeInTheDocument();
-        expect(screen.getByText('Mixed Intermediate Program — Day 1')).toBeInTheDocument();
+        expect(
+            screen
+                .getAllByRole('link', { name: 'Mixed Intermediate Program' })
+                .some((link) => link.getAttribute('href') === '/programs?program=7')
+        ).toBe(true);
+        expect(screen.getByText(/— Day 1/)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Finish Workout' })).toBeInTheDocument();
     });
 

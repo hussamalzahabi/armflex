@@ -75,8 +75,19 @@ const formatDate = (isoValue) => {
     }).format(new Date(isoValue));
 };
 
+const getProgramIdFromUrl = () => {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    const value = Number(new URLSearchParams(window.location.search).get('program'));
+
+    return Number.isInteger(value) && value > 0 ? value : null;
+};
+
 const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     const toast = useRef(null);
+    const requestedProgramIdRef = useRef(getProgramIdFromUrl());
     const { isDark } = useTheme();
     const [isGenerating, setIsGenerating] = useState(false);
     const [selectedProgramId, setSelectedProgramId] = useState(programs[0]?.id ?? null);
@@ -96,6 +107,14 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
     }, [selectedProgram]);
 
     useEffect(() => {
+        const requestedProgramId = requestedProgramIdRef.current;
+
+        if (requestedProgramId && programs.some((program) => program.id === requestedProgramId) && selectedProgramId !== requestedProgramId) {
+            setSelectedProgramId(requestedProgramId);
+            requestedProgramIdRef.current = null;
+            return;
+        }
+
         if (programs.length > 0 && !selectedProgramId) {
             setSelectedProgramId(programs[0].id);
         }
@@ -366,7 +385,16 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                     value={programs}
                                     selectionMode="single"
                                     selection={selectedProgram}
-                                    onSelectionChange={(event) => setSelectedProgramId(event.value?.id ?? null)}
+                                    onSelectionChange={(event) => {
+                                        requestedProgramIdRef.current = null;
+                                        setSelectedProgramId(event.value?.id ?? null);
+
+                                        if (typeof window !== 'undefined') {
+                                            const nextUrl = new URL(window.location.href);
+                                            nextUrl.searchParams.delete('program');
+                                            window.history.replaceState({}, '', `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+                                        }
+                                    }}
                                     dataKey="id"
                                     paginator
                                     rows={6}

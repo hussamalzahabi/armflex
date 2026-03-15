@@ -190,4 +190,40 @@ describe('Programs page', () => {
 
         expect(screen.getByRole('button', { name: 'Start New Workout' })).toBeInTheDocument();
     });
+
+    it('should_select_program_from_query_string_when_present', () => {
+        window.history.pushState({}, '', '/programs?program=8');
+
+        render(
+            <ProgramsIndex
+                programs={[
+                    {
+                        id: 7,
+                        name: 'Mixed Intermediate Program',
+                        style: 'mixed',
+                        experience_level: 'intermediate',
+                        training_days: 3,
+                        duration_weeks: 4,
+                        created_at: '2026-03-12T10:00:00Z',
+                        days: [],
+                    },
+                    {
+                        id: 8,
+                        name: 'Toproll Foundation Program',
+                        style: 'toproll',
+                        experience_level: 'beginner',
+                        training_days: 3,
+                        duration_weeks: 4,
+                        created_at: '2026-03-13T10:00:00Z',
+                        days: [],
+                    },
+                ]}
+                profileSummary={{ exists: true, style: 'Toproll', training_days_per_week: 3 }}
+            />
+        );
+
+        expect(screen.getByRole('heading', { name: 'Toproll Foundation Program' })).toBeInTheDocument();
+
+        window.history.pushState({}, '', '/programs');
+    });
 });

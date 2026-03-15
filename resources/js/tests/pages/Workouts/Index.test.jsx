@@ -82,5 +82,6 @@ describe('Workouts history page', () => {
         expect(screen.getByText('Workout History')).toBeInTheDocument();
         expect(screen.getByText('Mixed Intermediate Program')).toBeInTheDocument();
         expect(screen.getByText('Continue')).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: 'Mixed Intermediate Program' })).toHaveAttribute('href', '/programs?program=7');
     });
 });

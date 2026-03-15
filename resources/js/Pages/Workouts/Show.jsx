@@ -39,6 +39,8 @@ const formatDate = (isoValue) => {
     }).format(new Date(isoValue));
 };
 
+const programHref = (programId) => `/programs?program=${programId}`;
+
 const WorkoutsShow = ({ workout }) => {
     const { isDark } = useTheme();
     const { flash = {} } = usePage().props;
@@ -61,7 +63,7 @@ const WorkoutsShow = ({ workout }) => {
     const breadcrumbItems = [
         { label: 'Dashboard', href: '/' },
         { label: 'Workouts', href: '/workouts' },
-        { label: workout.program.name },
+        { label: workout.program.name, href: programHref(workout.program.id) },
         { label: `Day ${workout.program_day.day_number}` },
     ];
     const pageSurfaceClass = isDark ? 'programs-surface-dark' : 'programs-surface-light';
@@ -575,7 +577,13 @@ const WorkoutsShow = ({ workout }) => {
                                     Workout Session
                                 </p>
                                 <h3 className={`text-2xl font-semibold tracking-tight ${headlineClass}`}>
-                                    {workout.program.name} — Day {workout.program_day.day_number}
+                                    <Link
+                                        href={programHref(workout.program.id)}
+                                        className={`no-underline transition hover:underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+                                    >
+                                        {workout.program.name}
+                                    </Link>{' '}
+                                    — Day {workout.program_day.day_number}
                                 </h3>
                                 <p className={`max-w-2xl text-sm ${subtitleClass}`}>
                                     Log the work you actually perform. Programs stay as templates; this session is your real training record.

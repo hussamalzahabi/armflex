@@ -33,6 +33,8 @@ const formatDate = (isoValue) => {
     }).format(new Date(isoValue));
 };
 
+const programHref = (programId) => `/programs?program=${programId}`;
+
 const WorkoutsIndex = ({ workouts = [] }) => {
     const { isDark } = useTheme();
     const activeWorkouts = workouts.filter((workout) => !workout.is_completed);
@@ -70,6 +72,15 @@ const WorkoutsIndex = ({ workouts = [] }) => {
         </Link>
     );
 
+    const programBody = (rowData) => (
+        <Link
+            href={programHref(rowData.program.id)}
+            className={`font-medium no-underline transition hover:underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+        >
+            {rowData.program.name}
+        </Link>
+    );
+
     return (
         <>
             <Head title="Workouts" />
@@ -102,7 +113,7 @@ const WorkoutsIndex = ({ workouts = [] }) => {
                             <>
                                 <div className="hidden md:block">
                                     <DataTable value={workouts} dataKey="id" rows={8} paginator className="programs-table">
-                                        <Column field="program.name" header="Program" />
+                                        <Column header="Program" body={programBody} />
                                         <Column
                                             header="Day"
                                             body={(rowData) => <span className="font-medium">Day {rowData.day_number}</span>}
@@ -139,7 +150,14 @@ const WorkoutsIndex = ({ workouts = [] }) => {
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
                                                     <p className={`text-xs font-semibold uppercase tracking-[0.14em] ${subtitleClass}`}>Workout</p>
-                                                    <h4 className="mt-1 text-lg font-semibold">{workout.program.name}</h4>
+                                                    <h4 className="mt-1 text-lg font-semibold">
+                                                        <Link
+                                                            href={programHref(workout.program.id)}
+                                                            className={`no-underline transition hover:underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+                                                        >
+                                                            {workout.program.name}
+                                                        </Link>
+                                                    </h4>
                                                     <p className={`mt-1 text-sm ${subtitleClass}`}>Day {workout.day_number} • {formatDate(workout.started_at)}</p>
                                                 </div>
                                                 {statusBody(workout)}
