@@ -63,6 +63,7 @@ describe('Exercise detail page', () => {
                     video_embed_url: null,
                     thumbnail_url: null,
                     category: { name: 'Pronation', slug: 'pronation' },
+                    primary_style: { id: 1, name: 'Toproll', slug: 'toproll' },
                     equipments: [{ id: 1, name: 'Resistance Bands' }],
                     styles: [{ id: 1, name: 'Toproll', slug: 'toproll' }],
                     instruction: {
@@ -74,6 +75,15 @@ describe('Exercise detail page', () => {
                         safety_notes: 'Use light tension first.',
                     },
                 }}
+                relatedExercises={[
+                    {
+                        id: 8,
+                        name: 'Cable Pronation Pull',
+                        slug: 'cable-pronation-pull',
+                        short_description: 'A related pronation movement.',
+                        category: { name: 'Pronation', slug: 'pronation' },
+                    },
+                ]}
             />
         );
 
@@ -82,10 +92,13 @@ describe('Exercise detail page', () => {
         expect(screen.getByText('Build hand turnover.')).toBeInTheDocument();
         expect(screen.getByText('Overview')).toBeInTheDocument();
         expect(screen.getByText('Friendly')).toBeInTheDocument();
+        expect(screen.getByText('Primary style')).toBeInTheDocument();
         expect(screen.getByText('Resistance Bands')).toBeInTheDocument();
-        expect(screen.getByText('Toproll')).toBeInTheDocument();
+        expect(screen.getAllByText('Toproll').length).toBeGreaterThan(0);
         expect(screen.getByText('Start here')).toBeInTheDocument();
         expect(screen.getByText('Setup instructions')).toBeInTheDocument();
         expect(screen.getByText('Anchor the band low.')).toBeInTheDocument();
+        expect(screen.getByText('Related Exercises')).toBeInTheDocument();
+        expect(screen.getByText('Cable Pronation Pull')).toBeInTheDocument();
     });
 });

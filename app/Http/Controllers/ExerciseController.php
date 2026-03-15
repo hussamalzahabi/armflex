@@ -17,6 +17,9 @@ class ExerciseController extends Controller
             'instruction',
         ]);
 
+        $primaryStyle = $this->primaryStyle($exercise);
+        $relatedExercises = $this->relatedExercises($exercise);
+
         return Inertia::render('Exercises/Show', [
             'exercise' => [
                 'id' => $exercise->id,
@@ -42,6 +45,11 @@ class ExerciseController extends Controller
                     ->map(fn ($style) => ['id' => $style->id, 'name' => $style->name, 'slug' => $style->slug])
                     ->values()
                     ->all(),
+                'primary_style' => $primaryStyle ? [
+                    'id' => $primaryStyle->id,
+                    'name' => $primaryStyle->name,
+                    'slug' => $primaryStyle->slug,
+                ] : null,
                 'instruction' => [
                     'setup_instructions' => $exercise->instruction?->setup_instructions,
                     'execution_steps' => $exercise->instruction?->execution_steps,
@@ -51,7 +59,52 @@ class ExerciseController extends Controller
                     'safety_notes' => $exercise->instruction?->safety_notes,
                 ],
             ],
+            'relatedExercises' => $relatedExercises
+                ->map(fn (Exercise $relatedExercise) => [
+                    'id' => $relatedExercise->id,
+                    'name' => $relatedExercise->name,
+                    'slug' => $relatedExercise->slug,
+                    'short_description' => $relatedExercise->short_description,
+                    'category' => $relatedExercise->category ? [
+                        'name' => $relatedExercise->category->name,
+                        'slug' => $relatedExercise->category->slug,
+                    ] : null,
+                ])
+                ->values()
+                ->all(),
         ]);
+    }
+
+    private function relatedExercises(Exercise $exercise)
+    {
+        if ($exercise->category_id === null) {
+            return collect();
+        }
+
+        $primaryStyle = $this->primaryStyle($exercise);
+
+        return Exercise::query()
+            ->with(['category:id,name,slug', 'styles:id'])
+            ->where('is_active', true)
+            ->whereKeyNot($exercise->id)
+            ->where('category_id', $exercise->category_id)
+            ->get()
+            ->sortBy([
+                fn (Exercise $candidate) => $primaryStyle && $candidate->styles->contains('id', $primaryStyle->id) ? 0 : 1,
+                fn (Exercise $candidate) => $candidate->name,
+            ])
+            ->take(5)
+            ->values();
+    }
+
+    private function primaryStyle(Exercise $exercise)
+    {
+        return $exercise->styles
+            ->sortBy([
+                fn ($style) => in_array($style->slug, ['mixed', 'general'], true) ? 1 : 0,
+                fn ($style) => $style->name,
+            ])
+            ->first();
     }
 
     private function videoEmbedUrl(?string $url): ?string

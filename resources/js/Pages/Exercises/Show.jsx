@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Card } from 'primereact/card';
 import { Chip } from 'primereact/chip';
 import { Tag } from 'primereact/tag';
@@ -79,7 +79,7 @@ const MetaRow = ({ icon, label, value, isDark }) => (
     </div>
 );
 
-const ExercisesShow = ({ exercise }) => {
+const ExercisesShow = ({ exercise, relatedExercises = [] }) => {
     const { isDark } = useTheme();
     const instructionSections = [
         exercise.instruction.setup_instructions,
@@ -135,6 +135,7 @@ const ExercisesShow = ({ exercise }) => {
                                     <SectionHeader icon="pi pi-info-circle" title="Overview" isDark={isDark} compact />
                                     <div className="mt-4 space-y-2.5">
                                         {exercise.category && <MetaRow icon="pi pi-sitemap" label="Category" value={exercise.category.name} isDark={isDark} />}
+                                        {exercise.primary_style && <MetaRow icon="pi pi-star" label="Primary style" value={exercise.primary_style.name} isDark={isDark} />}
                                         <MetaRow icon="pi pi-sparkles" label="Difficulty" value={humanizeSlug(exercise.difficulty_level)} isDark={isDark} />
                                         {exercise.is_beginner_friendly && <MetaRow icon="pi pi-heart" label="Beginner" value="Friendly" isDark={isDark} />}
                                         {exercise.is_isometric && <MetaRow icon="pi pi-stopwatch" label="Format" value="Isometric" isDark={isDark} />}
@@ -242,6 +243,46 @@ const ExercisesShow = ({ exercise }) => {
                                 <ContentSection title="Why it matters" content={exercise.instruction.why_it_matters} icon="pi pi-star" isDark={isDark} />
                                 <ContentSection title="Safety notes" content={exercise.instruction.safety_notes} icon="pi pi-shield" isDark={isDark} />
                             </div>
+
+                            {relatedExercises.length > 0 && (
+                                <section className={panelClass(isDark)}>
+                                    <SectionHeader icon="pi pi-share-alt" title="Related Exercises" isDark={isDark} />
+                                    <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                        {relatedExercises.map((relatedExercise) => (
+                                            <Link
+                                                key={relatedExercise.id}
+                                                href={`/exercises/${relatedExercise.slug}`}
+                                                className={`rounded-2xl border p-4 no-underline transition ${
+                                                    isDark
+                                                        ? 'border-slate-700 bg-slate-800/70 hover:border-slate-600 hover:bg-slate-800'
+                                                        : 'border-slate-200 bg-white/80 hover:border-slate-300 hover:bg-white'
+                                                }`}
+                                            >
+                                                <div className="space-y-2">
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <h4 className={`m-0 text-base font-semibold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>
+                                                                {relatedExercise.name}
+                                                            </h4>
+                                                            {relatedExercise.category && (
+                                                                <p className={`mt-1 mb-0 text-xs font-medium uppercase tracking-[0.14em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                                                                    {relatedExercise.category.name}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <i className={`pi pi-arrow-right text-sm ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`} aria-hidden="true" />
+                                                    </div>
+                                                    {relatedExercise.short_description && (
+                                                        <p className={`m-0 text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                                                            {relatedExercise.short_description}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
                     </Card>
                 </div>
