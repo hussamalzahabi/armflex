@@ -77,8 +77,11 @@ class ExerciseSeederTest extends TestCase
 
         $this->assertNotNull($instructionExercise->short_description);
         $this->assertNotNull($instructionExercise->purpose);
+        $this->assertNotNull($instructionExercise->primary_video_url);
         $this->assertDatabaseHas('exercise_instructions', [
             'exercise_id' => $instructionExercise->id,
         ]);
+
+        $this->assertSame(14, Exercise::query()->whereNotNull('primary_video_url')->count());
     }
 }
