@@ -81,6 +81,16 @@ const MetaRow = ({ icon, label, value, isDark }) => (
 
 const ExercisesShow = ({ exercise }) => {
     const { isDark } = useTheme();
+    const instructionSections = [
+        exercise.instruction.setup_instructions,
+        exercise.instruction.execution_steps,
+        exercise.instruction.coaching_cues,
+        exercise.instruction.common_mistakes,
+        exercise.instruction.why_it_matters,
+        exercise.instruction.safety_notes,
+    ];
+    const availableInstructionCount = instructionSections.filter((section) => splitLines(section).length > 0).length;
+    const shouldShowReadingOrder = availableInstructionCount >= 2;
     const breadcrumbItems = [
         { label: 'Dashboard', href: '/' },
         { label: 'Programs', href: '/programs' },
@@ -162,29 +172,31 @@ const ExercisesShow = ({ exercise }) => {
                                 </section>
                             </div>
 
-                            <section className={panelClass(isDark)}>
-                                <SectionHeader icon="pi pi-directions-alt" title="Start here" kicker="Recommended reading order" isDark={isDark} />
-                                <div className="mt-4 grid gap-3 md:grid-cols-3">
-                                    <div className={`rounded-2xl px-3 py-3 ${isDark ? 'bg-slate-800/80' : 'bg-white/80'}`}>
-                                        <p className={`m-0 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>1. Set up</p>
-                                        <p className={`mt-2 mb-0 text-sm leading-relaxed ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                                            Start with the setup instructions so your arm, hand, and band position feel right.
-                                        </p>
+                            {shouldShowReadingOrder && (
+                                <section className={panelClass(isDark)}>
+                                    <SectionHeader icon="pi pi-directions-alt" title="Start here" kicker="Recommended reading order" isDark={isDark} />
+                                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                                        <div className={`rounded-2xl px-3 py-3 ${isDark ? 'bg-slate-800/80' : 'bg-white/80'}`}>
+                                            <p className={`m-0 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>1. Set up</p>
+                                            <p className={`mt-2 mb-0 text-sm leading-relaxed ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                                                Start with the setup instructions so your arm, hand, and band position feel right.
+                                            </p>
+                                        </div>
+                                        <div className={`rounded-2xl px-3 py-3 ${isDark ? 'bg-slate-800/80' : 'bg-white/80'}`}>
+                                            <p className={`m-0 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>2. Move</p>
+                                            <p className={`mt-2 mb-0 text-sm leading-relaxed ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                                                Read the execution steps next so you know exactly how each rep or hold should feel.
+                                            </p>
+                                        </div>
+                                        <div className={`rounded-2xl px-3 py-3 ${isDark ? 'bg-slate-800/80' : 'bg-white/80'}`}>
+                                            <p className={`m-0 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>3. Refine</p>
+                                            <p className={`mt-2 mb-0 text-sm leading-relaxed ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
+                                                Use coaching cues, common mistakes, and safety notes to clean up the movement.
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className={`rounded-2xl px-3 py-3 ${isDark ? 'bg-slate-800/80' : 'bg-white/80'}`}>
-                                        <p className={`m-0 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>2. Move</p>
-                                        <p className={`mt-2 mb-0 text-sm leading-relaxed ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                                            Read the execution steps next so you know exactly how each rep or hold should feel.
-                                        </p>
-                                    </div>
-                                    <div className={`rounded-2xl px-3 py-3 ${isDark ? 'bg-slate-800/80' : 'bg-white/80'}`}>
-                                        <p className={`m-0 text-xs font-semibold uppercase tracking-[0.14em] ${isDark ? 'text-indigo-200' : 'text-indigo-700'}`}>3. Refine</p>
-                                        <p className={`mt-2 mb-0 text-sm leading-relaxed ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>
-                                            Use coaching cues, common mistakes, and safety notes to clean up the movement.
-                                        </p>
-                                    </div>
-                                </div>
-                            </section>
+                                </section>
+                            )}
 
                             <section className={panelClass(isDark)}>
                                 <div className="flex flex-wrap items-center justify-between gap-3">
