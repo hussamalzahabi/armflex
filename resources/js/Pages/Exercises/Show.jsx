@@ -186,42 +186,41 @@ const ExercisesShow = ({ exercise }) => {
                                 </div>
                             </section>
 
-                            {(exercise.video_embed_url || exercise.primary_video_url || exercise.thumbnail_url) && (
-                                <section className={panelClass(isDark)}>
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <SectionHeader icon="pi pi-play-circle" title="Demo video" isDark={isDark} />
-                                        {exercise.primary_video_url && (
-                                            <a
-                                                href={exercise.primary_video_url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className={`text-sm no-underline ${isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-700 hover:text-indigo-600'}`}
-                                            >
-                                                Open source video
-                                            </a>
-                                        )}
-                                    </div>
-                                    <div className="mt-4">
-                                        {exercise.video_embed_url ? (
-                                            <div className="aspect-video overflow-hidden rounded-2xl border border-slate-700/40">
-                                                <iframe
-                                                    src={exercise.video_embed_url}
-                                                    title={`${exercise.name} video`}
-                                                    className="h-full w-full"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowFullScreen
-                                                />
-                                            </div>
-                                        ) : exercise.thumbnail_url ? (
-                                            <img src={exercise.thumbnail_url} alt={`${exercise.name} thumbnail`} className="aspect-video w-full rounded-2xl object-cover" />
-                                        ) : (
-                                            <p className={`m-0 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                                                Video is linked, but this source cannot be embedded here yet.
-                                            </p>
-                                        )}
-                                    </div>
-                                </section>
-                            )}
+                            <section className={panelClass(isDark)}>
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <SectionHeader icon="pi pi-play-circle" title="Demo video" isDark={isDark} />
+                                    {exercise.primary_video_url && (
+                                        <a
+                                            href={exercise.primary_video_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className={`text-sm no-underline ${isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-700 hover:text-indigo-600'}`}
+                                        >
+                                            Open source video
+                                        </a>
+                                    )}
+                                </div>
+                                <div className="mt-4">
+                                    {exercise.video_embed_url ? (
+                                        <div className="aspect-video overflow-hidden rounded-2xl border border-slate-700/40">
+                                            <iframe
+                                                src={exercise.video_embed_url}
+                                                title={`${exercise.name} video`}
+                                                className="h-full w-full"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        </div>
+                                    ) : exercise.thumbnail_url ? (
+                                        <img src={exercise.thumbnail_url} alt={`${exercise.name} thumbnail`} className="aspect-video w-full rounded-2xl object-cover" />
+                                    ) : (
+                                        <div className={`rounded-2xl border px-4 py-5 ${isDark ? 'border-slate-700 bg-slate-800/70 text-slate-300' : 'border-slate-200 bg-white/80 text-slate-600'}`}>
+                                            <p className="m-0 text-sm font-semibold">Video coming soon.</p>
+                                            <p className="mt-1 mb-0 text-sm">Use the written instructions below for now.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
 
                             <div className="grid gap-4 lg:grid-cols-2">
                                 <ContentSection title="Setup instructions" kicker="Start with this" content={exercise.instruction.setup_instructions} icon="pi pi-cog" isDark={isDark} />
