@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import WorkoutsShow from '../../../Pages/Workouts/Show';
 
@@ -99,6 +99,28 @@ vi.mock('@/hooks/useTheme', () => ({
 }));
 
 describe('Workout session page', () => {
+    it('should_show_save_failure_feedback_when_set_update_is_rejected', async () => {
+        axiosPatchMock.mockRejectedValueOnce({
+            response: {
+                data: {
+                    errors: {
+                        reps: ['Reps must be a valid number.'],
+                    },
+                },
+            },
+        });
+
+        render(<WorkoutsShow workout={buildWorkout()} />);
+
+        const repsInput = screen.getByLabelText('Reps');
+
+        fireEvent.change(repsInput, { target: { value: '9' } });
+        fireEvent.blur(repsInput);
+
+        expect(await screen.findByText('Save failed')).toBeInTheDocument();
+        expect(await screen.findByText('Reps must be a valid number.')).toBeInTheDocument();
+    });
+
     it('should_render_workout_session_and_finish_action', () => {
         render(<WorkoutsShow workout={buildWorkout()} />);
 
@@ -129,19 +151,49 @@ describe('Workout session page', () => {
         });
     });
 
-    it('should_post_finish_request_when_finish_workout_is_clicked', () => {
+    it('should_post_finish_request_when_finish_workout_is_clicked', async () => {
         render(<WorkoutsShow workout={buildWorkout({ reps: 9 })} />);
 
         fireEvent.click(screen.getByRole('button', { name: 'Finish Workout' }));
 
-        expect(inertiaPostMock).toHaveBeenCalledWith(
-            '/workouts/55/finish',
-            {},
-            expect.objectContaining({
-                preserveScroll: true,
-                onFinish: expect.any(Function),
-            })
-        );
+        await waitFor(() => {
+            expect(inertiaPostMock).toHaveBeenCalledWith(
+                '/workouts/55/finish',
+                {},
+                expect.objectContaining({
+                    preserveScroll: true,
+                    onFinish: expect.any(Function),
+                })
+            );
+        });
+    });
+
+    it('should_persist_dirty_sets_before_finishing_workout', async () => {
+        render(<WorkoutsShow workout={buildWorkout()} />);
+
+        const repsInput = screen.getByLabelText('Reps');
+
+        fireEvent.change(repsInput, { target: { value: '12' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Finish Workout' }));
+
+        await waitFor(() => {
+            expect(axiosPatchMock).toHaveBeenCalledWith('/workout-sets/102', {
+                reps: 12,
+                weight: null,
+                duration_seconds: null,
+            });
+        });
+
+        await waitFor(() => {
+            expect(inertiaPostMock).toHaveBeenCalledWith(
+                '/workouts/55/finish',
+                {},
+                expect.objectContaining({
+                    preserveScroll: true,
+                    onFinish: expect.any(Function),
+                })
+            );
+        });
     });
 });
 

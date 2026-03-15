@@ -45,7 +45,13 @@ const WorkoutsShow = ({ workout }) => {
     const toast = useRef(null);
     const finishHelpOverlay = useRef(null);
     const [exerciseRows, setExerciseRows] = useState(workout.exercises);
+    const exerciseRowsRef = useRef(workout.exercises);
     const [savingSetIds, setSavingSetIds] = useState([]);
+    const savingSetIdsRef = useRef([]);
+    const [dirtySetIds, setDirtySetIds] = useState([]);
+    const dirtySetIdsRef = useRef([]);
+    const [saveErrorsBySetId, setSaveErrorsBySetId] = useState({});
+    const pendingSavePromisesRef = useRef(new Map());
     const [isFinishing, setIsFinishing] = useState(false);
     const isCompleted = Boolean(workout.completed_at);
     const breadcrumbItems = [
@@ -87,21 +93,57 @@ const WorkoutsShow = ({ workout }) => {
         });
     }, [flash.personal_records]);
 
+    useEffect(() => {
+        setExerciseRows(workout.exercises);
+        exerciseRowsRef.current = workout.exercises;
+        setDirtySetIds([]);
+        dirtySetIdsRef.current = [];
+        setSavingSetIds([]);
+        savingSetIdsRef.current = [];
+        setSaveErrorsBySetId({});
+    }, [workout.exercises]);
+
+    const syncSavingSetIds = (updater) => {
+        const nextIds = typeof updater === 'function' ? updater(savingSetIdsRef.current) : updater;
+        savingSetIdsRef.current = nextIds;
+        setSavingSetIds(nextIds);
+    };
+
+    const syncDirtySetIds = (updater) => {
+        const nextIds = typeof updater === 'function' ? updater(dirtySetIdsRef.current) : updater;
+        dirtySetIdsRef.current = nextIds;
+        setDirtySetIds(nextIds);
+    };
+
     const updateSetField = (exerciseId, setId, field, value) => {
-        setExerciseRows((currentRows) =>
-            currentRows.map((exercise) =>
-                exercise.id !== exerciseId
-                    ? exercise
-                    : {
-                          ...exercise,
-                          sets: exercise.sets.map((set) => (set.id !== setId ? set : { ...set, [field]: value })),
-                      }
-            )
+        const nextRows = exerciseRowsRef.current.map((exercise) =>
+            exercise.id !== exerciseId
+                ? exercise
+                : {
+                      ...exercise,
+                      sets: exercise.sets.map((set) => (set.id !== setId ? set : { ...set, [field]: value })),
+                  },
         );
+
+        exerciseRowsRef.current = nextRows;
+        setExerciseRows(nextRows);
+
+        setSaveErrorsBySetId((currentErrors) => {
+            if (!currentErrors[setId]) {
+                return currentErrors;
+            }
+
+            const nextErrors = { ...currentErrors };
+            delete nextErrors[setId];
+
+            return nextErrors;
+        });
+
+        syncDirtySetIds((currentIds) => [...new Set([...currentIds, setId])]);
     };
 
     const findSetPayload = (setId) => {
-        for (const exercise of exerciseRows) {
+        for (const exercise of exerciseRowsRef.current) {
             const targetSet = exercise.sets.find((set) => set.id === setId);
 
             if (targetSet) {
@@ -116,35 +158,95 @@ const WorkoutsShow = ({ workout }) => {
         return null;
     };
 
+    const areSetPayloadsEqual = (left, right) =>
+        (left?.reps ?? null) === (right?.reps ?? null)
+        && (left?.weight ?? null) === (right?.weight ?? null)
+        && (left?.duration_seconds ?? null) === (right?.duration_seconds ?? null);
+
     const persistSet = async (setId) => {
         if (isCompleted) {
-            return;
+            return true;
+        }
+
+        const existingPromise = pendingSavePromisesRef.current.get(setId);
+        if (existingPromise) {
+            return existingPromise;
         }
 
         const payload = findSetPayload(setId);
         if (!payload) {
-            return;
+            return true;
         }
 
-        setSavingSetIds((currentIds) => [...new Set([...currentIds, setId])]);
+        syncSavingSetIds((currentIds) => [...new Set([...currentIds, setId])]);
 
-        try {
-            await axios.patch(`/workout-sets/${setId}`, payload);
-        } catch (error) {
-            const detail = error.response?.data?.message ?? 'The set could not be saved.';
+        const savePromise = (async () => {
+            let payload = findSetPayload(setId);
 
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Set Save Failed',
-                detail,
-                life: 4000,
-            });
-        } finally {
-            setSavingSetIds((currentIds) => currentIds.filter((currentId) => currentId !== setId));
-        }
+            if (!payload) {
+                return true;
+            }
+
+            try {
+                while (payload) {
+                    await axios.patch(`/workout-sets/${setId}`, payload);
+
+                    setSaveErrorsBySetId((currentErrors) => {
+                        if (!currentErrors[setId]) {
+                            return currentErrors;
+                        }
+
+                        const nextErrors = { ...currentErrors };
+                        delete nextErrors[setId];
+
+                        return nextErrors;
+                    });
+
+                    const latestPayload = findSetPayload(setId);
+
+                    if (areSetPayloadsEqual(latestPayload, payload)) {
+                        syncDirtySetIds((currentIds) => currentIds.filter((currentId) => currentId !== setId));
+
+                        return true;
+                    }
+
+                    payload = latestPayload;
+                }
+
+                return true;
+            } catch (error) {
+                const validationErrors = error.response?.data?.errors ?? {};
+                const firstValidationError = Object.values(validationErrors)[0];
+                const detail =
+                    (Array.isArray(firstValidationError) ? firstValidationError[0] : firstValidationError)
+                    ?? error.response?.data?.message
+                    ?? 'The set could not be saved.';
+
+                setSaveErrorsBySetId((currentErrors) => ({
+                    ...currentErrors,
+                    [setId]: detail,
+                }));
+
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Set Save Failed',
+                    detail,
+                    life: 4000,
+                });
+
+                return false;
+            } finally {
+                pendingSavePromisesRef.current.delete(setId);
+                syncSavingSetIds((currentIds) => currentIds.filter((currentId) => currentId !== setId));
+            }
+        })();
+
+        pendingSavePromisesRef.current.set(setId, savePromise);
+
+        return savePromise;
     };
 
-    const finishWorkout = () => {
+    const finishWorkout = async () => {
         if (!hasLoggedPerformance) {
             toast.current?.show({
                 severity: 'warn',
@@ -154,6 +256,44 @@ const WorkoutsShow = ({ workout }) => {
             });
 
             return;
+        }
+
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+
+        const pendingSaves = Array.from(pendingSavePromisesRef.current.values());
+        if (pendingSaves.length > 0) {
+            const pendingResults = await Promise.all(pendingSaves);
+
+            if (pendingResults.some((didSave) => !didSave)) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Finish Blocked',
+                    detail: 'Fix the set save errors before finishing the workout.',
+                    life: 4500,
+                });
+
+                return;
+            }
+        }
+
+        const setsToPersist = [...new Set(dirtySetIdsRef.current)];
+
+        if (setsToPersist.length > 0) {
+            const saveResults = await Promise.all(setsToPersist.map((setId) => persistSet(setId)));
+
+            if (saveResults.some((didSave) => !didSave)) {
+                toast.current?.show({
+                    severity: 'error',
+                    summary: 'Finish Blocked',
+                    detail: 'Fix the set save errors before finishing the workout.',
+                    life: 4500,
+                });
+
+                return;
+            }
         }
 
         setIsFinishing(true);
@@ -250,7 +390,7 @@ const WorkoutsShow = ({ workout }) => {
                                             <Button
                                                 label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
                                                 icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
-                                                disabled={isCompleted || !hasLoggedPerformance}
+                                                disabled={isCompleted || !hasLoggedPerformance || savingSetIds.length > 0}
                                                 loading={isFinishing}
                                                 onClick={finishWorkout}
                                             />
@@ -337,12 +477,15 @@ const WorkoutsShow = ({ workout }) => {
                                     <div className="mt-4 grid gap-3">
                                         {exerciseRow.sets.map((set) => {
                                             const isSaving = savingSetIds.includes(set.id);
+                                            const saveError = saveErrorsBySetId[set.id];
 
                                             return (
                                                 <div key={set.id} className={`rounded-2xl border p-3 ${inputPanelClass}`}>
                                                     <div className="mb-3 flex items-center justify-between gap-3">
                                                         <p className="!m-0 text-sm font-semibold">Set {set.set_number}</p>
-                                                        <span className={`text-xs ${subtitleClass}`}>{isSaving ? 'Saving...' : 'Saved when edited'}</span>
+                                                        <span className={`text-xs ${saveError ? 'text-amber-400' : subtitleClass}`}>
+                                                            {isSaving ? 'Saving...' : saveError ? 'Save failed' : dirtySetIds.includes(set.id) ? 'Unsaved changes' : 'Saved when edited'}
+                                                        </span>
                                                     </div>
 
                                                     <div className="grid gap-3 md:grid-cols-3">
@@ -399,6 +542,12 @@ const WorkoutsShow = ({ workout }) => {
                                                             </div>
                                                         )}
                                                     </div>
+
+                                                    {saveError && (
+                                                        <p className="mt-2 !mb-0 text-xs text-amber-400">
+                                                            {saveError}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             );
                                         })}
