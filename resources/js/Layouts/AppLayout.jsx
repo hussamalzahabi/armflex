@@ -60,9 +60,8 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
     const shellClass = isDark
         ? 'bg-[radial-gradient(circle_at_top_left,_#101827,_#060b18_55%)] text-slate-100'
         : 'bg-[radial-gradient(circle_at_top_left,_#f8fafc,_#e2e8f0_55%)] text-slate-900';
-    const panelClass = isDark ? 'bg-slate-900/92' : 'bg-white/95';
-    const bodyPanelClass = isDark ? 'bg-slate-950/35' : 'bg-slate-50/70';
-    const contentPanelClass = isDark ? 'bg-slate-950/35' : 'bg-slate-50/70';
+    const panelClass = isDark ? 'bg-slate-900' : 'bg-white';
+    const contentShellClass = isDark ? 'bg-slate-950/35' : 'bg-slate-50/70';
     const mutedClass = isDark ? 'text-slate-300' : 'text-slate-500';
 
     return (
@@ -189,7 +188,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                     </nav>
                 </aside>
 
-                <div className={`flex min-w-0 flex-1 flex-col overflow-hidden ${bodyPanelClass}`}>
+                <div className={`flex min-w-0 flex-1 flex-col overflow-hidden ${panelClass}`}>
                     <header className={`hidden px-6 py-3 lg:block ${panelClass}`}>
                         <div className="flex items-center justify-between gap-6">
                             <div className="min-w-0">
@@ -209,7 +208,7 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
                         </div>
                     </header>
 
-                    <main className={`flex min-h-0 flex-1 flex-col rounded-tl-[2rem] ${contentPanelClass} px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3`}>
+                    <main className={`flex min-h-0 flex-1 flex-col overflow-hidden rounded-tl-[2rem] ${contentShellClass} px-4 py-2 sm:px-5 sm:py-3 lg:px-5 lg:py-3`}>
                         <div className="mb-5 lg:hidden">
                             <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
                             {breadcrumbModel.length > 0 && (
