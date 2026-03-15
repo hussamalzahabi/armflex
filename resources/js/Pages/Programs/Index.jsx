@@ -238,11 +238,20 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
         <div className="flex flex-col gap-0.5">
             <Link
                 href={`/exercises/${rowData.exercise.slug}`}
-                className={`font-medium no-underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+                className={`font-medium no-underline transition hover:underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
             >
                 {rowData.exercise.name}
             </Link>
-            <span className="text-xs text-slate-400">{humanizeSlug(rowData.exercise.difficulty_level)}</span>
+            <div className="flex flex-wrap items-center gap-1 text-xs">
+                <span className="text-slate-400">{humanizeSlug(rowData.exercise.difficulty_level)}</span>
+                <span className="text-slate-400">•</span>
+                <Link
+                    href={`/exercises/${rowData.exercise.slug}`}
+                    className={`font-medium no-underline transition hover:underline ${isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-700'}`}
+                >
+                    View details
+                </Link>
+            </div>
         </div>
     );
 
@@ -469,15 +478,24 @@ const ProgramsIndex = ({ programs = [], profileSummary = null }) => {
                                                                         <div className="mt-0.5 space-y-0.5">
                                                                             <Link
                                                                                 href={`/exercises/${exerciseRow.exercise.slug}`}
-                                                                                className={`text-base font-semibold leading-tight no-underline ${
+                                                                                className={`text-base font-semibold leading-tight no-underline transition hover:underline ${
                                                                                     isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'
                                                                                 }`}
                                                                             >
                                                                                 {exerciseRow.exercise.name}
                                                                             </Link>
-                                                                            <p className={`text-[11px] leading-none ${mobileLabelClass}`}>
-                                                                                {humanizeSlug(exerciseRow.exercise.difficulty_level)}
-                                                                            </p>
+                                                                            <div className={`flex flex-wrap items-center gap-1 text-[11px] leading-none ${mobileLabelClass}`}>
+                                                                                <span>{humanizeSlug(exerciseRow.exercise.difficulty_level)}</span>
+                                                                                <span>•</span>
+                                                                                <Link
+                                                                                    href={`/exercises/${exerciseRow.exercise.slug}`}
+                                                                                    className={`font-medium no-underline transition hover:underline ${
+                                                                                        isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-700'
+                                                                                    }`}
+                                                                                >
+                                                                                    View details
+                                                                                </Link>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                     {categoryBody(exerciseRow)}

@@ -555,15 +555,29 @@ const WorkoutsShow = ({ workout }) => {
                                                 <h4 className="!m-0">
                                                     <Link
                                                         href={`/exercises/${exerciseRow.exercise.slug}`}
-                                                        className={`text-xl font-semibold no-underline ${isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'}`}
+                                                        className={`text-xl font-semibold no-underline transition hover:underline ${
+                                                            isDark ? 'text-slate-100 hover:text-indigo-200' : 'text-slate-900 hover:text-indigo-700'
+                                                        }`}
                                                     >
                                                         {exerciseRow.exercise.name}
                                                     </Link>
                                                 </h4>
-                                                <p className={`mt-1 text-sm ${subtitleClass}`}>
-                                                    {humanizeSlug(exerciseRow.exercise.difficulty_level)} • Target {exerciseRow.prescription.sets} x{' '}
-                                                    {exerciseRow.prescription.reps}
-                                                </p>
+                                                <div className={`mt-1 flex flex-wrap items-center gap-1 text-sm ${subtitleClass}`}>
+                                                    <span>{humanizeSlug(exerciseRow.exercise.difficulty_level)}</span>
+                                                    <span>•</span>
+                                                    <span>
+                                                        Target {exerciseRow.prescription.sets} x {exerciseRow.prescription.reps}
+                                                    </span>
+                                                    <span>•</span>
+                                                    <Link
+                                                        href={`/exercises/${exerciseRow.exercise.slug}`}
+                                                        className={`font-medium no-underline transition hover:underline ${
+                                                            isDark ? 'text-indigo-300 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-700'
+                                                        }`}
+                                                    >
+                                                        View details
+                                                    </Link>
+                                                </div>
                                             </div>
 
                                             <div className="flex flex-wrap gap-1.5">
