@@ -80,9 +80,11 @@ describe('Exercise detail page', () => {
         expect(screen.getByRole('heading', { level: 1, name: 'Band Pronation Pulses' })).toBeInTheDocument();
         expect(screen.getByText('A simple pronation drill.')).toBeInTheDocument();
         expect(screen.getByText('Build hand turnover.')).toBeInTheDocument();
-        expect(screen.getByText('Beginner friendly')).toBeInTheDocument();
+        expect(screen.getByText('Overview')).toBeInTheDocument();
+        expect(screen.getByText('Friendly')).toBeInTheDocument();
         expect(screen.getByText('Resistance Bands')).toBeInTheDocument();
         expect(screen.getByText('Toproll')).toBeInTheDocument();
+        expect(screen.getByText('Start here')).toBeInTheDocument();
         expect(screen.getByText('Setup instructions')).toBeInTheDocument();
         expect(screen.getByText('Anchor the band low.')).toBeInTheDocument();
     });
