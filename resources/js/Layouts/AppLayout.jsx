@@ -66,16 +66,18 @@ const AppLayout = ({ title: _title, breadcrumb = [], actions = null, children })
 
     return (
         <div className={`flex h-screen flex-col overflow-hidden ${shellClass}`}>
-            <div className={`sticky top-0 z-30 flex items-center justify-between px-4 py-3 lg:hidden ${panelClass}`}>
-                <button
-                    type="button"
-                    className={`rounded-md border px-3 py-1.5 text-sm ${isDark ? 'border-slate-700' : 'border-slate-300'}`}
-                    onClick={() => setMobileMenuOpen(true)}
-                >
-                    Menu
-                </button>
-                <p className="text-sm font-semibold tracking-wide">ArmFlex</p>
-                <div className="flex items-center gap-2">
+            <div className={`sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-4 py-3 lg:hidden ${panelClass}`}>
+                <div className="flex justify-start">
+                    <button
+                        type="button"
+                        className={`rounded-md border px-3 py-1.5 text-sm ${isDark ? 'border-slate-700' : 'border-slate-300'}`}
+                        onClick={() => setMobileMenuOpen(true)}
+                    >
+                        Menu
+                    </button>
+                </div>
+                <p className="text-center text-sm font-semibold tracking-wide">ArmFlex</p>
+                <div className="flex justify-end">
                     <UserActionMenu user={auth?.user} compact showThemeToggle />
                 </div>
             </div>
