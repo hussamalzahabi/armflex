@@ -59,9 +59,9 @@ const AppLayout = ({ title, breadcrumb = [], actions = null, children }) => {
 
     const shellClass = isDark
         ? 'bg-[radial-gradient(circle_at_top_left,_#101827,_#060b18_55%)] text-slate-100'
-        : 'bg-[radial-gradient(circle_at_top_left,_#f8fafc,_#e2e8f0_55%)] text-slate-900';
+        : 'bg-[radial-gradient(circle_at_top_left,_#e2e8f0,_#cbd5e1_55%)] text-slate-900';
     const panelClass = isDark ? 'bg-slate-900' : 'bg-white';
-    const contentShellClass = isDark ? 'bg-slate-950/35' : 'bg-slate-50/70';
+    const contentShellClass = isDark ? 'bg-slate-950/35' : 'bg-slate-100/85';
     const mutedClass = isDark ? 'text-slate-300' : 'text-slate-500';
 
     return (
