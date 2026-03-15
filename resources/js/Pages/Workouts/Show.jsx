@@ -10,6 +10,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Tooltip } from 'primereact/tooltip';
+import AppDialog from '@/Components/AppDialog';
 import AppBreadcrumb from '@/Components/AppBreadcrumb';
 import AppLayout from '@/Layouts/AppLayout';
 import { useTheme } from '@/hooks/useTheme';
@@ -53,6 +54,9 @@ const WorkoutsShow = ({ workout }) => {
     const [saveErrorsBySetId, setSaveErrorsBySetId] = useState({});
     const pendingSavePromisesRef = useRef(new Map());
     const [isFinishing, setIsFinishing] = useState(false);
+    const [isReopening, setIsReopening] = useState(false);
+    const [showFinishDialog, setShowFinishDialog] = useState(false);
+    const [showReopenDialog, setShowReopenDialog] = useState(false);
     const isCompleted = Boolean(workout.completed_at);
     const breadcrumbItems = [
         { label: 'Dashboard', href: '/' },
@@ -246,7 +250,7 @@ const WorkoutsShow = ({ workout }) => {
         return savePromise;
     };
 
-    const finishWorkout = async () => {
+    const persistDirtySetsBeforeCompletion = async () => {
         if (!hasLoggedPerformance) {
             toast.current?.show({
                 severity: 'warn',
@@ -255,7 +259,7 @@ const WorkoutsShow = ({ workout }) => {
                 life: 4000,
             });
 
-            return;
+            return false;
         }
 
         if (document.activeElement instanceof HTMLElement) {
@@ -275,7 +279,7 @@ const WorkoutsShow = ({ workout }) => {
                     life: 4500,
                 });
 
-                return;
+                return false;
             }
         }
 
@@ -292,8 +296,18 @@ const WorkoutsShow = ({ workout }) => {
                     life: 4500,
                 });
 
-                return;
+                return false;
             }
+        }
+
+        return true;
+    };
+
+    const finishWorkout = async () => {
+        const isReadyToFinish = await persistDirtySetsBeforeCompletion();
+
+        if (!isReadyToFinish) {
+            return;
         }
 
         setIsFinishing(true);
@@ -304,6 +318,7 @@ const WorkoutsShow = ({ workout }) => {
             {
                 preserveScroll: true,
                 onSuccess: () => {
+                    setShowFinishDialog(false);
                     toast.current?.show({
                         severity: 'success',
                         summary: 'Workout Saved',
@@ -312,6 +327,7 @@ const WorkoutsShow = ({ workout }) => {
                     });
                 },
                 onError: (errors) => {
+                    setShowFinishDialog(false);
                     const firstError = Object.values(errors)[0];
 
                     toast.current?.show({
@@ -326,10 +342,82 @@ const WorkoutsShow = ({ workout }) => {
         );
     };
 
+    const reopenWorkout = () => {
+        setIsReopening(true);
+
+        router.post(
+            `/workouts/${workout.id}/reopen`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowReopenDialog(false);
+                    toast.current?.show({
+                        severity: 'info',
+                        summary: 'Workout Reopened',
+                        detail: 'Workout unlocked for editing.',
+                        life: 3500,
+                    });
+                },
+                onError: (errors) => {
+                    const firstError = Object.values(errors)[0];
+
+                    toast.current?.show({
+                        severity: 'error',
+                        summary: 'Reopen Failed',
+                        detail: Array.isArray(firstError) ? firstError[0] : firstError ?? 'The workout could not be reopened.',
+                        life: 4500,
+                    });
+                },
+                onFinish: () => setIsReopening(false),
+            }
+        );
+    };
+
+    const finishDialogFooter = (
+        <div className="flex justify-end gap-2">
+            <Button label="Cancel" text onClick={() => setShowFinishDialog(false)} disabled={isFinishing} />
+            <Button label="Finish Workout" icon="pi pi-check" onClick={finishWorkout} loading={isFinishing} />
+        </div>
+    );
+
+    const reopenDialogFooter = (
+        <div className="flex justify-end gap-2">
+            <Button label="Cancel" text onClick={() => setShowReopenDialog(false)} disabled={isReopening} />
+            <Button label="Reopen Workout" icon="pi pi-refresh" onClick={reopenWorkout} loading={isReopening} />
+        </div>
+    );
+
     return (
         <>
             <Head title={`Workout Day ${workout.program_day.day_number}`} />
             <Toast ref={toast} />
+            <AppDialog
+                visible={showFinishDialog}
+                onHide={() => setShowFinishDialog(false)}
+                header="Finish workout?"
+                closable={!isFinishing}
+                dismissableMask={!isFinishing}
+                className="w-full max-w-lg"
+                footer={finishDialogFooter}
+            >
+                <p className={`!m-0 text-sm leading-relaxed ${subtitleClass}`}>
+                    Make sure all sets are recorded. Completed workouts cannot be edited.
+                </p>
+            </AppDialog>
+            <AppDialog
+                visible={showReopenDialog}
+                onHide={() => setShowReopenDialog(false)}
+                header="Reopen workout?"
+                closable={!isReopening}
+                dismissableMask={!isReopening}
+                className="w-full max-w-lg"
+                footer={reopenDialogFooter}
+            >
+                <p className={`!m-0 text-sm leading-relaxed ${subtitleClass}`}>
+                    This will unlock the workout for editing and may affect personal records, streaks, and progress tracking.
+                </p>
+            </AppDialog>
             {finishDisabledReason && <Tooltip target=".finish-workout-trigger" content={finishDisabledReason} position="top" />}
             <AppLayout title={`Workout Day ${workout.program_day.day_number}`}>
                 <div className="w-full lg:max-w-[1100px] lg:mr-auto">
@@ -384,55 +472,64 @@ const WorkoutsShow = ({ workout }) => {
                                 >
                                     View History
                                 </Link>
-                                <div className="flex flex-col items-start gap-1">
-                                    <div className="flex items-center gap-2 md:gap-2">
-                                        <span className={finishDisabledReason ? 'finish-workout-trigger inline-flex cursor-not-allowed' : 'inline-flex'}>
-                                            <Button
-                                                label={isCompleted ? 'Workout Completed' : 'Finish Workout'}
-                                                icon={isCompleted ? 'pi pi-check-circle' : 'pi pi-check'}
-                                                disabled={isCompleted || !hasLoggedPerformance || savingSetIds.length > 0}
-                                                loading={isFinishing}
-                                                onClick={finishWorkout}
-                                            />
-                                        </span>
+                                {isCompleted ? (
+                                    <Button
+                                        label="Reopen Workout"
+                                        icon="pi pi-refresh"
+                                        onClick={() => setShowReopenDialog(true)}
+                                        loading={isReopening}
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-start gap-1">
+                                        <div className="flex items-center gap-2 md:gap-2">
+                                            <span className={finishDisabledReason ? 'finish-workout-trigger inline-flex cursor-not-allowed' : 'inline-flex'}>
+                                                <Button
+                                                    label="Finish Workout"
+                                                    icon="pi pi-check"
+                                                    disabled={!hasLoggedPerformance || savingSetIds.length > 0}
+                                                    loading={isFinishing}
+                                                    onClick={() => setShowFinishDialog(true)}
+                                                />
+                                            </span>
 
-                                        {finishDisabledReason && (
-                                            <>
-                                                <button
-                                                    type="button"
-                                                    className={`inline-flex h-9 w-9 -ml-1 items-center justify-center rounded-lg border text-[0.7rem] font-semibold leading-none md:hidden ${
-                                                        isDark
-                                                            ? 'border-slate-600 bg-slate-800 text-slate-200'
-                                                            : 'border-slate-300 bg-slate-100 text-slate-700'
-                                                    }`}
-                                                    aria-label="Why Finish Workout is disabled"
-                                                    onClick={(event) => finishHelpOverlay.current?.toggle(event)}
-                                                >
-                                                    <i className="pi pi-info-circle text-sm" aria-hidden="true" />
-                                                </button>
-                                                <OverlayPanel
-                                                    ref={finishHelpOverlay}
-                                                    dismissable
-                                                    showCloseIcon
-                                                    className={`app-overlay-panel max-w-xs ${
-                                                        isDark ? 'app-overlay-panel-dark' : 'app-overlay-panel-light'
-                                                    }`}
-                                                >
-                                                    <p
-                                                        className={`mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] ${
-                                                            isDark ? 'text-slate-400' : 'text-slate-500'
+                                            {finishDisabledReason && (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        className={`inline-flex h-9 w-9 -ml-1 items-center justify-center rounded-lg border text-[0.7rem] font-semibold leading-none md:hidden ${
+                                                            isDark
+                                                                ? 'border-slate-600 bg-slate-800 text-slate-200'
+                                                                : 'border-slate-300 bg-slate-100 text-slate-700'
+                                                        }`}
+                                                        aria-label="Why Finish Workout is disabled"
+                                                        onClick={(event) => finishHelpOverlay.current?.toggle(event)}
+                                                    >
+                                                        <i className="pi pi-info-circle text-sm" aria-hidden="true" />
+                                                    </button>
+                                                    <OverlayPanel
+                                                        ref={finishHelpOverlay}
+                                                        dismissable
+                                                        showCloseIcon
+                                                        className={`app-overlay-panel max-w-xs ${
+                                                            isDark ? 'app-overlay-panel-dark' : 'app-overlay-panel-light'
                                                         }`}
                                                     >
-                                                        Finish Workout
-                                                    </p>
-                                                    <p className={`!m-0 text-sm leading-relaxed ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>
-                                                        {finishDisabledReason}
-                                                    </p>
-                                                </OverlayPanel>
-                                            </>
-                                        )}
+                                                        <p
+                                                            className={`mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                                                                isDark ? 'text-slate-400' : 'text-slate-500'
+                                                            }`}
+                                                        >
+                                                            Finish Workout
+                                                        </p>
+                                                        <p className={`!m-0 text-sm leading-relaxed ${isDark ? 'text-slate-100' : 'text-slate-700'}`}>
+                                                            {finishDisabledReason}
+                                                        </p>
+                                                    </OverlayPanel>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 

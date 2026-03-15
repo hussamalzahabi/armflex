@@ -104,6 +104,21 @@ class WorkoutSessionService
         });
     }
 
+    public function reopenForUser(Workout $workout, int $userId): Workout
+    {
+        abort_unless($workout->user_id === $userId, 404);
+
+        return DB::transaction(function () use ($workout): Workout {
+            if ($workout->completed_at !== null) {
+                $workout->forceFill([
+                    'completed_at' => null,
+                ])->save();
+            }
+
+            return $this->loadWorkoutGraph($workout->fresh());
+        });
+    }
+
     public function loadWorkoutGraph(Workout $workout): Workout
     {
         return $workout->load([

@@ -82,6 +82,13 @@ class WorkoutController extends Controller
             ->with('personal_records', $result['new_personal_records']);
     }
 
+    public function reopen(Request $request, Workout $workout, WorkoutSessionService $workoutSessionService): RedirectResponse
+    {
+        $reopenedWorkout = $workoutSessionService->reopenForUser($workout, (int) $request->user()->id);
+
+        return redirect()->route('workouts.show', $reopenedWorkout);
+    }
+
     private function toWorkoutPayload(Workout $workout): array
     {
         $prescriptionsByOrder = $workout->programDay->exercises->keyBy('order_index');

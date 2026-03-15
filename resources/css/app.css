@@ -511,6 +511,121 @@ html[data-theme='dark'] .p-button .p-button-loading-icon {
     border-bottom-color: rgb(255 255 255);
 }
 
+.app-dialog-mask {
+    backdrop-filter: blur(2px);
+}
+
+.app-dialog.p-dialog {
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgb(15 23 42 / 0.3);
+}
+
+.app-dialog .p-dialog-header,
+.app-dialog .p-dialog-content,
+.app-dialog .p-dialog-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+.app-dialog .p-dialog-header {
+    padding-top: 1.125rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid transparent;
+}
+
+.app-dialog .p-dialog-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.app-dialog .p-dialog-content {
+    padding-top: 1rem;
+    padding-bottom: 1.1rem;
+}
+
+.app-dialog .p-dialog-footer {
+    padding-top: 0.9rem;
+    padding-bottom: 1.1rem;
+    border-top: 1px solid transparent;
+}
+
+.app-dialog .p-dialog-header-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.app-dialog-dark.p-dialog {
+    background: rgb(15 23 42);
+    border: 1px solid rgb(51 65 85);
+}
+
+.app-dialog-dark .p-dialog-header,
+.app-dialog-dark .p-dialog-content,
+.app-dialog-dark .p-dialog-footer {
+    background: rgb(15 23 42);
+    color: rgb(226 232 240);
+}
+
+.app-dialog-dark .p-dialog-header {
+    border-bottom-color: rgb(51 65 85);
+}
+
+.app-dialog-dark .p-dialog-footer {
+    border-top-color: rgb(51 65 85);
+}
+
+.app-dialog-dark .p-dialog-header-icon {
+    color: rgb(148 163 184);
+}
+
+.app-dialog-dark .p-dialog-header-icon:hover {
+    background: rgb(30 41 59);
+    color: rgb(241 245 249);
+}
+
+.app-dialog-mask-dark {
+    background: rgb(2 6 23 / 0.72);
+}
+
+.app-dialog-light.p-dialog {
+    background: rgb(255 255 255);
+    border: 1px solid rgb(226 232 240);
+}
+
+.app-dialog-light .p-dialog-header,
+.app-dialog-light .p-dialog-content,
+.app-dialog-light .p-dialog-footer {
+    background: rgb(255 255 255);
+    color: rgb(15 23 42);
+}
+
+.app-dialog-light .p-dialog-header {
+    border-bottom-color: rgb(226 232 240);
+}
+
+.app-dialog-light .p-dialog-footer {
+    border-top-color: rgb(226 232 240);
+}
+
+.app-dialog-light .p-dialog-header-icon {
+    color: rgb(100 116 139);
+}
+
+.app-dialog-light .p-dialog-header-icon:hover {
+    background: rgb(241 245 249);
+    color: rgb(30 41 59);
+}
+
+.app-dialog-mask-light {
+    background: rgb(15 23 42 / 0.34);
+}
+
 html[data-theme='dark'] .programs-table .p-datatable-header,
 html[data-theme='dark'] .programs-table .p-datatable-thead > tr > th,
 html[data-theme='dark'] .programs-table .p-datatable-tbody > tr > td,

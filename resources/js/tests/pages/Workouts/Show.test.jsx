@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import WorkoutsShow from '../../../Pages/Workouts/Show';
 
@@ -49,6 +49,17 @@ vi.mock('primereact/button', () => ({
 
 vi.mock('primereact/card', () => ({
     Card: ({ children }) => <section>{children}</section>,
+}));
+
+vi.mock('primereact/dialog', () => ({
+    Dialog: ({ visible, header, children, footer }) =>
+        visible ? (
+            <section role="dialog" aria-label={header}>
+                <h2>{header}</h2>
+                <div>{children}</div>
+                <div>{footer}</div>
+            </section>
+        ) : null,
 }));
 
 vi.mock('primereact/chip', () => ({
@@ -129,6 +140,14 @@ describe('Workout session page', () => {
         expect(screen.getByRole('button', { name: 'Finish Workout' })).toBeInTheDocument();
     });
 
+    it('should_show_reopen_action_for_completed_workouts', () => {
+        render(<WorkoutsShow workout={buildWorkout({ completedAt: '2026-03-12T11:00:00Z', reps: 9 })} />);
+
+        expect(screen.getByText('This workout is completed. Values are now locked.')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Reopen Workout' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Finish Workout' })).not.toBeInTheDocument();
+    });
+
     it('should_disable_finish_when_no_results_have_been_logged', () => {
         render(<WorkoutsShow workout={buildWorkout()} />);
 
@@ -155,6 +174,8 @@ describe('Workout session page', () => {
         render(<WorkoutsShow workout={buildWorkout({ reps: 9 })} />);
 
         fireEvent.click(screen.getByRole('button', { name: 'Finish Workout' }));
+        const dialog = screen.getByRole('dialog', { name: 'Finish workout?' });
+        fireEvent.click(within(dialog).getByRole('button', { name: 'Finish Workout' }));
 
         await waitFor(() => {
             expect(inertiaPostMock).toHaveBeenCalledWith(
@@ -175,6 +196,8 @@ describe('Workout session page', () => {
 
         fireEvent.change(repsInput, { target: { value: '12' } });
         fireEvent.click(screen.getByRole('button', { name: 'Finish Workout' }));
+        const dialog = screen.getByRole('dialog', { name: 'Finish workout?' });
+        fireEvent.click(within(dialog).getByRole('button', { name: 'Finish Workout' }));
 
         await waitFor(() => {
             expect(axiosPatchMock).toHaveBeenCalledWith('/workout-sets/102', {
@@ -195,9 +218,28 @@ describe('Workout session page', () => {
             );
         });
     });
+
+    it('should_post_reopen_request_when_reopen_workout_is_confirmed', async () => {
+        render(<WorkoutsShow workout={buildWorkout({ completedAt: '2026-03-12T11:00:00Z', reps: 9 })} />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Reopen Workout' }));
+        const dialog = screen.getByRole('dialog', { name: 'Reopen workout?' });
+        fireEvent.click(within(dialog).getByRole('button', { name: 'Reopen Workout' }));
+
+        await waitFor(() => {
+            expect(inertiaPostMock).toHaveBeenCalledWith(
+                '/workouts/55/reopen',
+                {},
+                expect.objectContaining({
+                    preserveScroll: true,
+                    onFinish: expect.any(Function),
+                })
+            );
+        });
+    });
 });
 
-const buildWorkout = ({ reps = null } = {}) => ({
+const buildWorkout = ({ reps = null, completedAt = null } = {}) => ({
     id: 55,
     program: {
         id: 7,
@@ -212,7 +254,7 @@ const buildWorkout = ({ reps = null } = {}) => ({
         day_number: 1,
     },
     started_at: '2026-03-12T10:00:00Z',
-    completed_at: null,
+    completed_at: completedAt,
     notes: null,
     exercises: [
         {

@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/programs/generate', [ProgramController::class, 'generate'])->name('programs.generate');
     Route::post('/workouts/start', [WorkoutController::class, 'start'])->name('workouts.start');
     Route::post('/workouts/{workout}/finish', [WorkoutController::class, 'finish'])->name('workouts.finish');
+    Route::post('/workouts/{workout}/reopen', [WorkoutController::class, 'reopen'])->name('workouts.reopen');
     Route::patch('/workout-sets/{workoutSet}', [WorkoutSetController::class, 'update'])->name('workout-sets.update');
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

@@ -131,6 +131,35 @@ class WorkoutLoggingTest extends TestCase
         $this->assertNotNull($workout->fresh()->completed_at);
     }
 
+    public function test_user_should_reopen_completed_workout_and_unlock_editing(): void
+    {
+        [$user, $program, $programDay] = $this->createProgramDayTemplate();
+
+        $this->actingAs($user)->post('/workouts/start', [
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+        ]);
+
+        $workout = Workout::query()->firstOrFail();
+        $set = WorkoutSet::query()->firstOrFail();
+
+        $set->update([
+            'reps' => 9,
+        ]);
+
+        $this->actingAs($user)->post("/workouts/{$workout->id}/finish");
+
+        $response = $this->actingAs($user)->post("/workouts/{$workout->id}/reopen");
+
+        $response->assertRedirect("/workouts/{$workout->id}");
+        $this->assertNull($workout->fresh()->completed_at);
+
+        $this->actingAs($user)
+            ->patchJson("/workout-sets/{$set->id}", ['reps' => 10])
+            ->assertOk()
+            ->assertJsonPath('set.reps', 10);
+    }
+
     public function test_user_should_create_weight_personal_record_when_finishing_a_workout(): void
     {
         [$user, $program, $programDay] = $this->createProgramDayTemplate();
@@ -228,6 +257,29 @@ class WorkoutLoggingTest extends TestCase
         $this->actingAs($intruder)
             ->patchJson("/workout-sets/{$set->id}", ['reps' => 11])
             ->assertNotFound();
+    }
+
+    public function test_user_should_not_update_sets_for_completed_workout_until_reopened(): void
+    {
+        [$user, $program, $programDay] = $this->createProgramDayTemplate();
+
+        $this->actingAs($user)->post('/workouts/start', [
+            'program_id' => $program->id,
+            'program_day_id' => $programDay->id,
+        ]);
+
+        $workout = Workout::query()->firstOrFail();
+        $set = WorkoutSet::query()->firstOrFail();
+
+        $set->update([
+            'reps' => 9,
+        ]);
+
+        $this->actingAs($user)->post("/workouts/{$workout->id}/finish");
+
+        $this->actingAs($user)
+            ->patchJson("/workout-sets/{$set->id}", ['reps' => 10])
+            ->assertStatus(422);
     }
 
     /**
