@@ -43,8 +43,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
-          cache: yarn
-          cache-dependency-path: yarn.lock
 
       - name: Enable Corepack
         run: |
@@ -112,8 +110,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
-          cache: yarn
-          cache-dependency-path: yarn.lock
 
       - name: Enable Corepack
         run: |
