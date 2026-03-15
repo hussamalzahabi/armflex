@@ -61,6 +61,7 @@ const WorkoutsShow = ({ workout }) => {
     const breadcrumbItems = [
         { label: 'Dashboard', href: '/' },
         { label: 'Workouts', href: '/workouts' },
+        { label: workout.program.name },
         { label: `Day ${workout.program_day.day_number}` },
     ];
     const pageSurfaceClass = isDark ? 'programs-surface-dark' : 'programs-surface-light';
